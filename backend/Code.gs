@@ -28,16 +28,16 @@ var STAGES = [
 ];
 var SH = { SUB: 'ยื่นอวช', HIS: 'ประวัติสถานะ', USR: 'Users', NOT: 'Notifications', LOG: 'ActivityLog', STAFF: 'allstaff', LNU: 'LineUsers', LNL: 'LineLog' };
 var HEAD = {
-  SUB: ['รหัส', 'เวลายื่น', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'เลขบัตรประชาชน', 'ตำแหน่ง', 'กลุ่มงาน', 'ตำแหน่งเลขที่', 'วันเริ่มงาน', 'อายุงาน', 'วุฒิการศึกษา', 'ชื่อผลงาน', 'ลิงก์ไฟล์', 'เบอร์โทร', 'อีเมล', 'สถานะ', 'หมายเหตุ', 'อัปเดตล่าสุด'],
+  SUB: ['รหัส', 'เวลายื่น', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'เลขบัตรประชาชน', 'ตำแหน่ง', 'กลุ่มงาน', 'ตำแหน่งเลขที่', 'วันเริ่มงาน', 'อายุงาน', 'วุฒิการศึกษาสูงสุด', 'ชื่อผลงาน (เลิกใช้)', 'ลิงก์ไฟล์', 'เบอร์โทร', 'อีเมล', 'สถานะ', 'หมายเหตุ', 'อัปเดตล่าสุด'],
   HIS: ['รหัส', 'เวลา', 'สถานะ', 'หมายเหตุ', 'โดย'],
-  USR: ['username', 'ชื่อ-สกุล', 'role', 'salt', 'hash', 'active'],
+  USR: ['username', 'ชื่อ-สกุล', 'role', 'salt', 'hash', 'active', 'เลขบัตร(อ้างอิง allstaff)'],
   NOT: ['เวลา', 'เลขบัตรประชาชน', 'รหัส', 'ข้อความ'],
   LOG: ['เวลา', 'กิจกรรม', 'ผู้ใช้', 'ผลลัพธ์', 'รายละเอียด'],
   LNU: ['เลขบัตรประชาชน', 'LINE userId', 'ชื่อ LINE', 'ผูกเมื่อ', 'วิธีผูก', 'active'],
   LNL: ['เวลา', 'รหัส', 'เลขบัตรประชาชน', 'ประเภท', 'ผู้ส่ง', 'ข้อความ', 'ชื่อไฟล์', 'ลิงก์ไฟล์', 'ผลลัพธ์', 'รายละเอียด']
 };
 var KEYS = ['id', 'ts', 'prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'tenure', 'edu', 'title', 'link', 'phone', 'email', 'status', 'note', 'upd'];
-var EDITABLE = ['prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'edu', 'title', 'link', 'phone', 'email', 'status', 'note'];
+var EDITABLE = ['prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'edu', 'link', 'phone', 'email', 'status', 'note'];
 /* ประเภทข้อความ LINE ที่บันทึกใน LineLog: auto=อัตโนมัติเมื่อสถานะเปลี่ยน, manual=กดแจ้งเตือน(ข้อความสำเร็จรูป), typed=เจ้าหน้าที่พิมพ์เอง, bot=ระบบตอบในแชท, inbound=ผู้ยื่นพิมพ์เข้ามา, link=ผูกบัญชี */
 var OUT_TYPES = ['auto', 'manual', 'typed'];
 var FILE_MAX = 8 * 1024 * 1024;
@@ -50,7 +50,7 @@ var API = {
   config: apiConfig_, track: apiTrack_, lookup: apiLookup_, submit: apiSubmit_,
   login: apiLogin_, logout: apiLogout_, verify: apiVerify_,
   adminList: apiAdminList_, adminSave: apiAdminSave_, adminDelete: apiAdminDelete_,
-  usersList: apiUsersList_, userAdd: apiUserAdd_, userToggle: apiUserToggle_, logList: apiLogList_,
+  usersList: apiUsersList_, staffSearch: apiStaffSearch_, userAdd: apiUserAdd_, userEdit: apiUserEdit_, userToggle: apiUserToggle_, logList: apiLogList_,
   lineLinkReq: apiLineLinkReq_, lineLinkCheck: apiLineLinkCheck_,
   lineInfo: apiLineInfo_, lineSend: apiLineSend_, lineAdmin: apiLineAdmin_, lineCheck: apiLineCheck_, lineUnlink: apiLineUnlink_, lineAdd: apiLineAdd_
 };
@@ -60,6 +60,10 @@ function doPost(e) {
   try {
     var b = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (b && Array.isArray(b.events)) return lineWebhook_(e, b);           // เรียกจาก LINE Platform
+    if (b && b.fn && fteApi_().hasOwnProperty(b.fn)) {                     // ระบบ FTE (Fte.gs): คืนค่าเดิมของฟังก์ชันใน data
+      var fa = b.args || [];
+      return json_({ ok: true, data: fteApi_()[b.fn].apply(null, fa) });
+    }
     if (!b.fn || !Object.prototype.hasOwnProperty.call(API, b.fn)) throw new Error('ไม่พบคำสั่งที่เรียก');
     out = API[b.fn].apply(null, b.args || []);
     if (out.ok === undefined) out.ok = true;
@@ -73,6 +77,7 @@ function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k
 function ss_() { var id = prop_('SPREADSHEET_ID'); return id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet(); }
 function sheet_(key) {
   var ss = ss_(), name = SH[key], s = ss.getSheetByName(name);
+  if (s) migrateHead_(s, key);
   if (!s) {
     s = ss.insertSheet(name);
     s.getRange(1, 1, 1, HEAD[key].length).setValues([HEAD[key]]).setFontWeight('bold');
@@ -80,6 +85,14 @@ function sheet_(key) {
     s.getRange(1, 1, s.getMaxRows(), HEAD[key].length).setNumberFormat('@');
   }
   return s;
+}
+/* อัปเดตหัวคอลัมน์ของแท็บที่ระบบสร้างเอง (เพิ่มคอลัมน์ใหม่/เปลี่ยนชื่อหัว) ทำครั้งเดียวต่อ 6 ชม. — ไม่แตะข้อมูลแถวอื่น และไม่ใช้กับชีท allstaff */
+function migrateHead_(s, key) {
+  var c = CacheService.getScriptCache(), ck = 'hm_' + key; if (c.get(ck)) return;
+  var h = HEAD[key], cur = s.getRange(1, 1, 1, Math.max(h.length, s.getLastColumn())).getValues()[0], diff = false;
+  for (var i = 0; i < h.length; i++) if (String(cur[i] || '') !== h[i]) diff = true;
+  if (diff) { if (s.getMaxColumns() < h.length) s.insertColumnsAfter(s.getMaxColumns(), h.length - s.getMaxColumns()); s.getRange(1, 1, 1, h.length).setValues([h]).setFontWeight('bold'); }
+  c.put(ck, '1', 21600);
 }
 function now_() { return Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss'); }
 function digits_(v) { return String(v == null ? '' : v).replace(/\D/g, ''); }
@@ -236,13 +249,13 @@ function flexStatus_(it, head) {
   var body = [
     { type: 'text', text: tx_(st.t), weight: 'bold', size: 'xl', wrap: true, color: col },
     { type: 'text', text: tx_(st.h), size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
-    { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id), frow_('ผลงาน', it.title)];
+    { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id)];
   if (it.note) body.push(frow_('หมายเหตุ', it.note));
   body.push(frow_('อัปเดตเมื่อ', thaiDT_()));
   return { type: 'flex', altText: ('อวช. ' + st.t + ' (' + it.id + ')').slice(0, 380), contents: fbubble_(head || 'อัปเดตสถานะ อวช.', col, body) };
 }
 function flexText_(it, text) {
-  var body = [{ type: 'text', text: tx_(text, 1000), wrap: true, size: 'md' }, { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id), frow_('ผลงาน', it.title)];
+  var body = [{ type: 'text', text: tx_(text, 1000), wrap: true, size: 'md' }, { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id)];
   return { type: 'flex', altText: tx_(text, 380), contents: fbubble_('ข้อความจากกลุ่มงานทรัพยากรบุคคล', '#0f766e', body) };
 }
 function flexFile_(fi) {
@@ -345,7 +358,7 @@ function lineEvent_(ev) {
   var rows = lnuRows_().filter(function (r) { return r.uid === uid; }), mine = rows.filter(function (r) { return r.active; })[0];
   var s = sheet_('LNU');
   if (ev.type === 'unfollow') { rows.forEach(function (r) { s.getRange(r.row, 6).setValue('N'); }); lineLog_('', mine ? mine.cid : '', 'link', '', 'ผู้ใช้บล็อก/เลิกติดตาม LINE OA', null, 'info', ''); return; }
-  if (ev.type === 'follow') {
+  if (ev.type === 'follow') { lineLog_('', mine ? mine.cid : '', 'link', '', 'เพิ่มเพื่อน LINE OA', null, 'info', 'userId=' + uid);
     var back = rows.filter(function (r) { return !r.active; })[0];
     lineReply_(ev.replyToken, [helpMsg_('ยินดีต้อนรับสู่ระบบแจ้งเตือน อวช. ' + ORG + '\n\nวิธีเชื่อมต่อ: เปิดเว็บติดตามสถานะ → กด "เชื่อมต่อ LINE" → รับรหัส 6 หลัก แล้วพิมพ์รหัสนั้นที่แชทนี้' + (back ? '\n\n(พิมพ์ "สถานะ" เพื่อดูสถานะล่าสุด)' : ''))]);
     return;
@@ -401,7 +414,7 @@ function apiTrack_(cidRaw, rc) {
   var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? his.getRange(2, 1, his.getLastRow() - 1, 5).getValues() : [];
   var items = mine.map(function (r) {
     return {
-      id: r.id, ts: r.ts, title: r.title, position: r.position, group: r.group, posNo: r.posNo, tenure: r.tenure, edu: r.edu, hasFile: !!r.link,
+      id: r.id, ts: r.ts, position: r.position, group: r.group, posNo: r.posNo, tenure: r.tenure, edu: r.edu, hasFile: !!r.link,
       status: r.status, note: r.note, upd: r.upd,
       history: hv.filter(function (h) { return str_(h[0]) === r.id; }).map(function (h) { return { t: str_(h[1]), s: str_(h[2]), n: str_(h[3]), by: str_(h[4]) }; })
     };
@@ -426,9 +439,9 @@ function apiSubmit_(p, rc) {
   p = p || {};
   verifyRc_(rc);
   var f = {};
-  ['prefix', 'first', 'last', 'position', 'group', 'posNo', 'start', 'edu', 'title', 'link', 'phone', 'email'].forEach(function (k) { f[k] = str_(p[k]); });
+  ['prefix', 'first', 'last', 'position', 'group', 'posNo', 'start', 'edu', 'link', 'phone', 'email'].forEach(function (k) { f[k] = str_(p[k]); }); f.title = '';
   f.cid = digits_(p.cid);
-  ['prefix', 'first', 'last', 'position', 'group', 'edu', 'title'].forEach(function (k) { if (!f[k]) throw new Error('กรุณากรอกข้อมูลให้ครบถ้วน'); });
+  ['prefix', 'first', 'last', 'position', 'group', 'edu'].forEach(function (k) { if (!f[k]) throw new Error('กรุณากรอกข้อมูลให้ครบถ้วน'); });
   if (!validCid_(f.cid)) throw new Error('เลขบัตรประชาชนไม่ถูกต้อง');
   if (f.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email)) throw new Error('รูปแบบอีเมลไม่ถูกต้อง');
   if (f.link && !/^https?:\/\//i.test(f.link)) throw new Error('ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://');
@@ -443,7 +456,7 @@ function apiSubmit_(p, rc) {
     var t = now_();
     sh.appendRow([id, t, f.prefix, f.first, f.last, f.cid, f.position, f.group, f.posNo, f.start, tenure_(f.start), f.edu, f.title, f.link, f.phone, f.email, 'submitted', '', t]);
     sheet_('HIS').appendRow([id, t, 'submitted', 'ยื่นเอกสาร', f.first + ' ' + f.last]);
-    it = { id: id, cid: f.cid, email: f.email, title: f.title, status: 'submitted', note: '' };
+    it = { id: id, cid: f.cid, email: f.email, status: 'submitted', note: '' };
     notify_(it, 'ระบบได้รับเอกสารผลงานของท่านแล้ว รหัส ' + id);
     log_('submit', f.first, 'success', id);
   } finally { lock.releaseLock(); }
@@ -522,24 +535,56 @@ function apiAdminDelete_(token, id) {
 /* ---------- Admin: ผู้ใช้ / ประวัติการใช้งาน ---------- */
 function apiUsersList_(token) {
   auth_(token, true);
-  var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 6).getValues() : [];
-  return { users: v.map(function (r) { return { username: str_(r[0]), name: str_(r[1]), role: str_(r[2]), active: str_(r[5]) !== 'N' }; }) };
+  var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 7).getValues() : [];
+  return { users: v.map(function (r) { return { username: str_(r[0]), name: str_(r[1]), role: str_(r[2]), active: str_(r[5]) !== 'N', cid: digits_(r[6]) }; }) };
 }
+/* ค้นหาบุคลากรจากชีท allstaff (อ่านอย่างเดียว — ระบบนี้ไม่เขียน/แก้ไขชีท allstaff เด็ดขาด) ไว้อ้างอิงตอนสร้างผู้ใช้ */
+function apiStaffSearch_(token, q) {
+  auth_(token, true); q = str_(q).toLowerCase().replace(/\s+/g, ''); if (q.length < 2) return { rows: [] };
+  var s = ss_().getSheetByName(SH.STAFF); if (!s || s.getLastRow() < 2) return { rows: [] };
+  var v = s.getRange(2, 1, s.getLastRow() - 1, 34).getValues(), out = [];
+  for (var i = 0; i < v.length && out.length < 20; i++) {
+    var cid = digits_(v[i][32]); if (cid.length !== 13) continue;
+    var nm = str_(v[i][1]) + str_(v[i][2]) + ' ' + str_(v[i][3]);
+    if ((nm.replace(/\s+/g, '') + cid).toLowerCase().indexOf(q) > -1) out.push({ cid: cid, name: nm, position: str_(v[i][4]), group: str_(v[i][19]) });
+  }
+  return { rows: out };
+}
+/* สร้างผู้ใช้: อ้างอิงบุคลากรจาก allstaff (ต้องมีเลขบัตรในทะเบียน) แต่เก็บบัญชีในแท็บ Users แยกต่างหาก — ชื่อคัดลอกเป็นสำเนา การแก้ไขผู้ใช้ไม่กระทบ allstaff */
 function apiUserAdd_(token, p) {
-  var u = auth_(token, true);
-  var un = str_(p.username), pw = String(p.password || ''), role = p.role === 'admin' ? 'admin' : 'officer';
-  if (!/^[A-Za-z0-9_.-]{3,30}$/.test(un) || un === 'admin') throw new Error('ชื่อผู้ใช้ต้องเป็นอังกฤษ/ตัวเลข 3-30 ตัว และห้ามใช้คำว่า admin');
+  var u = auth_(token, true); p = p || {};
+  var cid = digits_(p.cid), st = staffByCid_(cid);
+  if (!st) throw new Error('ไม่พบเลขบัตรนี้ในทะเบียน allstaff กรุณาค้นหาและเลือกบุคลากรจากรายการ');
+  var un = str_(p.username) || cid, pw = String(p.password || ''), role = p.role === 'admin' ? 'admin' : 'officer';
+  if (!/^[A-Za-z0-9_.-]{3,30}$/.test(un) || un.toLowerCase() === 'admin') throw new Error('ชื่อผู้ใช้ต้องเป็นอังกฤษ/ตัวเลข 3-30 ตัว และห้ามใช้คำว่า admin');
   if (pw.length < 8) throw new Error('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร');
-  if (!str_(p.name)) throw new Error('กรุณากรอกชื่อ-สกุล');
-  var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 1).getValues() : [];
-  if (v.some(function (r) { return str_(r[0]) === un; })) throw new Error('มีชื่อผู้ใช้นี้แล้ว');
-  var salt = Utilities.getUuid();
-  s.appendRow([un, str_(p.name), role, salt, hash_(salt, pw), 'Y']);
-  log_('admin_user_add', u.u, 'success', un + ' (' + role + ')');
-  return {};
+  var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 7).getValues() : [];
+  if (v.some(function (r) { return str_(r[0]).toLowerCase() === un.toLowerCase(); })) throw new Error('มีชื่อผู้ใช้นี้แล้ว');
+  if (v.some(function (r) { return digits_(r[6]) === cid && str_(r[5]) !== 'N'; })) throw new Error('บุคลากรคนนี้มีบัญชีผู้ใช้อยู่แล้ว');
+  var name = (st.prefix + st.first + ' ' + st.last).trim(), salt = Utilities.getUuid();
+  s.appendRow([un, name, role, salt, hash_(salt, pw), 'Y', cid]);
+  log_('admin_user_add', u.u, 'success', un + ' (' + role + ') cid …' + cid.slice(-4));
+  return { name: name };
+}
+/* แก้ไขผู้ใช้ (เฉพาะแท็บ Users): ชื่อที่แสดง / สิทธิ์ / รีเซ็ตรหัสผ่าน */
+function apiUserEdit_(token, username, p) {
+  var u = auth_(token, true); p = p || {};
+  var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 7).getValues() : [];
+  for (var i = 0; i < v.length; i++) if (str_(v[i][0]) === str_(username)) {
+    var row = i + 2, ch = [];
+    if (p.name !== undefined && str_(p.name) && str_(p.name) !== str_(v[i][1])) { s.getRange(row, 2).setValue(str_(p.name)); ch.push('name'); }
+    if ((p.role === 'admin' || p.role === 'officer') && p.role !== str_(v[i][2])) {
+      if (str_(username) === u.u && p.role !== 'admin') throw new Error('ไม่สามารถลดสิทธิ์บัญชีที่กำลังใช้งานอยู่ได้');
+      s.getRange(row, 3).setValue(p.role); ch.push('role');
+    }
+    if (p.password) { var pw = String(p.password); if (pw.length < 8) throw new Error('รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร'); var salt = Utilities.getUuid(); s.getRange(row, 4, 1, 2).setValues([[salt, hash_(salt, pw)]]); ch.push('password'); }
+    log_('admin_user_edit', u.u, 'success', username + ': ' + (ch.join(',') || 'ไม่มีการเปลี่ยนแปลง'));
+    return { changed: ch };
+  }
+  throw new Error('ไม่พบผู้ใช้');
 }
 function apiUserToggle_(token, username) {
-  var u = auth_(token, true), s = sheet_('USR'), n = s.getLastRow();
+  var u = auth_(token, true), s = sheet_('USR'), n = s.getLastRow(); if (str_(username) === u.u) throw new Error('ไม่สามารถปิดบัญชีที่กำลังใช้งานอยู่ได้');
   var v = n > 1 ? s.getRange(2, 1, n - 1, 6).getValues() : [];
   for (var i = 0; i < v.length; i++) if (str_(v[i][0]) === username) {
     var on = str_(v[i][5]) !== 'N';
@@ -561,10 +606,10 @@ function apiLogList_(token) {
  *  LINE: ผู้ยื่น (สาธารณะ) — ขอรหัสผูกบัญชี
  * ====================================================================== */
 function phonesOf_(cid) {
-  var out = [], st = staffByCid_(cid);
-  if (st && digits_(st.phone).length >= 4) out.push(digits_(st.phone));
-  subs_().forEach(function (r) { if (r.cid === cid && digits_(r.phone).length >= 4) out.push(digits_(r.phone)); });
-  return out;
+  var st = staffByCid_(cid);
+  if (st) return digits_(st.phone).length >= 4 ? [digits_(st.phone)] : [];   // บุคลากรใน allstaff: ใช้เบอร์ในทะเบียนเท่านั้น (กันผู้อื่นยื่นเอกสารแล้วใส่เบอร์ตัวเองเพื่อผูก LINE แทน)
+  var first = subs_().filter(function (r) { return r.cid === cid && digits_(r.phone).length >= 4; })[0];   // ไม่อยู่ใน allstaff: ใช้เบอร์จากการยื่นครั้งแรกเท่านั้น
+  return first ? [digits_(first.phone)] : [];
 }
 /* ยืนยันตัวตน 2 ปัจจัย: เลขบัตร + เลข 4 ตัวท้ายของเบอร์โทรที่มีในระบบ (ป้องกันผู้อื่นผูก LINE แทนเจ้าของ) */
 function apiLineLinkReq_(cidRaw, last4) {
@@ -602,7 +647,7 @@ function apiLineInfo_(token, id) {
   if (!cur) throw new Error('ไม่พบรายการ');
   var users = lnuRows_().filter(function (r) { return r.cid === cur.cid && r.active; });
   var log = lnlRows_().filter(function (r) { return r.id === id || (!r.id && r.cid === cur.cid); }).reverse().slice(0, 40);
-  return { enabled: lineEnabled_(), linked: users.length, names: users.map(function (r) { return r.name || 'LINE'; }), log: log, status: cur.status, note: cur.note, title: cur.title };
+  return { enabled: lineEnabled_(), linked: users.length, names: users.map(function (r) { return r.name || 'LINE'; }), log: log, status: cur.status, note: cur.note };
 }
 /* กดแจ้งเตือน: mode=status (ส่งการ์ดสถานะปัจจุบัน) | text (ข้อความที่พิมพ์/สำเร็จรูป) + แนบไฟล์ได้ */
 function apiLineSend_(token, id, p) {

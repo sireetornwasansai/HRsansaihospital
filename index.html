@@ -79,7 +79,7 @@ label{display:block;font-weight:500;margin:0 0 4px;font-size:15px}.req::after{co
 .seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{flex:1 1 140px;min-height:44px;border:1.5px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-weight:500}.seg button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
 .tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#eef5f6;position:sticky;top:0}
 dialog{border:0;border-radius:var(--r);padding:20px;max-width:760px;width:calc(100% - 24px);max-height:92vh;overflow:auto}dialog::backdrop{background:#0008}
-.empty{text-align:center;color:var(--mut);padding:24px}.hide{display:none!important}
+.empty{text-align:center;color:var(--mut);padding:24px}.hide{display:none!important}.qr{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.qr img{border-radius:12px;border:1px solid var(--line);background:#fff;width:132px;height:132px;object-fit:contain}.qr ol{margin:6px 0 10px;padding-left:20px}
 .drop{border:2px dashed #b9cdd1;border-radius:10px;padding:12px;background:#fafdfd}.drop .pv{display:flex;gap:12px;align-items:center;margin-top:8px}.drop img{width:64px;height:64px;object-fit:cover;border-radius:8px}
 .code{font:700 40px/1.2 'Noto Sans Thai',monospace;letter-spacing:8px;text-align:center;padding:12px;background:#eef7f6;border-radius:12px;color:var(--pri-d)}
 .hist{max-height:300px;overflow:auto}
@@ -99,9 +99,8 @@ footer{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-siz
   <a href="#track" data-v="track"><i class="ph ph-path"></i> ติดตามสถานะ</a>
   <a href="#submit" data-v="submit"><i class="ph ph-upload-simple"></i> ยื่นเอกสาร</a>
   <a href="#admin" data-v="admin"><i class="ph ph-shield-check"></i> เจ้าหน้าที่ HR</a>
- <a id="fte-link" href="#" target="_blank" rel="noopener" hidden><i class="ph ph-users-three"></i> ระบบอัตรากำลัง FTE</a>
+ <a href="fte/" id="fte-link"><i class="ph ph-users-three"></i> ระบบอัตรากำลัง FTE</a>
  </nav></div></header>
-<script>(function(){var u=(window.APP_CONFIG||{}).FTE_URL,a=document.getElementById('fte-link');if(u&&/^https:\/\//.test(u)){a.href=u;a.hidden=false}})()</script>
 <main class="wrap">
 
 <!-- ===== ติดตามสถานะ ===== -->
@@ -119,19 +118,19 @@ footer{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-siz
 <section id="v-submit" hidden>
  <h1>ยื่นเอกสารผลงาน (อวช.)</h1><p class="sub">กรอกข้อมูลผู้ยื่น แล้วแนบไฟล์หรือลิงก์ผลงาน ระบบจะให้รหัสติดตาม</p>
  <div id="s-done"></div>
+ <div id="s-qr" class="card" hidden></div>
  <form id="f-sub" class="card"><div class="grid">
   <div><label class="req" for="s-cid">เลขบัตรประชาชน</label><input id="s-cid" inputmode="numeric" maxlength="17" required></div>
-  <div><label class="req" for="s-prefix">คำนำหน้า</label><select id="s-prefix" required><option value="">เลือก</option><option>นาย</option><option>นาง</option><option>นางสาว</option><option>อื่น ๆ</option></select></div>
+  <div><label class="req" for="s-prefix">คำนำหน้า</label><select id="s-prefix" required><option value="">เลือก</option></select><input id="s-prefix-o" placeholder="ระบุคำนำหน้า/ยศ" maxlength="40" hidden style="margin-top:6px" aria-label="ระบุคำนำหน้าอื่น ๆ"></div>
   <div><label class="req" for="s-first">ชื่อ</label><input id="s-first" required></div>
   <div><label class="req" for="s-last">นามสกุล</label><input id="s-last" required></div>
   <div><label class="req" for="s-position">ตำแหน่ง</label><input id="s-position" required></div>
   <div><label class="req" for="s-group">กลุ่มงาน</label><input id="s-group" required></div>
   <div><label for="s-posNo">ตำแหน่งเลขที่</label><input id="s-posNo"></div>
   <div><label for="s-start">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><input id="s-start" type="date"><div class="meta" id="s-ten" aria-live="polite"></div></div>
-  <div><label class="req" for="s-edu">วุฒิการศึกษา</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่าปริญญาตรี</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>อื่น ๆ</option></select></div>
+  <div><label class="req" for="s-edu">วุฒิการศึกษาสูงสุด</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่ามัธยมศึกษา</option><option>มัธยมศึกษา / ปวช.</option><option>ปวส. / อนุปริญญา</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>วุฒิบัตร / อนุมัติบัตรผู้เชี่ยวชาญเฉพาะทาง</option><option>อื่น ๆ</option></select></div>
   <div><label for="s-phone">เบอร์โทรศัพท์ (ใช้ยืนยันตัวตนตอนเชื่อมต่อ LINE)</label><input id="s-phone" type="tel" inputmode="tel"></div>
   <div><label for="s-email">อีเมล (รับแจ้งเตือนเมื่อสถานะเปลี่ยน)</label><input id="s-email" type="email"></div>
-  <div class="full"><label class="req" for="s-title">ชื่อผลงาน</label><input id="s-title" required></div>
   <div><label>แนบไฟล์ผลงาน</label><div id="s-file"></div></div>
   <div><label for="s-link">หรือลิงก์ไฟล์ (Google Drive ฯลฯ)</label><input id="s-link" type="url" placeholder="https://"></div>
  </div>
@@ -180,6 +179,8 @@ footer{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-siz
 <dialog id="dl" aria-labelledby="l-ttl"><div class="hd"><h2 id="l-ttl"><i class="ph ph-chat-circle-text"></i> เชื่อมต่อ LINE</h2><button class="btn sec sm" type="button" id="l-x">ปิด</button></div>
  <div id="l-body"></div></dialog>
 
+<dialog id="du" aria-labelledby="du-t"><div class="hd"><h2 id="du-t"><i class="ph ph-user-gear"></i> แก้ไขผู้ใช้</h2><button class="btn sec sm" type="button" id="du-x">ปิด</button></div><div id="du-b"></div></dialog>
+
 <script src="config.js"></script>
 <script>
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -214,7 +215,7 @@ const maskCid=c=>c?('x-xxxx-xxxxx-'+c.slice(-3,-1)+'-'+c.slice(-1)):'';
 const copy=async(t,label)=>{try{await navigator.clipboard.writeText(t);toast((label||'คัดลอก')+'แล้ว')}catch{toast('คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง','warn')}};
 const dlgOpen=d=>{if(!d.open)d.showModal()};
 ['dlg','dn','dl'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
-$('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};
+$('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();
 $('#dl').addEventListener('close',()=>{clearInterval(LP);LP=null});
 /* ===== ตัวเลือกไฟล์ (ตรวจชนิด/ขนาด + ตัวอย่างรูป + บีบอัดรูป) ===== */
 const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
@@ -280,7 +281,7 @@ function renderTrack(d){const o=$('#t-out'),now=nowMs();
  if(!d.items.length)h+=`<div class="card empty"><i class="ph ph-folder-open" style="font-size:40px"></i><p>ยังไม่พบรายการยื่นผลงานของท่าน</p><a class="btn" href="#submit">ยื่นเอกสาร</a></div>`;
  h+=d.items.map(it=>{const s=stg(it.status),sub=toDate(it.ts),last=it.history.length?toDate(it.history[it.history.length-1].t):null;
   const tm=[sub?'ยื่นมาแล้ว '+span(now-sub):'',last&&it.status!=='passed'?'อยู่ในสถานะนี้ '+span(now-last):''].filter(Boolean).join(' · ');
-  return `<article class="card"><div class="hd"><div><b>${esc(it.id)}</b><div>${esc(it.title)}</div><div class="meta">ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div>${chip(it.status)}</div>
+  return `<article class="card"><div class="hd"><div><b>${esc(it.id)}</b><div class="meta">ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div>${chip(it.status)}</div>
   <div class="now ${s.c==='blue'?'':s.c}"><i class="ph ${ICON[s.c]||ICON.blue}"></i><div><b>ตอนนี้: ${esc(s.t)}</b>${esc(s.h||'')}${tm?`<div class="meta" style="color:inherit;opacity:.85">${esc(tm)}</div>`:''}</div></div>
   ${it.status==='revise'&&it.note?`<div class="msg warn"><i class="ph ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
   ${stepper(it.status)}
@@ -314,16 +315,32 @@ function showCode(d){let left=d.ttl||600;const oa=d.oaLink;
  },1000)}
 
 /* ===================== ยื่นเอกสาร ===================== */
+/* ===== คำนำหน้า: ตัวเลือกครอบคลุม (ทั่วไป / วิชาชีพ-วิชาการ / ว่าที่ / ทหาร / ตำรวจ) + ระบุเอง ===== */
+const PREFIXES=[['ทั่วไป',['นาย','นาง','นางสาว','เด็กชาย','เด็กหญิง']],
+['วิชาชีพแพทย์/สาธารณสุข',['นพ.','พญ.','ทพ.','ทพญ.','ภก.','ภญ.','สพ.','สพญ.']],
+['วิชาการ',['ดร.','ผศ.','รศ.','ศ.','ผศ.ดร.','รศ.ดร.','ศ.ดร.','ผศ.นพ.','ผศ.พญ.','รศ.นพ.','รศ.พญ.','ศ.นพ.','ศ.พญ.','ดร.นพ.','ดร.พญ.','ดร.ภก.','ดร.ภญ.']],
+['ว่าที่ (ข้าราชการรอแต่งตั้ง)',['ว่าที่ร้อยตรี','ว่าที่ร้อยตรีหญิง','ว่าที่ร้อยโท','ว่าที่ร้อยโทหญิง','ว่าที่ร้อยเอก','ว่าที่ร้อยเอกหญิง','ว่าที่ ร.ต.','ว่าที่ ร.ต.หญิง','ว่าที่ ร.ท.','ว่าที่ ร.ท.หญิง','ว่าที่ ร.อ.','ว่าที่ ร.อ.หญิง','ว่าที่ ร.ต.อ.','ว่าที่ ร.ต.อ.หญิง','ว่าที่ ร.ต.ท.','ว่าที่ ร.ต.ท.หญิง','ว่าที่ ร.ต.ต.','ว่าที่ ร.ต.ต.หญิง']],
+['ยศทหาร',['ส.ต.','ส.ท.','ส.อ.','จ.ส.ต.','จ.ส.ท.','จ.ส.อ.','ร.ต.','ร.ต.หญิง','ร.ท.','ร.ท.หญิง','ร.อ.','ร.อ.หญิง','พ.ต.','พ.ต.หญิง','พ.ท.','พ.ท.หญิง','พ.อ.','พ.อ.หญิง','พล.ต.','พล.ต.หญิง','พล.ท.','พล.อ.']],
+['ยศตำรวจ',['ด.ต.','ส.ต.อ.','ส.ต.ท.','ส.ต.ต.','ร.ต.ต.','ร.ต.ต.หญิง','ร.ต.ท.','ร.ต.ท.หญิง','ร.ต.อ.','ร.ต.อ.หญิง','พ.ต.ต.','พ.ต.ต.หญิง','พ.ต.ท.','พ.ต.ท.หญิง','พ.ต.อ.','พ.ต.อ.หญิง','พล.ต.ต.','พล.ต.ท.','พล.ต.อ.']],
+['อื่น ๆ',['คุณ','คุณหญิง','พระ','สามเณร','แม่ชี']]];
+(()=>{const s=$('#s-prefix'),seen={};PREFIXES.forEach(([g,a])=>{const o=document.createElement('optgroup');o.label=g;a.forEach(v=>{if(seen[v])return;seen[v]=1;const x=document.createElement('option');x.textContent=v;x.value=v;o.appendChild(x)});s.appendChild(o)});
+ const x=document.createElement('option');x.value='__other';x.textContent='อื่น ๆ (ระบุเอง)';s.appendChild(x);
+ s.addEventListener('change',()=>{const on=s.value==='__other';$('#s-prefix-o').hidden=!on;$('#s-prefix-o').required=on;if(on)$('#s-prefix-o').focus()})})();
+/* ===== QR LINE OA: วางรูปไว้ที่ assets/line-qr.png (หรือตั้ง LINE_QR ใน config.js) ===== */
+function qrHtml(){const L=(CFG&&CFG.line)||{};if(!L.enabled)return '';const img=(window.APP_CONFIG||{}).LINE_QR||'assets/line-qr.png';
+ return `<div class="qr"><img src="${esc(img)}" alt="QR Code เพิ่มเพื่อน LINE OA" onerror="this.remove()"><div><b><i class="ph ph-chat-circle-text"></i> รับแจ้งเตือนผ่าน LINE</b><ol><li>สแกน QR หรือกดปุ่ม "เพิ่มเพื่อน" ${L.oaId?'<b>'+esc(L.oaId)+'</b>':''}</li><li>ยื่นเอกสารเสร็จแล้วกด "เชื่อมต่อ LINE" เพื่อรับรหัส 6 หลัก</li><li>พิมพ์รหัสในแชท ระบบจะบันทึก LINE userId ของท่านให้อัตโนมัติ</li></ol>${L.oaLink?`<a class="btn line sm" href="${esc(L.oaLink)}" target="_blank" rel="noopener"><i class="ph ph-user-plus"></i> เพิ่มเพื่อน</a>`:''}</div></div>`}
+function initQr(){const h=qrHtml(),b=$('#s-qr');if(!b)return;b.innerHTML=h;b.hidden=!h}
 const FSUB=mkFile($('#s-file'),{exts:['pdf','doc','docx','zip'],max:8,hint:'รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB'});
 $('#s-cid').addEventListener('input',e=>e.target.value=fmtCid(e.target.value));
 $('#s-cid').addEventListener('blur',async()=>{const c=$('#s-cid').value.replace(/\D/g,'');if(c.length!==13)return;const d=await api('lookup',[c]);
  if(d.ok&&d.found){const s=d.staff;const set=(k,v)=>{const el=$('#s-'+k);if(el&&!el.value&&v)el.value=v};
-  const p=[...$('#s-prefix').options].some(o=>o.value===s.prefix);if(p&&!$('#s-prefix').value)$('#s-prefix').value=s.prefix;
+  if(s.prefix&&!$('#s-prefix').value){const has=[...$('#s-prefix').options].some(o=>o.value===s.prefix);if(has)$('#s-prefix').value=s.prefix;else{$('#s-prefix').value='__other';$('#s-prefix-o').hidden=false;$('#s-prefix-o').value=s.prefix}}
   set('first',s.first);set('last',s.last);set('position',s.position);set('group',s.group);set('posNo',s.posNo);set('phone',s.phone);
   msg($('#s-msg'),'พบข้อมูลของท่านในระบบ เติมข้อมูลให้แล้ว กรุณาตรวจสอบ','info')}else if(!d.ok)msg($('#s-msg'),d.message)});
 $('#s-start').addEventListener('change',e=>{const v=e.target.value;if(!v)return $('#s-ten').textContent='';const a=new Date(v),n=new Date();let m=(n.getFullYear()-a.getFullYear())*12+n.getMonth()-a.getMonth();if(n.getDate()<a.getDate())m--;$('#s-ten').textContent=m<0?'':`อายุงาน ${Math.floor(m/12)} ปี ${m%12} เดือน`});
 $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s-msg'),b=$('#s-go');msg(m,'');
- const p={};['cid','prefix','first','last','position','group','posNo','start','edu','phone','email','title','link'].forEach(k=>p[k]=$('#s-'+k).value.trim());p.cid=p.cid.replace(/\D/g,'');
+ const p={};['cid','prefix','first','last','position','group','posNo','start','edu','phone','email','link'].forEach(k=>p[k]=$('#s-'+k).value.trim());p.cid=p.cid.replace(/\D/g,'');
+  if(p.prefix==='__other')p.prefix=$('#s-prefix-o').value.trim();if(!p.prefix){$('#s-prefix').focus();return msg(m,'กรุณาเลือกหรือระบุคำนำหน้า')}
  if(!FSUB.get()&&!p.link)return msg(m,'กรุณาแนบไฟล์หรือใส่ลิงก์ผลงานอย่างใดอย่างหนึ่ง');
  busy(b,1,'กำลังอัปโหลดและส่งเอกสาร...');msg(m,'กำลังส่งเอกสาร อย่าปิดหน้านี้ (อาจใช้เวลาสักครู่ตามขนาดไฟล์)','info');
  try{p.file=await FSUB.pack()}catch(er){busy(b,0);return msg(m,er.message)}
@@ -333,7 +350,7 @@ $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s
  $('#f-sub').reset();FSUB.clear();$('#s-ten').textContent='';msg(m,'');
  $('#s-done').innerHTML=`<div class="card" style="border-color:var(--ok)"><div class="msg ok" style="margin-top:0"><i class="ph ph-check-circle"></i><div><b>ส่งเอกสารเรียบร้อย</b></div></div>
   <div class="meta">รหัสติดตาม</div><div class="row" style="align-items:center"><h2 style="margin:0" class="mono">${esc(d.id)}</h2><button class="btn sec sm" id="sd-cp"><i class="ph ph-copy"></i> คัดลอก</button></div>
-  <p>ใช้เลขบัตรประชาชนที่หน้า "ติดตามสถานะ" เพื่อดูความคืบหน้าได้ทุกเมื่อ</p>
+  <p>ใช้เลขบัตรประชาชนที่หน้า "ติดตามสถานะ" เพื่อดูความคืบหน้าได้ทุกเมื่อ</p>${qrHtml()?'<div style="margin:12px 0">'+qrHtml()+'</div>':''}
   <div class="row"><button class="btn" id="sd-tr"><i class="ph ph-path"></i> ไปหน้าติดตามสถานะ</button>${CFG.line&&CFG.line.enabled?'<button class="btn line lk" id="sd-ln"><i class="ph ph-chat-circle-text"></i> เชื่อมต่อ LINE รับแจ้งเตือน</button>':''}<button class="btn sec" id="sd-new">ยื่นรายการใหม่</button></div></div>`;
  $('#f-sub').classList.add('hide');$('#s-done').scrollIntoView({behavior:'smooth'});toast('ส่งเอกสารเรียบร้อย รหัส '+d.id);
  $('#sd-cp').onclick=()=>copy(d.id,'คัดลอกรหัส');
@@ -356,15 +373,15 @@ async function loadList(){const el=$('#a-list');if(!ROWS.length)el.innerHTML=ske
 function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim().toLowerCase();
  el.innerHTML=`<div class="stats"><button class="stat ${FILTER?'':'on'}" data-f=""><b>${ROWS.length}</b><span>ทั้งหมด</span></button>${CFG.stages.map(s=>`<button class="stat ${FILTER===s.k?'on':''}" data-f="${s.k}"><b>${COUNTS[s.k]||0}</b><span>${esc(s.t)}</span></button>`).join('')}</div>
  ${CFG.lineOn?'':'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ระบบจะบันทึกสถานะตามปกติแต่ไม่ส่งแจ้งเตือน (ตั้งค่าที่แท็บ LINE)</div></div>'}
- <div class="row" style="margin-bottom:12px"><div class="grow"><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส / ชื่อผลงาน" aria-label="ค้นหา" value="${esc(q)}"></div><button class="btn sec" id="a-rf"><i class="ph ph-arrows-clockwise"></i> รีเฟรช</button></div>
- <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ผลงาน</th><th>สถานะ</th><th>LINE</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
- const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();$('#tb').innerHTML=rowsHtml(ROWS.filter(r=>(!FILTER||r.status===FILTER)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid+r.title).toLowerCase().includes(qq))));
+ <div class="row" style="margin-bottom:12px"><div class="grow"><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส" aria-label="ค้นหา" value="${esc(q)}"></div><button class="btn sec" id="a-rf"><i class="ph ph-arrows-clockwise"></i> รีเฟรช</button></div>
+ <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ไฟล์ผลงาน</th><th>สถานะ</th><th>LINE</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
+ const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();$('#tb').innerHTML=rowsHtml(ROWS.filter(r=>(!FILTER||r.status===FILTER)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq))));
   $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n))};
  $$('[data-f]',el).forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;renderList()});$('#q').oninput=fill;
  $('#a-rf').onclick=async e=>{const b=e.currentTarget;busy(b,1,'กำลังโหลด...');await loadList()};fill()}
-const rowsHtml=rows=>rows.length?rows.map(r=>`<tr><td data-l="รหัส">${esc(r.id)}<div class="meta">${esc(thDT(r.ts))}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div></td><td data-l="กลุ่มงาน">${esc(r.group)}</td><td data-l="ผลงาน">${esc(r.title)}${r.link?` <a href="${esc(r.link)}" target="_blank" rel="noopener">ไฟล์</a>`:''}</td><td data-l="สถานะ">${chip(r.status)}</td><td data-l="LINE">${lnBadge(r)}</td><td><div class="row"><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm line" data-n="${esc(r.id)}"><i class="ph ph-chat-circle-text"></i> แจ้ง LINE</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>';
+const rowsHtml=rows=>rows.length?rows.map(r=>`<tr><td data-l="รหัส">${esc(r.id)}<div class="meta">${esc(thDT(r.ts))}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div></td><td data-l="กลุ่มงาน">${esc(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status)}</td><td data-l="LINE">${lnBadge(r)}</td><td><div class="row"><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm line" data-n="${esc(r.id)}"><i class="ph ph-chat-circle-text"></i> แจ้ง LINE</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>';
 /* ---- แก้ไขรายการ + แนบไฟล์ + ส่ง LINE อัตโนมัติ ---- */
-const FIELDS=[['prefix','คำนำหน้า'],['first','ชื่อ'],['last','นามสกุล'],['cid','เลขบัตรประชาชน'],['position','ตำแหน่ง'],['group','กลุ่มงาน'],['posNo','ตำแหน่งเลขที่'],['start','วันเริ่มงาน'],['edu','วุฒิการศึกษา'],['phone','เบอร์โทร'],['email','อีเมล'],['link','ลิงก์ไฟล์ผลงาน'],['title','ชื่อผลงาน']];
+const FIELDS=[['prefix','คำนำหน้า'],['first','ชื่อ'],['last','นามสกุล'],['cid','เลขบัตรประชาชน'],['position','ตำแหน่ง'],['group','กลุ่มงาน'],['posNo','ตำแหน่งเลขที่'],['start','วันเริ่มงาน'],['edu','วุฒิการศึกษาสูงสุด'],['phone','เบอร์โทร'],['email','อีเมล'],['link','ลิงก์ไฟล์ผลงาน']];
 const FED=mkFile($('#d-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls','xlsx'],max:8,hint:'รูป (jpg, png) หรือไฟล์ (pdf, doc, docx, xls, xlsx) ไม่เกิน 8 MB — รูปใหญ่จะถูกย่อให้อัตโนมัติ'});
 function openEdit(id){EDIT=ROWS.find(r=>r.id===id);if(!EDIT)return;$('#d-ttl').textContent='แก้ไข '+id;msg($('#d-msg'),'');FED.clear();
  $('#d-grid').innerHTML=`<div><label for="e-status">สถานะ</label><select id="e-status">${CFG.stages.map(s=>`<option value="${s.k}" ${s.k===EDIT.status?'selected':''}>${esc(s.t)}</option>`).join('')}</select></div>
@@ -436,15 +453,27 @@ async function loadLine(){const el=$('#a-line');el.innerHTML=skel(5);const d=awa
  $('#ln-add').onsubmit=async e=>{e.preventDefault();const b=$('#la-go');busy(b,1,'กำลังผูก...');const r=await api('lineAdd',[TOKEN,$('#la-c').value,$('#la-u').value.trim()],{write:true});busy(b,0);if(!r.ok)return toast(r.message,'err');toast('ผูกบัญชี LINE แล้ว');loadLine()};
  $$('[data-ul]',el).forEach(b=>b.onclick=async()=>{if(!confirm('ยกเลิกการผูก LINE นี้?'))return;const[c,u]=b.dataset.ul.split('|');busy(b,1,'กำลังยกเลิก...');const r=await api('lineUnlink',[TOKEN,c,u],{write:true});if(!r.ok){busy(b,0);return toast(r.message,'err')}toast('ยกเลิกการผูกแล้ว');loadLine()})}
 async function loadUsers(){const el=$('#a-users');el.innerHTML=skel(4);const d=await api('usersList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
- el.innerHTML=`<form id="f-u" class="card"><h2>เพิ่มผู้ใช้</h2><div class="grid"><div><label for="u-u">ชื่อผู้ใช้ (อังกฤษ/ตัวเลข)</label><input id="u-u" required></div><div><label for="u-n">ชื่อ-สกุล</label><input id="u-n" required></div><div><label for="u-p">รหัสผ่าน (อย่างน้อย 8 ตัว)</label><input id="u-p" type="password" minlength="8" required autocomplete="new-password"></div><div><label for="u-r">สิทธิ์</label><select id="u-r"><option value="officer">เจ้าหน้าที่ (จัดการผลงาน)</option><option value="admin">ผู้ดูแลระบบ</option></select></div></div><div id="u-m" aria-live="polite"></div><button class="btn" id="u-go" style="margin-top:12px"><i class="ph ph-user-plus"></i> เพิ่มผู้ใช้</button></form>
- <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>สิทธิ์</th><th>สถานะ</th><th></th></tr></thead><tbody>${d.users.map(u=>`<tr><td data-l="ชื่อผู้ใช้">${esc(u.username)}</td><td data-l="ชื่อ-สกุล">${esc(u.name)}</td><td data-l="สิทธิ์">${u.role==='admin'?'ผู้ดูแลระบบ':'เจ้าหน้าที่'}</td><td data-l="สถานะ">${u.active?'<span class="chip green"><i class="ph ph-check-circle"></i>ใช้งาน</span>':'<span class="chip orange"><i class="ph ph-prohibit"></i>ปิดใช้งาน</span>'}</td><td><button class="btn sm sec" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">ยังไม่มีผู้ใช้เพิ่มเติม (บัญชี admin ใช้รหัสผ่านจาก Script Properties)</td></tr>'}</tbody></table></div>`;
- $('#f-u').onsubmit=async e=>{e.preventDefault();const b=$('#u-go');busy(b,1,'กำลังเพิ่ม...');const r=await api('userAdd',[TOKEN,{username:$('#u-u').value,name:$('#u-n').value,password:$('#u-p').value,role:$('#u-r').value}],{write:true});busy(b,0);if(!r.ok)return msg($('#u-m'),r.message);toast('เพิ่มผู้ใช้แล้ว');loadUsers()};
- $$('[data-u]',el).forEach(b=>b.onclick=async()=>{busy(b,1,'กำลังบันทึก...');const r=await api('userToggle',[TOKEN,b.dataset.u],{write:true});if(!r.ok){busy(b,0);return toast(r.message,'err')}loadUsers()})}
+ const ROLE=r=>r==='admin'?'ผู้ดูแลระบบ':'เจ้าหน้าที่';
+ el.innerHTML=`<form id="f-u" class="card"><h2>เพิ่มผู้ใช้จากทะเบียนบุคลากร (allstaff)</h2><p class="meta">ค้นหาจากชีท allstaff (อ่านอย่างเดียว) แล้วสร้างบัญชีในแท็บ Users แยกต่างหาก — การแก้ไขผู้ใช้จะไม่กระทบชีท allstaff</p>
+ <label for="u-q">ค้นหาชื่อ / นามสกุล / เลขบัตร (อย่างน้อย 2 ตัวอักษร)</label><input id="u-q" autocomplete="off" placeholder="เช่น สมชาย หรือ 1234567890123"><div id="u-res" style="margin:8px 0" aria-live="polite"></div>
+ <div class="grid"><div><label>บุคลากรที่เลือก</label><input id="u-n" readonly placeholder="ยังไม่ได้เลือก" required><input id="u-c" type="hidden"></div><div><label for="u-u">ชื่อผู้ใช้ (ค่าเริ่มต้น = เลขบัตร แก้ไขได้)</label><input id="u-u" required></div><div><label for="u-p">รหัสผ่านเริ่มต้น (อย่างน้อย 8 ตัว)</label><input id="u-p" type="password" minlength="8" required autocomplete="new-password"></div><div><label for="u-r">สิทธิ์</label><select id="u-r"><option value="officer">เจ้าหน้าที่ (จัดการผลงาน)</option><option value="admin">ผู้ดูแลระบบ</option></select></div></div><div id="u-m" aria-live="polite"></div><button class="btn" id="u-go" style="margin-top:12px"><i class="ph ph-user-plus"></i> เพิ่มผู้ใช้</button></form>
+ <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>ชื่อผู้ใช้</th><th>ชื่อ-สกุล</th><th>เลขบัตร (อ้างอิง)</th><th>สิทธิ์</th><th>สถานะ</th><th></th></tr></thead><tbody>${d.users.map(u=>`<tr><td data-l="ชื่อผู้ใช้">${esc(u.username)}</td><td data-l="ชื่อ-สกุล">${esc(u.name)}</td><td data-l="เลขบัตร">${esc(maskCid(u.cid)||'-')}</td><td data-l="สิทธิ์">${ROLE(u.role)}</td><td data-l="สถานะ">${u.active?'<span class="chip green"><i class="ph ph-check-circle"></i>ใช้งาน</span>':'<span class="chip orange"><i class="ph ph-prohibit"></i>ปิดใช้งาน</span>'}</td><td><div class="row"><button class="btn sm sec" data-ue="${esc(u.username)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm sec" data-u="${esc(u.username)}">${u.active?'ปิดใช้งาน':'เปิดใช้งาน'}</button></div></td></tr>`).join('')||'<tr><td colspan="6" class="empty">ยังไม่มีผู้ใช้เพิ่มเติม (บัญชี admin ใช้รหัสผ่านจาก Script Properties)</td></tr>'}</tbody></table></div>`;
+ let SR=[],tm=null;
+ $('#u-q').addEventListener('input',e=>{clearTimeout(tm);const q=e.target.value.trim(),box=$('#u-res');if(q.replace(/\s/g,'').length<2){box.innerHTML='';return}box.innerHTML='<span class="meta"><span class="spin"></span> กำลังค้นหา...</span>';
+  tm=setTimeout(async()=>{const r=await api('staffSearch',[TOKEN,q]);if(!r.ok){box.innerHTML='';return msg(box,r.message)}SR=r.rows;
+   box.innerHTML=SR.length?SR.map((s,k)=>`<button type="button" class="btn sm sec" data-p="${k}" style="margin:0 6px 6px 0;text-align:left">${esc(s.name)} · ${esc(s.position||'-')} · ${esc(s.group||'-')}</button>`).join(''):'<span class="meta">ไม่พบบุคลากรในทะเบียน allstaff</span>';
+   $$('[data-p]',box).forEach(b=>b.onclick=()=>{const s=SR[+b.dataset.p];$('#u-n').value=s.name;$('#u-c').value=s.cid;if(!$('#u-u').value||/^\d{13}$/.test($('#u-u').value))$('#u-u').value=s.cid;box.innerHTML=`<span class="chip green"><i class="ph ph-check-circle"></i>เลือก ${esc(s.name)}</span>`})},350)});
+ $('#f-u').onsubmit=async e=>{e.preventDefault();if(!$('#u-c').value)return msg($('#u-m'),'กรุณาค้นหาและเลือกบุคลากรจากทะเบียนก่อน');const b=$('#u-go');busy(b,1,'กำลังเพิ่ม...');const r=await api('userAdd',[TOKEN,{cid:$('#u-c').value,username:$('#u-u').value,password:$('#u-p').value,role:$('#u-r').value}],{write:true});busy(b,0);if(!r.ok)return msg($('#u-m'),r.message);toast('เพิ่มผู้ใช้แล้ว');loadUsers()};
+ $$('[data-u]',el).forEach(b=>b.onclick=async()=>{busy(b,1,'กำลังบันทึก...');const r=await api('userToggle',[TOKEN,b.dataset.u],{write:true});if(!r.ok){busy(b,0);return toast(r.message,'err')}loadUsers()});
+ $$('[data-ue]',el).forEach(b=>b.onclick=()=>{const u=d.users.find(x=>x.username===b.dataset.ue);if(!u)return;
+  $('#du-b').innerHTML=`<form id="f-ue"><p class="meta">บัญชี: <b>${esc(u.username)}</b> (แก้ไขเฉพาะในแท็บ Users ไม่กระทบ allstaff)</p><label for="ue-n">ชื่อ-สกุลที่แสดง</label><input id="ue-n" value="${esc(u.name)}" required><label for="ue-r" style="margin-top:8px">สิทธิ์</label><select id="ue-r"><option value="officer"${u.role!=='admin'?' selected':''}>เจ้าหน้าที่</option><option value="admin"${u.role==='admin'?' selected':''}>ผู้ดูแลระบบ</option></select><label for="ue-p" style="margin-top:8px">รหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)</label><input id="ue-p" type="password" minlength="8" autocomplete="new-password"><div id="ue-m" aria-live="polite"></div><button class="btn" id="ue-go" style="margin-top:12px"><i class="ph ph-floppy-disk"></i> บันทึก</button></form>`;
+  $('#f-ue').onsubmit=async ev=>{ev.preventDefault();const g=$('#ue-go');busy(g,1,'กำลังบันทึก...');const r=await api('userEdit',[TOKEN,u.username,{name:$('#ue-n').value,role:$('#ue-r').value,password:$('#ue-p').value}],{write:true});busy(g,0);if(!r.ok)return msg($('#ue-m'),r.message);$('#du').close();toast('บันทึกแล้ว');loadUsers()};
+  dlgOpen($('#du'))})}
 async function loadLog(){const el=$('#a-log');el.innerHTML=skel(5);const d=await api('logList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
  el.innerHTML=`<div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>เวลา</th><th>กิจกรรม</th><th>ผู้ใช้</th><th>ผลลัพธ์</th><th>รายละเอียด</th></tr></thead><tbody>${d.rows.map(r=>`<tr><td data-l="เวลา">${esc(thDT(r[0]))}</td><td data-l="กิจกรรม">${esc(r[1])}</td><td data-l="ผู้ใช้">${esc(r[2])}</td><td data-l="ผลลัพธ์">${esc(r[3])}</td><td data-l="รายละเอียด">${esc(r[4])}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">ยังไม่มีประวัติ</td></tr>'}</tbody></table></div>`}
 /* Boot */
 (async()=>{route();$('#t-guide').innerHTML=skel(3);const c=await api('config');
- if(c.ok){CFG=c;$('#ttl').textContent=c.title;$('#org').textContent=c.org;$('#t-guide').innerHTML=guideHtml();
+ if(c.ok){CFG=c;initQr();$('#ttl').textContent=c.title;$('#org').textContent=c.org;$('#t-guide').innerHTML=guideHtml();
   if(c.recaptcha){const s=document.createElement('script');s.src='https://www.google.com/recaptcha/api.js?render=explicit&onload=rcReady';s.async=true;document.head.appendChild(s)}}
  else{$('#t-guide').innerHTML='';msg($('#t-out'),c.message+' (ตรวจสอบ GAS_URL ใน config.js)')}
  if(TOKEN){const v=await api('verify',[TOKEN]);if(v.ok)enter(v.user);else logout(true)}})();

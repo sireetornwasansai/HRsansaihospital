@@ -9,6 +9,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Niramit:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="../config.js"></script>
+<script>/* ตัวแทน google.script.run สำหรับรันบน Vercel: ส่งคำสั่งไปที่ GAS Web App (doPost) แล้วเรียก success/failure handler เดิมของหน้า */
+(function(){window.google=window.google||{};var URL_=(window.APP_CONFIG||{}).GAS_URL;
+function call(fn,args){var ctl=new AbortController(),t=setTimeout(function(){ctl.abort()},60000);
+ return fetch(URL_,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn:fn,args:args}),signal:ctl.signal})
+ .then(function(r){return r.json()}).then(function(j){if(!j||!j.ok)throw new Error((j&&j.message)||'เซิร์ฟเวอร์ไม่ตอบสนอง');return j.data})
+ .catch(function(e){throw new Error(e&&e.name==='AbortError'?'หมดเวลาเชื่อมต่อเซิร์ฟเวอร์ กรุณาลองใหม่':(e&&e.message)||'เชื่อมต่อไม่ได้')}).finally(function(){clearTimeout(t)})}
+function mk(ok,fail){return new Proxy({},{get:function(_,n){
+ if(n==='withSuccessHandler')return function(f){return mk(f,fail)};
+ if(n==='withFailureHandler')return function(f){return mk(ok,f)};
+ if(n==='withUserObject')return function(){return mk(ok,fail)};
+ return function(){var a=[].slice.call(arguments);call(n,a).then(function(d){if(ok)ok(d)}).catch(function(e){if(fail)fail(e);else console.error(e)})}}})}
+window.google.script={run:mk(null,null),host:{close:function(){},setHeight:function(){},setWidth:function(){}}};
+})();</script>
+
 <script>/* xlsx.js v0.18.5 — ฝังไว้ในไฟล์นี้เลย (เดิมโหลดจาก cdnjs.cloudflare.com) ตามคำขอผู้ใช้
    เพื่อไม่ให้พังเวลาเครือข่ายโรงพยาบาลบล็อก CDN ภายนอก — ไม่ต้องพึ่งอินเทอร์เน็ตภายนอกอีกต่อไป
    สำหรับไลบรารีนี้ (ทำงานได้แม้ตัดอินเทอร์เน็ตขาออกทั้งหมด ตราบใดที่หน้าเว็บโหลดมาได้ครั้งแรก) */
@@ -2998,7 +3013,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   /* ทบทวนเพิ่ม: site key ของ Google reCAPTCHA — ค่านี้เป็นค่าสาธารณะโดยธรรมชาติ (ฝัง client-side ได้
    * ตามการออกแบบของ reCAPTCHA เอง) ฝังมาจากฝั่งเซิร์ฟเวอร์ผ่าน template scriptlet ใน doGet() เพื่อไม่ต้อง
    * เขียนค่าตายตัวในไฟล์นี้ (ตั้งค่าได้จาก Script Properties คีย์ RECAPTCHA_SITE_KEY) */
-  var RECAPTCHA_SITE_KEY = <?!= JSON.stringify(recaptchaSiteKey || '') ?>;
+  var RECAPTCHA_SITE_KEY = JSON.stringify((window.APP_CONFIG&&window.APP_CONFIG.FTE_RECAPTCHA_SITE_KEY)||'');
 
   /* ---------- helpers ---------- */
   function $(id){ return document.getElementById(id); }
@@ -6627,5 +6642,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   };
 })();
 </script>
+<a href="../#track" style="position:fixed;right:12px;bottom:12px;z-index:9999;background:#0f766e;color:#fff;padding:9px 14px;border-radius:999px;font:600 13px Sarabun,sans-serif;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)">← ระบบติดตาม อวช.</a>
 </body>
 </html>

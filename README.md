@@ -1,26 +1,51 @@
-# ระบบติดตามสถานะการประเมินผลงาน (อวช.) — รพ.สันทราย
+# ระบบ อวช. + ระบบอัตรากำลัง FTE — รพ.สันทราย (เว็บเดียว / Backend เดียว)
 
 ```
-index.html, config.js, vercel.json   Frontend (Vercel) ← push repo นี้ได้เลย
-backend/Code.gs, appsscript.json     Backend อวช. (Google Apps Script + Sheets)
-fte/                                 ระบบเดิม FTE (index.html + backend/Code.gs + xlsx) ไม่ได้แก้ไข
-docs/FUNCTIONS.md                    สรุปฟังก์ชันตามความต้องการ
+index.html            หน้าเว็บ อวช. (ติดตามสถานะ / ยื่นเอกสาร / เจ้าหน้าที่ HR)       →  /
+fte/index.html        หน้าเว็บ FTE เดิม (ปรับให้เรียก GAS ผ่าน fetch)                  →  /fte/
+config.js             ตั้งค่า GAS_URL, LINE_QR, FTE_RECAPTCHA_SITE_KEY (ไฟล์เดียวใช้ทั้งสองระบบ)
+assets/line-qr.png    ★ วางรูป QR ของ LINE OA ที่นี่
+vercel.json           ตั้งค่า Vercel (cleanUrls + security headers)
+backend/Code.gs       Backend อวช. + ตัวส่งต่อคำสั่ง (doPost) ให้ FTE
+backend/Fte.gs        Backend FTE เดิม (เปลี่ยนชื่อ doGet → fteDoGet_ เท่านั้น)
+backend/appsscript.json
+docs/FUNCTIONS.md     สรุปฟังก์ชันตามความต้องการ      docs/FTE_Sansai_Hos.xlsx  โครงชีทเดิม
 ```
 
-## 1) Backend (GAS)
-1. เปิดชีทที่มีแท็บ `allstaff` → Extensions → Apps Script → วาง `backend/Code.gs` + `appsscript.json`
-2. Project Settings → Script Properties: **`ADMIN_PASSWORD`** (จำเป็น), `DRIVE_FOLDER_ID`, `SITE_URL` (เช่น https://xxx.vercel.app), `LINE_CHANNEL_ACCESS_TOKEN`, `LINE_OA_ID` (เช่น @123abcde), `RECAPTCHA_SITE_KEY/SECRET_KEY` (ถ้าใช้)
-3. รัน `setup()` (อนุญาตสิทธิ์ + สร้างแท็บ) แล้วรัน `setupLine()` เพื่อดู Webhook URL
-4. Deploy → Web app (Execute as Me, Anyone) → คัดลอก URL `/exec`
-5. LINE Developers → Messaging API → วาง Webhook URL (`...?k=รหัสลับ`) → Verify → เปิด Use webhook; ปิด Auto-reply
-   - ถ้า URL เป็น `/a/macros/โดเมน/` แล้ว Verify ไม่ผ่าน ให้ใช้ `https://script.google.com/macros/s/<DEPLOYMENT_ID>/exec?k=...`
-6. แก้โค้ดภายหลัง: Manage deployments → Edit → New version (URL เดิมใช้ต่อได้)
+## 1) Backend (Google Apps Script) — โปรเจกต์เดียว
+1. เปิด Google Sheet ที่มีแท็บ `allstaff` และแท็บของ FTE → Extensions → Apps Script
+2. สร้างไฟล์ `Code.gs` และ `Fte.gs` (วางโค้ดจาก `backend/`) และตั้ง `appsscript.json` (Project Settings → Show manifest)
+3. ตั้ง **Script Properties** ตามตารางด้านล่าง
+4. รัน `setup()` (อนุญาตสิทธิ์ + สร้างแท็บ อวช.) แล้วรัน `setupLine()` เพื่อดู Webhook URL
+5. Deploy → New deployment → Web app (Execute as: Me, Who has access: Anyone) → ได้ URL `/exec` ใส่ใน `config.js`
+   (ครั้งต่อไปใช้ Manage deployments → Edit → New version เพื่อให้ URL เดิมใช้ต่อได้)
+6. LINE Developers → Messaging API → Webhook URL = ที่ได้จากข้อ 4 (`...?k=รหัสลับ`) → Verify → เปิด Use webhook, ปิด Auto-reply
+   (ถ้า Verify ไม่ผ่านเพราะ URL เป็น `/a/macros/โดเมน/` ให้ใช้ `https://script.google.com/macros/s/<DEPLOYMENT_ID>/exec?k=...`)
 
-## 2) Frontend
-แก้ `GAS_URL` ใน `config.js` ให้เป็น URL `/exec` ของ deployment → push GitHub → Vercel Import (Framework: Other)
+## 2) Script Properties (Project Settings → Script Properties)
 
-## 3) ระบบ FTE เดิม
-FTE เป็นเว็บที่เสิร์ฟจาก GAS (`google.script.run`) และมีสเปรดชีต/ชีตของตัวเอง จึงแยก deploy ไว้ ไม่รวมสคริปต์กัน (มีฟังก์ชัน `doGet` ชนกัน) — วางโค้ดใน `fte/` เป็นสำรอง แล้วใส่ URL `/exec` ของ FTE ที่ `FTE_URL` ใน `config.js` เมนู "ระบบอัตรากำลัง FTE" จะขึ้นบนเว็บอวช. ให้อัตโนมัติ
+| ชื่อ | จำเป็น | ใช้กับ | คำอธิบาย |
+|---|---|---|---|
+| `ADMIN_PASSWORD` | ✅ | อวช. + FTE | รหัสผ่านผู้ดูแลระบบ (อวช.: ผู้ใช้ `admin`, FTE: หน้าแอดมิน) ใช้ค่าเดียวกันทั้งสองระบบ |
+| `SPREADSHEET_ID` | แนะนำ | อวช. + FTE | ID ของ Google Sheet (ถ้าสคริปต์ผูกกับชีทอยู่แล้วเว้นได้) ทั้งสองระบบอ่านชีทเดียวกัน |
+| `LINE_CHANNEL_ACCESS_TOKEN` | ถ้าใช้ LINE | อวช. | Channel access token (long-lived) จาก LINE Developers |
+| `LINE_OA_ID` | ถ้าใช้ LINE | อวช. | เช่น `@123abcde` (ใช้ทำปุ่มเพิ่มเพื่อน) |
+| `SITE_URL` | ถ้าใช้ LINE | อวช. | เช่น `https://xxxx.vercel.app` (ปุ่ม "ดูความคืบหน้า" ในข้อความ LINE) |
+| `LINE_WEBHOOK_KEY` | อัตโนมัติ | อวช. | สร้างเองเมื่อรัน `setupLine()` — ไม่ต้องตั้งเอง |
+| `DRIVE_FOLDER_ID` | ไม่บังคับ | อวช. | โฟลเดอร์เก็บไฟล์อัปโหลด (ไม่ใส่ = My Drive หลัก) |
+| `RECAPTCHA_SITE_KEY` / `RECAPTCHA_SECRET_KEY` | ไม่บังคับ | อวช. + FTE | ไม่ใส่ = ปิด reCAPTCHA (ต้องเพิ่มโดเมน Vercel ใน reCAPTCHA; FTE ต้องใส่ site key ใน `config.js` ด้วย) |
+| `HOSPITAL_NAME` / `HOSPITAL_SUBTITLE` | ไม่บังคับ | FTE | ชื่อ/คำบรรยายหัวเว็บ FTE (ค่าเริ่มต้น "โรงพยาบาลสันทราย") |
+| `VISIT_COUNT` | อัตโนมัติ | FTE | ตัวนับผู้เข้าชม ระบบจัดการเอง |
 
-## หมายเหตุความปลอดภัย
-ห้ามเก็บรหัสผ่านไว้ในชีท (แท็บ `link+รหัส` เดิมควรลบ) · token LINE เก็บใน Script Properties เท่านั้น
+## 3) Frontend (GitHub → Vercel)
+```bash
+cd awc-tracking-repo
+git remote add origin https://github.com/<USER>/<REPO>.git     # repo ว่างที่สร้างบน GitHub
+git push -u origin main
+```
+Vercel → Add New Project → เลือก repo → Framework: **Other** (ไม่ต้องมี build) → Deploy
+
+## 4) ผู้ใช้ (HR) กับ allstaff
+- แท็บ **Users** แยกจาก **allstaff** — ระบบอ่าน allstaff อย่างเดียว ไม่เขียน/แก้ไขชีท allstaff
+- เพิ่มผู้ใช้โดยค้นหาจาก allstaff (ชื่อ/เลขบัตร) → ชื่อผู้ใช้เริ่มต้น = เลขบัตร, ตั้งรหัสผ่านเอง; ชื่อถูกคัดลอกเป็นสำเนา
+- แก้ชื่อ/สิทธิ์/รีเซ็ตรหัสผ่านได้ในแท็บ Users โดยไม่กระทบ allstaff
