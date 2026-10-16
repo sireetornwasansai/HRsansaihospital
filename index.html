@@ -268,6 +268,30 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
 .msg a{color:inherit;font-weight:600}
 .btn.ghost{background:transparent;color:var(--pri-d);border-color:transparent}.btn.ghost:hover{background:#eef7f6}
 @media(max-width:640px){.page-head h1{font-size:22px}.ph-title-ico{width:44px;height:44px;font-size:24px}.fsec-b{padding:16px}.fsec-h{padding:12px 16px}}
+/* --- v3: เส้นทางตามเล่ม/ระดับ, ถาม-ตอบ, แผงตรวจสอบข้อมูลเดิม --- */
+.bks{display:grid;gap:14px}
+.bk{border:1.5px solid var(--line);border-radius:14px;padding:14px 14px 4px;background:#fff}
+.bk-off{opacity:.6;background:#f8fbfb}.bk-on{border-color:var(--tg,#14b8a6);box-shadow:0 0 0 3px var(--tb,#ccfbf1)}
+.bk-h{display:flex;gap:12px;align-items:center;margin-bottom:10px}.bk-h b{display:block;line-height:1.3}.bk-h .dbadge{margin-left:auto}
+.bk-n{width:34px;height:34px;border-radius:10px;background:var(--pri);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.bk-off .bk-n{background:#94a3b8}
+.lv{margin:0 0 10px;padding-top:8px;border-top:1px dashed var(--line)}
+.lv-h{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--mut);margin:0 0 8px}
+.lv-ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap}
+.nd{flex:1 1 128px;max-width:200px;min-width:112px;position:relative;text-align:center;padding:0 4px 12px}
+.nd::before{content:"";position:absolute;top:26px;left:-50%;width:100%;height:4px;background:#e2ecee}
+.nd:first-child::before{display:none}.nd.s-done::before,.nd.s-current::before{background:#0f766e}
+.nd .dflow-label{font-size:14px}
+@media(max-width:680px){
+ .lv-ol{flex-direction:column;position:relative}.lv-ol::before{content:"";position:absolute;left:26px;top:27px;bottom:40px;width:4px;background:#e2ecee}
+ .nd{max-width:none;flex:none;display:flex;gap:14px;text-align:left;padding:0 0 14px}.nd::before{display:none}.nd .dflow-node{margin:0;flex:none}}
+.qa{display:grid;gap:8px;max-height:340px;overflow:auto;margin:0 0 12px;padding:2px}
+.qb{max-width:88%;padding:8px 12px;border-radius:14px;font-size:14.5px;white-space:pre-wrap;word-break:break-word}
+.qb small{display:block;color:var(--mut);font-size:12px;margin-top:2px}
+.qb.a{justify-self:end;background:#ccfbf1;border-bottom-right-radius:4px}.qb.s{justify-self:start;background:#e0e7ff;border-bottom-left-radius:4px}
+.chkp{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:12px;background:var(--infob);color:#17306b;margin:0 0 12px}
+.chkp b{display:block}.chkp ul{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:14px}.chkp li{display:flex;gap:8px;align-items:flex-start}
+.chkp.res{background:#f1faf9;color:var(--ink);border:1px solid #b6dcd8}.chkp .k-ok{color:var(--ok)}.chkp .k-warn{color:var(--warn)}.chkp .k-info{color:var(--info)}
 </style>
 </head>
 <body>
@@ -310,7 +334,7 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
  <div id="s-done"></div>
  <div id="s-qr" class="card" hidden></div>
  <form id="f-sub" novalidate>
-  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">1</span><h2>ข้อมูลผู้ยื่น</h2></div><div class="fsec-b"><div class="grid">
+  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">1</span><h2>ข้อมูลผู้ยื่น</h2></div><div class="fsec-b"><div id="s-chk" aria-live="polite"></div><div class="grid">
    <div><label class="req" for="s-cid">เลขบัตรประชาชน</label><input id="s-cid" inputmode="numeric" maxlength="17" required placeholder="x-xxxx-xxxxx-xx-x"><div class="ferr hide" id="s-cid-e" role="alert"><i class="ph-fill ph-warning-circle"></i>เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง</div></div>
    <div><label class="req" for="s-prefix">คำนำหน้า</label><select id="s-prefix" required><option value="">เลือก</option></select><input id="s-prefix-o" placeholder="ระบุคำนำหน้า/ยศ" maxlength="40" hidden style="margin-top:6px" aria-label="ระบุคำนำหน้าอื่น ๆ"></div>
    <div><label class="req" for="s-first">ชื่อ</label><input id="s-first" required></div>
@@ -379,6 +403,12 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
 <dialog id="dl" aria-labelledby="l-ttl"><div class="hd"><h2 id="l-ttl"><img class="dlg-logo" src="assets/logo.png" alt="" width="34" height="34">เชื่อมต่อ LINE</h2><button class="btn sec sm" type="button" id="l-x">ปิด</button></div>
  <div id="l-body"></div></dialog>
 
+<!-- Dialog: ถาม-ตอบ (เจ้าหน้าที่) -->
+<dialog id="dq" aria-labelledby="q-ttl"><div class="hd"><div><h2 id="q-ttl"><i class="ph ph-chats-circle"></i> ถาม-ตอบกับผู้ยื่น</h2><div class="meta" id="q-sub"></div></div><button class="btn sec sm" type="button" id="q-x">ปิด</button></div>
+ <div class="qa" id="q-th" style="margin-top:12px"></div>
+ <label for="q-t">ข้อความตอบ (ไม่เกิน 500 ตัวอักษร — ส่งทาง LINE ให้ด้วยหากผู้ยื่นผูกไว้)</label><textarea id="q-t" rows="3" maxlength="500"></textarea>
+ <div id="q-m" aria-live="polite"></div><div class="row" style="margin-top:10px"><button class="btn" id="q-send" type="button"><i class="ph-bold ph-paper-plane-tilt"></i> ส่งคำตอบ</button></div></dialog>
+
 <dialog id="du" aria-labelledby="du-t"><div class="hd"><h2 id="du-t"><i class="ph ph-user-gear"></i> แก้ไขผู้ใช้</h2><button class="btn sec sm" type="button" id="du-x">ปิด</button></div><div id="du-b"></div></dialog>
 
 <dialog id="dc" aria-labelledby="dc-t"><div class="dc-ico" id="dc-ico"></div><h2 class="dc-t" id="dc-t"></h2><p class="dc-x" id="dc-p"></p><div id="dc-m" aria-live="polite"></div><div class="row" style="justify-content:flex-end"><button class="btn sec" type="button" id="dc-x">ยกเลิก</button><button class="btn" type="button" id="dc-ok">ยืนยัน</button></div></dialog>
@@ -387,11 +417,15 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let CFG={stages:[],line:{}},TOKEN=localStorage.getItem('awc_tk')||'',USER=null,ROWS=[],COUNTS={},FILTER='',LASTCID='',LASTDATA=null,SKEW=0,EDIT=null,NID=null,NMODE='status',NINFO=null,LP=null;
-const FLOW=['submitted','qualify','review','passed'];
 const ICON={blue:'ph-hourglass-medium',orange:'ph-warning',green:'ph-check-circle'};
-const stg=k=>CFG.stages.find(s=>s.k===k)||{k,t:k,c:'blue',h:''};
-const TONE={submitted:'sky',qualify:'cyan',review:'violet',revise:'amber',passed:'emerald'},tone=k=>TONE[k]||'slate';
-const SIC={submitted:'ph-paper-plane-tilt',qualify:'ph-clipboard-text',review:'ph-users-three',revise:'ph-note-pencil',passed:'ph-seal-check'};
+const stg=k=>CFG.stages.find(s=>s.k===k)||{k,t:k,c:'blue',h:'',tn:'slate',ic:'ph-flag',ord:0};
+const tone=k=>stg(k).tn||'slate';
+const SIC=new Proxy({},{get:(_,k)=>stg(String(k)).ic||'ph-flag'});
+const LVS={hos:'รพ.สันทราย',pho:'สสจ.',gov:'ศาลากลาง'};
+/* แก้ไขครั้งที่ N: นับเมื่อเข้าสถานะแก้ไข (ไม่นับการแก้หมายเหตุซ้ำ) — ตรงกับ backend */
+function fixN(h){const c={};let prev='';return h.map(x=>{if(!stg(x.s).fix){prev=x.s;return 0}if(x.s!==prev)c[x.s]=(c[x.s]||0)+1;prev=x.s;return c[x.s]})}
+const checkHtml=(t,l)=>`<div class="chkp" role="status"><span class="spin" style="margin-top:4px"></span><div><b>${esc(t)}</b><ul>${l.map(x=>`<li><i class="ph ph-dots-three"></i>${esc(x)}</li>`).join('')}</ul></div></div>`;
+const chkRes=(t,l)=>`<div class="chkp res"><i class="ph-fill ph-clipboard-text" style="font-size:22px;color:var(--pri)"></i><div><b>${esc(t)}</b><ul>${l.map(x=>`<li class="k-${x[0]}"><i class="ph-fill ${x[0]==='ok'?'ph-check-circle':x[0]==='warn'?'ph-warning':'ph-info'}"></i><span style="color:var(--ink)">${esc(x[1])}</span></li>`).join('')}</ul></div></div>`;
 const chip=k=>{const s=stg(k);return `<span class="dstage tone-${tone(k)}"><i class="ph-bold ${SIC[k]||'ph-flag'}"></i>${esc(s.t)}</span>`};
 const PRE=/^(นางสาว|นาย|นาง|เด็กชาย|เด็กหญิง|ดร\.|นพ\.|พญ\.|ทพ\.|ทพญ\.|ภก\.|ภญ\.|ผศ\.|รศ\.|ศ\.|คุณ)+/;
 const fc=s=>(String(s||'').replace(/^[เแโใไ]+/,'')[0]||'?');
@@ -447,8 +481,8 @@ const fmtCid=v=>{const d=v.replace(/\D/g,'').slice(0,13);return[d.slice(0,1),d.s
 const maskCid=c=>c?('x-xxxx-xxxxx-'+c.slice(-3,-1)+'-'+c.slice(-1)):'';
 const copy=async(t,label)=>{try{await navigator.clipboard.writeText(t);toast((label||'คัดลอก')+'แล้ว')}catch{toast('คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง','warn')}};
 const dlgOpen=d=>{if(!d.open)d.showModal()};
-['dlg','dn','dl','dc'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
-$('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();
+['dlg','dn','dl','dc','dq'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
+$('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();$('#q-x').onclick=()=>$('#dq').close();
 $('#dl').addEventListener('close',()=>{clearInterval(LP);LP=null});
 /* ===== ตัวเลือกไฟล์ (ตรวจชนิด/ขนาด + ตัวอย่างรูป + บีบอัดรูป) ===== */
 const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
@@ -489,52 +523,51 @@ function guideHtml(){
   <div class="card"><h2>ความหมายของสถานะ</h2><ul class="legend">${st}</ul></div>`}
 $('#f-track').addEventListener('submit',async e=>{e.preventDefault();const b=$('#t-go'),o=$('#t-out'),inp=$('#t-cid');const cid=inp.value.replace(/\D/g,'');
  if(cid.length!==13){inp.setAttribute('aria-invalid','true');inp.focus();return msg(o,'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก')}
- inp.removeAttribute('aria-invalid');busy(b,1,'กำลังค้นหา...');o.innerHTML=skTrack();$('#t-guide').innerHTML='';
+ inp.removeAttribute('aria-invalid');busy(b,1,'กำลังค้นหา...');o.innerHTML=checkHtml('กำลังตรวจสอบข้อมูลเดิมของท่าน',['ค้นหารายการยื่นเอกสาร','ตรวจสอบสถานะล่าสุด','ตรวจสอบการเชื่อมต่อ LINE'])+skTrack();$('#t-guide').innerHTML='';
  const d=await api('track',[cid]);busy(b,0);
  if(!d.ok){o.innerHTML='';$('#t-guide').innerHTML=guideHtml();return notFound(o,d.message)}
  LASTCID=cid;LASTDATA=d;SKEW=(d.nowMs||Date.now())-Date.now();renderTrack(d)});
 const NT={auto:'แจ้งอัตโนมัติ',manual:'แจ้งโดย HR',typed:'ข้อความจาก HR'};
 function lineCard(d){const L=d.line||{};if(!L.enabled)return '';
- return `<div class="card" id="t-line"><div class="hd"><div><h2><i class="ph-duotone ph-chat-circle-text"></i> แจ้งเตือนทาง LINE</h2>${L.linked?'<p class="meta" style="margin:0">เชื่อมต่อแล้ว — ท่านจะได้รับข้อความเมื่อสถานะเปลี่ยน และเมื่อ HR ส่งข้อความหรือไฟล์เพิ่ม พิมพ์ "สถานะ" ในแชทเพื่อดูสถานะล่าสุดได้ทุกเมื่อ</p>':'<p class="meta" style="margin:0">เชื่อมต่อ LINE เพื่อรับข้อความทันทีที่สถานะ อวช. เปลี่ยน ไม่ต้องเปิดเว็บมาตรวจเอง</p>'}</div>
+ return `<div class="card" id="t-line"><div class="hd"><div><h2><i class="ph-duotone ph-chat-circle-text"></i> แจ้งเตือนทาง LINE</h2>${L.linked?'<p class="meta" style="margin:0">เชื่อมต่อแล้ว — ท่านจะได้รับข้อความเมื่อสถานะเปลี่ยน และเมื่อ HR ส่งข้อความหรือไฟล์เพิ่ม พิมพ์ "สถานะ" ในแชทเพื่อดูสถานะล่าสุด หรือ "ถาม ..." เพื่อส่งคำถามถึงเจ้าหน้าที่ได้ทุกเมื่อ</p>':'<p class="meta" style="margin:0">เชื่อมต่อ LINE เพื่อรับข้อความทันทีที่สถานะ อวช. เปลี่ยน ไม่ต้องเปิดเว็บมาตรวจเอง · หากเพิ่มเพื่อน LINE OA ไปแล้ว ไม่ต้องรอรหัส: พิมพ์เลขบัตร 13 หลักในแชท แล้วตอบเลข 4 ตัวท้ายเบอร์โทร หรือแจ้ง HR ให้ผูกให้</p>'}</div>
   ${L.linked?'<span class="dbadge ok"><i class="ph-fill ph-check-circle"></i>เชื่อมต่อแล้ว</span>':'<button class="btn line" id="t-link"><i class="ph-bold ph-link"></i> เชื่อมต่อ LINE</button>'}</div></div>`}
-function holderOf(st){const s=stg(st),tn=tone(st);
- if(st==='submitted'||st==='qualify')return{name:s.o||'กลุ่มงานทรัพยากรบุคคล',av:'<span class="avatar tone-teal"><img src="assets/logo.png" alt=""></span>'};
- const ic={review:'ph-users-three',revise:'ph-pencil-line',passed:'ph-seal-check'}[st]||'ph-flag';
- return{name:s.o||s.t,av:`<span class="avatar tone-${tn}"><i class="ph-fill ${ic}" style="font-size:28px"></i></span>`}}
-function flowHtml(it){const now=nowMs(),st=it.status,rev=st==='revise',passed=st==='passed',h=it.history||[];
- const curIdx=passed?FLOW.length-1:Math.max(0,FLOW.indexOf(rev?'review':st));
- const first={},last={},dw={};h.forEach(x=>{if(!first[x.s])first[x.s]=x;last[x.s]=x});
+function holderOf(st){const s=stg(st);return s.lvl==='hos'&&!s.fix?{name:s.o||'กลุ่มงานทรัพยากรบุคคล',av:'<span class="avatar tone-teal"><img src="assets/logo.png" alt=""></span>'}:{name:s.o||s.t,av:`<span class="avatar tone-${tone(st)}"><i class="ph-fill ${s.ic||'ph-flag'}" style="font-size:28px"></i></span>`}}
+function flowHtml(it){const now=nowMs(),st=it.status,cs=stg(st),h=it.history||[],fn=fixN(h),ended=!!cs.end;
+ const first={},last={},dw={},rn={};h.forEach((x,i)=>{if(!first[x.s])first[x.s]=x;last[x.s]=x;if(fn[i])rn[x.s]=fn[i]});
  h.forEach((x,i)=>{const a=toDate(x.t),n=h[i+1]&&toDate(h[i+1].t);if(a&&n)dw[x.s]=(dw[x.s]||0)+(n-a)});
- const lastEv=h.length?h[h.length-1]:null,lastT=lastEv?toDate(lastEv.t):null,subT=toDate(it.ts),s=stg(st),T=tone(st);
- const steps=FLOW.map((k,i)=>{const done=passed||i<curIdx,cur=!passed&&i===curIdx,warn=cur&&rev,ev=warn?last.revise:first[k];
-  const skipped=done&&!first[k]&&k!=='submitted'&&!(passed&&k==='passed');
-  const cls=skipped?'s-skipped':done?'s-done':cur?'s-current':'s-pending',tn=warn?'amber':tone(k);
-  const ic=skipped?'ph-fill ph-minus':done?'ph-bold ph-check':'ph-fill '+(warn?'ph-note-pencil':SIC[k]);
-  const time=skipped?'ข้าม':ev?thShort(ev.t):cur?'':'รอ';
-  const who=ev&&!skipped?shortName(ev.by):'';
-  const dwell=cur&&lastT?`<div class="dflow-dwell is-live"><i class="ph-bold ph-timer"></i>อยู่ในขั้นนี้ <span data-live="${esc(lastEv.t)}">${span(now-lastT)}</span></div>`
-   :done&&!skipped&&dw[k]!=null?`<div class="dflow-dwell"><i class="ph-bold ph-timer"></i>${span(dw[k])}</div>`:'';
-  return `<li class="dflow-step ${cls} tone-${tn}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${esc(warn?stg('revise').t:stg(k).t)}</div><div class="dflow-time">${esc(time)}</div>${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}).join('');
+ const lastEv=h.length?h[h.length-1]:null,lastT=lastEv?toDate(lastEv.t):null,subT=toDate(it.ts);
+ const flat=CFG.stages.filter(s=>!s.fix),idx=flat.filter(s=>s.ord<cs.ord||s.k===st).length;
+ const rows=CFG.books.map(b=>{const started=cs.book>=b.n,bDone=cs.book>b.n||(ended&&cs.book===b.n);
+  const lvs=b.lv.map(lv=>{const ns=CFG.stages.filter(s=>s.book===b.n&&s.lvl===lv&&(!s.fix||first[s.k]||s.k===st)).map(s=>{
+    const done=s.ord<cs.ord||(ended&&s.k===st),cur=!done&&s.k===st,warn=cur&&s.fix,ev=s.fix?last[s.k]:first[s.k];
+    const skipped=done&&!first[s.k]&&s.k!=='b1_submit'&&s.k!=='b2_submit';
+    const cls=skipped?'s-skipped':done?'s-done':cur?'s-current':'s-pending';
+    const ic=skipped?'ph-fill ph-minus':done?'ph-bold ph-check':'ph-fill '+(s.ic||'ph-flag');
+    const lab=s.t+(s.fix&&rn[s.k]?' ครั้งที่ '+rn[s.k]:'');
+    const time=skipped?'ข้าม':ev?thShort(ev.t):cur?'':started?'รอ':'';
+    const who=ev&&!skipped?shortName(ev.by):'';
+    const dwell=cur&&lastT?`<div class="dflow-dwell is-live"><i class="ph-bold ph-timer"></i>อยู่ในขั้นนี้ <span data-live="${esc(lastEv.t)}">${span(now-lastT)}</span></div>`:done&&!skipped&&dw[s.k]!=null?`<div class="dflow-dwell"><i class="ph-bold ph-timer"></i>${span(dw[s.k])}</div>`:'';
+    return `<li class="nd ${cls} tone-${warn?'amber':tone(s.k)}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${esc(lab)}</div><div class="dflow-time">${esc(time)}</div>${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}).join('');
+   return `<div class="lv"><div class="lv-h"><i class="ph-fill ph-buildings"></i>${esc(CFG.lv[lv]||lv)}</div><ol class="lv-ol">${ns}</ol></div>`}).join('');
+  return `<div class="bk ${bDone?'bk-done':started?'bk-on':'bk-off'} tone-${started?tone(st):'slate'}"><div class="bk-h"><span class="bk-n">${b.n}</span><div><b>${esc(b.t)}</b><span class="meta">${bDone?'ดำเนินการครบแล้ว':started?'กำลังดำเนินการ':'ยังไม่ถึงขั้นตอนนี้'}</span></div>${bDone?'<span class="dbadge ok"><i class="ph-fill ph-check-circle"></i>เสร็จสิ้น</span>':''}</div>${lvs}</div>`}).join('');
  const ageD=lastT?Math.floor((now-lastT)/864e5):0;
- const sla=passed?'<span class="dbadge ok"><i class="ph-fill ph-seal-check"></i>เสร็จสิ้นแล้ว</span>'
-  :rev?'<span class="dbadge wait"><i class="ph-fill ph-hourglass-medium"></i>รอท่านแก้ไข</span>'
-  :s.sla&&ageD>s.sla?`<span class="dbadge late" title="เกณฑ์ปกติของขั้นนี้ไม่เกิน ${s.sla} วัน"><i class="ph-fill ph-alarm"></i>ค้างนานกว่าปกติ</span>`
-  :'<span class="dbadge ok"'+(s.sla?` title="เกณฑ์ปกติของขั้นนี้ไม่เกิน ${s.sla} วัน"`:'')+'><i class="ph-fill ph-check-circle"></i>อยู่ในระยะเวลาปกติ</span>';
- const hd=holderOf(st),p=FLOW.length>1?Math.round(curIdx/(FLOW.length-1)*100):0;
- const total=passed?(lastT&&subT?span(lastT-subT):'-'):(subT?`<span data-live="${esc(it.ts)}">${span(now-subT)}</span>`:'-');
- const nextK=passed?'':rev?'':FLOW[curIdx+1];
- const next=passed?'':rev?'<i class="ph-fill ph-info"></i><span>เมื่อแก้ไขผลงานเสร็จ ให้แจ้งกลุ่มงานทรัพยากรบุคคล แล้วผลงานจะกลับเข้าสู่การตรวจของกรรมการ</span>'
-  :nextK?`<i class="ph-fill ph-arrow-bend-down-right"></i><span>ขั้นตอนถัดไป: <b>${esc(stg(nextK).t)}</b></span>`:'';
- return `<div class="dflow tone-${T}" style="--n:${FLOW.length};--p:${p}%"><div class="dflow-head"><div class="dflow-now">${hd.av}<div><div class="dflow-now-k">${passed?'<i class="ph-fill ph-seal-check"></i>ผลการประเมิน':'<span class="live-pulse"></span>ตอนนี้อยู่ที่'}</div><div class="dflow-now-v">${esc(hd.name)}</div><div class="dflow-now-s">${esc(s.t)}</div></div></div>
-  <div class="dflow-kpis"><div class="dflow-kpi"><span>ขั้นตอน</span><b>${curIdx+1} / ${FLOW.length}</b></div><div class="dflow-kpi"><span>${passed?'ใช้เวลารวม':'ยื่นมาแล้ว'}</span><b>${total}</b></div>${sla}</div></div>
-  <ol class="dflow-track" aria-label="ขั้นตอนการประเมิน"><li class="dflow-rail" aria-hidden="true"><span class="dflow-bar"></span></li>${steps}</ol>${next?`<div class="dflow-next">${next}</div>`:''}</div>`}
-function timelineHtml(it,notes){const ev=(it.history||[]).map(x=>({k:'s',t:x.t,s:x.s,n:x.n,by:x.by}));
+ const sla=ended?'<span class="dbadge ok"><i class="ph-fill ph-seal-check"></i>เสร็จสิ้นแล้ว</span>'
+  :cs.fix?'<span class="dbadge wait"><i class="ph-fill ph-hourglass-medium"></i>รอท่านแก้ไข</span>'
+  :cs.sla&&ageD>cs.sla?`<span class="dbadge late" title="เกณฑ์ปกติของขั้นนี้ไม่เกิน ${cs.sla} วัน"><i class="ph-fill ph-alarm"></i>ค้างนานกว่าปกติ</span>`
+  :'<span class="dbadge ok"'+(cs.sla?` title="เกณฑ์ปกติของขั้นนี้ไม่เกิน ${cs.sla} วัน"`:'')+'><i class="ph-fill ph-check-circle"></i>อยู่ในระยะเวลาปกติ</span>';
+ const hd=holderOf(st),total=ended?(lastT&&subT?span(lastT-subT):'-'):(subT?`<span data-live="${esc(it.ts)}">${span(now-subT)}</span>`:'-');
+ const nx=flat.find(s=>s.ord>cs.ord);
+ const next=ended?'':cs.fix?'<i class="ph-fill ph-info"></i><span>เมื่อแก้ไขเสร็จ ให้แจ้งกลุ่มงานทรัพยากรบุคคล แล้วเรื่องจะดำเนินการต่อ</span>':nx?`<i class="ph-fill ph-arrow-bend-down-right"></i><span>ขั้นตอนถัดไป: <b>${esc(nx.t)}</b>${nx.book!==cs.book?' (เล่ม '+nx.book+')':''}</span>`:'';
+ return `<div class="dflow tone-${tone(st)}"><div class="dflow-head"><div class="dflow-now">${hd.av}<div><div class="dflow-now-k">${ended?'<i class="ph-fill ph-seal-check"></i>ผลการประเมิน':'<span class="live-pulse"></span>ตอนนี้อยู่ที่'}</div><div class="dflow-now-v">${esc(hd.name)}</div><div class="dflow-now-s">${esc(cs.t+(cs.fix&&fixN(h).pop()?' ครั้งที่ '+fixN(h).pop():''))}</div></div></div>
+  <div class="dflow-kpis"><div class="dflow-kpi"><span>ขั้นตอน</span><b>${idx} / ${flat.length}</b></div><div class="dflow-kpi"><span>${ended?'ใช้เวลารวม':'ยื่นมาแล้ว'}</span><b>${total}</b></div>${sla}</div></div>
+  <div class="bks" aria-label="ขั้นตอนการประเมิน">${rows}</div>${next?`<div class="dflow-next">${next}</div>`:''}</div>`}
+function timelineHtml(it,notes){const fnn=fixN(it.history||[]),ev=(it.history||[]).map((x,i)=>({k:'s',t:x.t,s:x.s,n:x.n,by:x.by,rn:fnn[i]}));
  notes.filter(n=>n.id===it.id).forEach(n=>ev.push({k:'n',t:n.t,n:n}));
  ev.sort((a,b)=>String(b.t).localeCompare(String(a.t)));if(!ev.length)return '<div class="empty">ยังไม่มีความเคลื่อนไหว</div>';
  let day='',h='<div class="dtl">';
  ev.forEach((x,i)=>{const dk=String(x.t).slice(0,10);if(dk!==day){day=dk;h+=`<div class="dtl-day">${esc(dayLabel(dk))}</div>`}
   if(x.k==='s'){const sg=stg(x.s),w=shortName(x.by);
-   h+=`<div class="dtl-item tone-${tone(x.s)}"><span class="dtl-ico"><i class="ph-duotone ${SIC[x.s]||'ph-flag'}"></i></span><div class="dtl-main"><div class="dtl-title">${esc(sg.t)}${i===0?'<span class="dtl-new">ล่าสุด</span>':''}</div><div class="dtl-meta"><span><i class="ph ph-clock"></i> ${esc(hm(x.t))} น.</span>${w?`<span><i class="ph ph-user"></i> ${esc(w)}</span>`:''}</div>${x.n&&x.n!=='ยื่นเอกสาร'?`<div class="dtl-note">${esc(x.n)}</div>`:''}</div></div>`}
+   h+=`<div class="dtl-item tone-${tone(x.s)}"><span class="dtl-ico"><i class="ph-duotone ${SIC[x.s]||'ph-flag'}"></i></span><div class="dtl-main"><div class="dtl-title">${esc(sg.t+(x.rn?' ครั้งที่ '+x.rn:''))}${i===0?'<span class="dtl-new">ล่าสุด</span>':''}</div><div class="dtl-meta"><span><i class="ph ph-clock"></i> ${esc(hm(x.t))} น.</span>${w?`<span><i class="ph ph-user"></i> ${esc(w)}</span>`:''}</div>${x.n&&x.n!=='ยื่นเอกสาร'?`<div class="dtl-note">${esc(x.n)}</div>`:''}</div></div>`}
   else{const n=x.n;h+=`<div class="dtl-item tone-slate is-minor"><span class="dtl-ico"><i class="ph-duotone ph-chat-circle-text"></i></span><div class="dtl-main"><div class="dtl-title">${esc(NT[n.type]||n.type)}${n.ok?'':' <span class="dbadge late">ส่งไม่สำเร็จ</span>'}</div><div class="dtl-meta"><span><i class="ph ph-clock"></i> ${esc(hm(n.t))} น.</span></div><div class="dtl-note">${esc(n.m)}${n.fu?` <a href="${esc(n.fu)}" target="_blank" rel="noopener"><i class="ph ph-paperclip"></i> ${esc(n.fn||'ไฟล์แนบ')}</a>`:''}</div></div></div>`}});
  return h+'</div>'}
 function renderTrack(d){const o=$('#t-out');
@@ -542,13 +575,22 @@ function renderTrack(d){const o=$('#t-out');
  if(!d.items.length)h+=`<div class="card empty-s"><i class="ph-duotone ph-folder-open"></i><h2>ยังไม่พบรายการยื่นผลงานของท่าน</h2><p class="meta">หากยังไม่เคยยื่น สามารถยื่นเอกสารได้ที่ปุ่มด้านล่าง</p><a class="btn" href="#submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a></div>`;
  h+=d.items.map(it=>{const rows=[['ph-briefcase','ตำแหน่ง',it.position],['ph-buildings','กลุ่มงาน',it.group],['ph-hash','ตำแหน่งเลขที่',it.posNo],['ph-hourglass-medium','อายุงาน',it.tenure],['ph-graduation-cap','วุฒิการศึกษา',it.edu],['ph-paperclip','ไฟล์ผลงาน',it.hasFile?'แนบไฟล์/ลิงก์แล้ว':'ยังไม่ได้แนบ'],['ph-clock','อัปเดตล่าสุด',thDT(it.upd)]];
   return `<section class="titem"><article class="card"><div class="hd" style="margin-bottom:16px"><div><div class="dbadges">${chip(it.status)}</div><h2 class="mono" style="font-size:20px;margin:8px 0 2px">${esc(it.id)}</h2><div class="meta"><i class="ph ph-calendar-blank"></i> ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div><button class="btn sec sm" data-copy="${esc(it.id)}"><i class="ph-bold ph-copy"></i> คัดลอกรหัส</button></div>
-  ${it.status==='revise'&&it.note?`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
+  ${stg(it.status).fix&&it.note?`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
   ${flowHtml(it)}</article>
+  ${qaCard(it)}
   <div class="dgrid"><div class="card tone-teal"><div class="card-t"><span class="ico"><i class="ph-duotone ph-identification-card"></i></span>ข้อมูลที่ยื่น</div><ul class="dl">${rows.map(r=>`<li><i class="ph-duotone ${r[0]}"></i><div><span>${r[1]}</span><b>${esc(r[2]||'-')}</b></div></li>`).join('')}</ul></div>
   <div class="card tone-violet"><div class="card-t"><span class="ico"><i class="ph-duotone ph-clock-counter-clockwise"></i></span>ความเคลื่อนไหว</div>${timelineHtml(it,d.notes||[])}</div></div></section>`}).join('');
  if(d.items.length)h+=lineCard(d);
  o.innerHTML=h;$('#t-guide').innerHTML=d.items.length?`<details class="card"><summary style="cursor:pointer;font-weight:600;min-height:44px">ความหมายของสถานะ</summary><ul class="legend" style="margin-top:12px">${CFG.stages.map(s=>`<li>${chip(s.k)}<span class="t">${esc(s.h||'')}</span></li>`).join('')}</ul></details>`:guideHtml();
- $('#t-re').onclick=()=>$('#t-go').click();$$('[data-copy]',o).forEach(b=>b.onclick=()=>copy(b.dataset.copy,'คัดลอกรหัส'));const lk=$('#t-link');if(lk)lk.onclick=openLink;o.scrollIntoView({behavior:'smooth',block:'start'})}
+ $('#t-re').onclick=()=>$('#t-go').click();$$('[data-copy]',o).forEach(b=>b.onclick=()=>copy(b.dataset.copy,'คัดลอกรหัส'));const lk=$('#t-link');if(lk)lk.onclick=openLink;bindQa();o.scrollIntoView({behavior:'smooth',block:'start'})}
+function qaCard(it){const th=it.qa||[],ln=LASTDATA&&LASTDATA.line&&LASTDATA.line.linked;
+ return `<div class="card tone-indigo" data-qa="${esc(it.id)}"><div class="card-t"><span class="ico"><i class="ph-duotone ph-chats-circle"></i></span>ถาม-ตอบกับเจ้าหน้าที่</div>
+ <div class="qa" aria-live="polite">${th.length?th.map(m=>`<div class="qb ${m.from==='staff'?'s':'a'}">${esc(m.m)}<small>${m.from==='staff'?esc(m.by||'เจ้าหน้าที่ HR'):'ท่าน'} · ${esc(thShort(m.t))}</small></div>`).join(''):'<div class="empty" style="padding:12px">ยังไม่มีข้อความ — มีเรื่องสำคัญเกี่ยวกับผลงานนี้ที่ต้องแจ้งหรือสอบถาม พิมพ์ได้ที่นี่</div>'}</div>
+ <form class="qf"><label for="qa-${esc(it.id)}" class="meta">ข้อความถึงเจ้าหน้าที่ (เฉพาะสาระสำคัญ ไม่เกิน 500 ตัวอักษร — อย่าใส่เลขบัตรหรือรหัสผ่าน)</label><textarea id="qa-${esc(it.id)}" rows="3" maxlength="500"></textarea><div class="qm" aria-live="polite"></div>
+ <div class="row" style="margin-top:8px;align-items:center"><button class="btn sm"><i class="ph-bold ph-paper-plane-tilt"></i> ส่งข้อความ</button><span class="meta">เจ้าหน้าที่ตอบในวันและเวลาราชการ${ln?' และแจ้งคำตอบทาง LINE':''}</span></div></form></div>`}
+function bindQa(){$$('[data-qa] form').forEach(f=>f.onsubmit=async e=>{e.preventDefault();const card=f.closest('[data-qa]'),id=card.dataset.qa,ta=$('textarea',f),b=$('button',f),m=$('.qm',f);msg(m,'');
+ if(ta.value.trim().length<2)return msg(m,'กรุณาพิมพ์ข้อความ');busy(b,1,'กำลังส่ง...');const d=await api('qaAsk',[LASTCID,id,ta.value],{write:true});busy(b,0);if(!d.ok)return msg(m,d.message);
+ const it=LASTDATA.items.find(x=>x.id===id);it.qa=d.thread;card.outerHTML=qaCard(it);bindQa();toast('ส่งข้อความถึงเจ้าหน้าที่แล้ว')})}
 const bkk0=()=>new Date(nowMs()+7*36e5).toISOString().replace('T',' ').slice(0,19);
 function notFound(o,t){if(/ไม่พบ/.test(t||''))o.innerHTML=`<div class="card empty-s"><i class="ph-duotone ph-magnifying-glass"></i><h2>ไม่พบเลขบัตรประชาชนนี้ในระบบ</h2><p class="meta">ตรวจสอบตัวเลขอีกครั้ง หรือหากยังไม่เคยยื่นเอกสาร ให้ยื่นเอกสารก่อน แล้วกลับมาติดตามสถานะ</p><a class="btn" href="#submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a></div>`;else msg(o,t)}
 /* เชื่อมต่อ LINE ฝั่งผู้ยื่น: เลขบัตร + เลขท้ายเบอร์โทร → รับรหัส 6 หลัก → พิมพ์รหัสในแชท LINE OA */
@@ -561,7 +603,7 @@ function openLink(cid){cid=typeof cid==='string'?cid:LASTCID;if(!cid)return toas
   const d=await api('lineLinkReq',[LASTCID,$('#lk-4').value]);busy(b,0);if(!d.ok)return msg(m,d.message);showCode(d)};
  dlgOpen($('#dl'));setTimeout(()=>$('#lk-4').focus(),50)}
 function showCode(d){let left=d.ttl||600;const oa=d.oaLink;
- $('#l-body').innerHTML=`<ol style="padding-left:20px;margin:0 0 12px"><li>กดปุ่มด้านล่างเพื่อเปิดแชท LINE ${d.oaId?'<b>'+esc(d.oaId)+'</b>':'ของกลุ่มงานทรัพยากรบุคคล'} และกด "เพิ่มเพื่อน" (ถ้ายังไม่ได้เพิ่ม)</li><li>พิมพ์รหัสด้านล่างส่งในแชท</li></ol>
+ $('#l-body').innerHTML=`<ol style="padding-left:20px;margin:0 0 12px"><li>กดปุ่มด้านล่างเพื่อเปิดแชท LINE ${d.oaId?'<b>'+esc(d.oaId)+'</b>':'ของกลุ่มงานทรัพยากรบุคคล'} และกด "เพิ่มเพื่อน" (ถ้ายังไม่ได้เพิ่ม)</li><li>พิมพ์รหัสด้านล่างส่งในแชท</li></ol><p class="meta">เพิ่มเพื่อนไปแล้วโดยยังไม่ได้รหัส? ไม่ต้องใช้รหัสก็ได้ — พิมพ์เลขบัตร 13 หลักในแชท แล้วตอบเลข 4 ตัวท้ายเบอร์โทร</p>
  <div class="code" id="lk-code" aria-label="รหัสเชื่อมต่อ">${esc(d.code)}</div><p class="meta" style="text-align:center" id="lk-t" aria-live="off"></p>
  <div class="row" style="justify-content:center">${oa?`<a class="btn line" href="${esc(oa)}" target="_blank" rel="noopener"><i class="ph ph-chat-circle-text"></i> เปิดแชท LINE</a>`:''}<button class="btn sec" id="lk-cp" type="button"><i class="ph ph-copy"></i> คัดลอกรหัส</button></div>
  <div class="msg info" id="lk-st" role="status"><span class="spin"></span><div>รอรับรหัสจาก LINE… หน้านี้จะอัปเดตเองเมื่อเชื่อมต่อสำเร็จ</div></div>`;
@@ -588,19 +630,27 @@ const PREFIXES=[['ทั่วไป',['นาย','นาง','นางสา�
  s.addEventListener('change',()=>{const on=s.value==='__other';$('#s-prefix-o').hidden=!on;$('#s-prefix-o').required=on;if(on)$('#s-prefix-o').focus()})})();
 /* ===== QR LINE OA: วางรูปไว้ที่ assets/line-qr.png (หรือตั้ง LINE_QR ใน config.js) ===== */
 function qrHtml(){const L=(CFG&&CFG.line)||{};if(!L.enabled)return '';const img=(window.APP_CONFIG||{}).LINE_QR||'assets/line-qr.png';
- return `<div class="qr"><img src="${esc(img)}" alt="QR Code เพิ่มเพื่อน LINE OA" onerror="this.remove()"><div><b><i class="ph ph-chat-circle-text"></i> รับแจ้งเตือนผ่าน LINE</b><ol><li>สแกน QR หรือกดปุ่ม "เพิ่มเพื่อน" ${L.oaId?'<b>'+esc(L.oaId)+'</b>':''}</li><li>ยื่นเอกสารเสร็จแล้วกด "เชื่อมต่อ LINE" เพื่อรับรหัส 6 หลัก</li><li>พิมพ์รหัสในแชท ระบบจะบันทึก LINE userId ของท่านให้อัตโนมัติ</li></ol>${L.oaLink?`<a class="btn line sm" href="${esc(L.oaLink)}" target="_blank" rel="noopener"><i class="ph ph-user-plus"></i> เพิ่มเพื่อน</a>`:''}</div></div>`}
+ return `<div class="qr"><img src="${esc(img)}" alt="QR Code เพิ่มเพื่อน LINE OA" onerror="this.remove()"><div><b><i class="ph ph-chat-circle-text"></i> รับแจ้งเตือนผ่าน LINE</b><ol><li>สแกน QR หรือกดปุ่ม "เพิ่มเพื่อน" ${L.oaId?'<b>'+esc(L.oaId)+'</b>':''}</li><li>เพิ่มเพื่อนก่อนหรือหลังยื่นก็ได้ แล้วพิมพ์เลขบัตร 13 หลักในแชท ตอบเลข 4 ตัวท้ายเบอร์โทร ระบบเชื่อมต่อให้ทันที</li><li>หรือกด "เชื่อมต่อ LINE" ที่เว็บเพื่อรับรหัส 6 หลักแล้วพิมพ์ในแชท</li><li>เชื่อมต่อไม่ได้? เจ้าหน้าที่ HR ผูกบัญชีให้ได้</li></ol>${L.oaLink?`<a class="btn line sm" href="${esc(L.oaLink)}" target="_blank" rel="noopener"><i class="ph ph-user-plus"></i> เพิ่มเพื่อน</a>`:''}</div></div>`}
 function initQr(){const h=qrHtml(),b=$('#s-qr');if(!b)return;b.innerHTML=h;b.hidden=!h}
 const FSUB=mkFile($('#s-file'),{exts:['pdf','doc','docx','zip'],max:8,hint:'รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB'});
 $('#s-cid').addEventListener('input',e=>e.target.value=fmtCid(e.target.value));
-$('#s-cid').addEventListener('blur',async()=>{const c=$('#s-cid').value.replace(/\D/g,'');if(c.length!==13)return;const d=await api('lookup',[c]);
- if(d.ok&&d.found){const s=d.staff;const set=(k,v)=>{const el=$('#s-'+k);if(el&&!el.value&&v)el.value=v};
+let LKC='';
+$('#s-cid').addEventListener('blur',async()=>{const c=$('#s-cid').value.replace(/\D/g,''),box=$('#s-chk');if(c.length!==13||!validCid(c)||c===LKC)return;LKC=c;
+ box.innerHTML=checkHtml('กำลังตรวจสอบข้อมูลเดิม',['ค้นหาข้อมูลในทะเบียนบุคลากร','ตรวจสอบรายการที่เคยยื่น','ตรวจสอบการเชื่อมต่อ LINE']);
+ const d=await api('lookup',[c]);if($('#s-cid').value.replace(/\D/g,'')!==c)return;
+ if(!d.ok){LKC='';box.innerHTML='';return msg(box,d.message)}
+ const L=[];
+ if(d.found){const s=d.staff;const set=(k,v)=>{const el=$('#s-'+k);if(el&&!el.value&&v)el.value=v};
   if(s.prefix&&!$('#s-prefix').value){const has=[...$('#s-prefix').options].some(o=>o.value===s.prefix);if(has)$('#s-prefix').value=s.prefix;else{$('#s-prefix').value='__other';$('#s-prefix-o').hidden=false;$('#s-prefix-o').value=s.prefix}}
-  set('first',s.first);set('last',s.last);set('position',s.position);set('group',s.group);set('posNo',s.posNo);set('phone',s.phone);
-  msg($('#s-msg'),'พบข้อมูลของท่านในระบบ เติมข้อมูลให้แล้ว กรุณาตรวจสอบ','info')}else if(!d.ok)msg($('#s-msg'),d.message)});
+  set('first',s.first);set('last',s.last);set('position',s.position);set('group',s.group);set('posNo',s.posNo);set('phone',s.phone);L.push(['ok','พบข้อมูลในทะเบียนบุคลากร เติมข้อมูลให้แล้ว กรุณาตรวจสอบ'])}
+ else L.push(['info','ไม่พบในทะเบียนบุคลากร กรุณากรอกข้อมูลเอง']);
+ if(d.prev)L.push(['warn','เคยยื่นเอกสารแล้ว '+d.prev+' รายการ (ล่าสุดอยู่ที่: '+stg(d.latest.status).t+') ติดตามได้ที่หน้า "ติดตามสถานะ"']);
+ if(d.lineEnabled)L.push(d.lineLinked?['ok','เชื่อมต่อ LINE แล้ว']:['info','ยังไม่ได้เชื่อมต่อ LINE — หากเพิ่มเพื่อน LINE OA ไปแล้ว พิมพ์เลขบัตร 13 หลักในแชทเพื่อเชื่อมต่อได้ทันที']);
+ box.innerHTML=chkRes('ตรวจสอบข้อมูลเดิมเรียบร้อย',L)});
 $('#s-start').addEventListener('change',e=>{const v=e.target.value;if(!v)return $('#s-ten').textContent='';const a=new Date(v),n=new Date();let m=(n.getFullYear()-a.getFullYear())*12+n.getMonth()-a.getMonth();if(n.getDate()<a.getDate())m--;$('#s-ten').textContent=m<0?'':`อายุงาน ${Math.floor(m/12)} ปี ${m%12} เดือน`});
 $('#s-cid').addEventListener('blur',()=>{const c=$('#s-cid').value.replace(/\D/g,''),bad=c.length===13&&!validCid(c);$('#s-cid').setAttribute('aria-invalid',bad?'true':'false');$('#s-cid-e').classList.toggle('hide',!bad)});
 const REQ=['cid','prefix','first','last','position','group','edu'];
-function routeHtml(){return (CFG.stages.length?FLOW.map(k=>chip(k)):[]).join('<i class="ph-bold ph-caret-right sep"></i>')}
+function routeHtml(){return (CFG.books||[]).map(b=>`<span class="dstage tone-teal">${esc(b.t)}</span>`+b.lv.map(l=>`<i class="ph-bold ph-caret-right sep"></i><span class="dstage tone-slate">${esc((CFG.lv||{})[l]||l)}</span>`).join('')).join('<i class="ph-bold ph-arrow-bend-down-right sep" style="margin:0 8px"></i>')}
 $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s-msg'),b=$('#s-go');msg(m,'');
  const p={};['cid','prefix','first','last','position','group','posNo','start','edu','phone','email','link'].forEach(k=>p[k]=$('#s-'+k).value.trim());p.cid=p.cid.replace(/\D/g,'');
  if(p.prefix==='__other')p.prefix=$('#s-prefix-o').value.trim();
@@ -639,24 +689,30 @@ const lnBadge=r=>r.lk?'<span class="dbadge ok" style="font-size:12px"><i class="
 async function loadList(){const el=$('#a-list');if(!ROWS.length)el.innerHTML=skTable(6);const d=await api('adminList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}ROWS=d.rows;COUNTS=d.counts;CFG.lineOn=d.lineEnabled;renderList()}
 let FLASH='';
 const ageOf=r=>{const t=toDate(r.upd||r.ts);return t?nowMs()-t:0};
-const isLate=r=>{if(r.status==='passed'||r.status==='revise')return false;const g=stg(r.status);return !!g.sla&&ageOf(r)>g.sla*864e5};
-const ageHtml=r=>r.status==='passed'?'<span class="meta">-</span>':`<span class="age ${isLate(r)?'late':''}"><i class="ph ph-timer"></i>${span(ageOf(r))}</span>`;
+const isLate=r=>{const g=stg(r.status);if(g.end||g.fix)return false;return !!g.sla&&ageOf(r)>g.sla*864e5};
+const inG=(r,k)=>{const s=stg(r.status);return 'g:'+s.book+':'+s.lvl===k};
+const matchF=r=>!FILTER||(FILTER==='__late'?isLate(r):FILTER==='__qa'?r.qa>0:inG(r,FILTER));
+const GRP=()=>{const g=[];CFG.stages.forEach(s=>{const k='g:'+s.book+':'+s.lvl;if(!g.some(x=>x.k===k))g.push({k,book:s.book,lvl:s.lvl,tn:s.tn,ic:s.ic})});return g};
+const grpHtml=()=>GRP().map(g=>`<button class="kpi tone-${g.tn||'slate'} ${FILTER===g.k?'on':''}" data-f="${g.k}"><span class="kpi-ico"><i class="ph-duotone ${g.ic||'ph-flag'}"></i></span><div><b>${ROWS.filter(r=>inG(r,g.k)).length}</b><span>เล่ม ${g.book} · ${LVS[g.lvl]}</span></div></button>`).join('');
+const qaK=()=>{const n=ROWS.filter(r=>r.qa>0).length;return n?`<button class="kpi tone-indigo ${FILTER==='__qa'?'on':''}" data-f="__qa"><span class="kpi-ico"><i class="ph-duotone ph-chats-circle"></i></span><div><b>${n}</b><span>รอเจ้าหน้าที่ตอบ</span></div></button>`:''};
+const statusOpts=cur=>CFG.books.map(b=>b.lv.map(lv=>{const ss=CFG.stages.filter(s=>s.book===b.n&&s.lvl===lv);return ss.length?`<optgroup label="เล่ม ${b.n} · ${esc(CFG.lv[lv]||lv)}">${ss.map(s=>`<option value="${s.k}" ${s.k===cur?'selected':''}>${esc(s.t)}</option>`).join('')}</optgroup>`:''}).join('')).join('');
+const ageHtml=r=>stg(r.status).end?'<span class="meta">-</span>':`<span class="age ${isLate(r)?'late':''}"><i class="ph ph-timer"></i>${span(ageOf(r))}</span>`;
 function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim().toLowerCase(),late=ROWS.filter(isLate).length;
- el.innerHTML=`<div class="kpis"><button class="kpi tone-teal ${FILTER?'':'on'}" data-f=""><span class="kpi-ico"><i class="ph-duotone ph-stack"></i></span><div><b>${ROWS.length}</b><span>ทั้งหมด</span></div></button>${CFG.stages.map(s=>`<button class="kpi tone-${tone(s.k)} ${FILTER===s.k?'on':''}" data-f="${s.k}"><span class="kpi-ico"><i class="ph-duotone ${SIC[s.k]||'ph-flag'}"></i></span><div><b>${COUNTS[s.k]||0}</b><span>${esc(s.t)}</span></div></button>`).join('')}${late?`<button class="kpi tone-rose ${FILTER==='__late'?'on':''}" data-f="__late"><span class="kpi-ico"><i class="ph-duotone ph-alarm"></i></span><div><b>${late}</b><span>ค้างนานกว่าปกติ</span></div></button>`:''}</div>
+ el.innerHTML=`<div class="kpis"><button class="kpi tone-teal ${FILTER?'':'on'}" data-f=""><span class="kpi-ico"><i class="ph-duotone ph-stack"></i></span><div><b>${ROWS.length}</b><span>ทั้งหมด</span></div></button>${grpHtml()}${qaK()}${late?`<button class="kpi tone-rose ${FILTER==='__late'?'on':''}" data-f="__late"><span class="kpi-ico"><i class="ph-duotone ph-alarm"></i></span><div><b>${late}</b><span>ค้างนานกว่าปกติ</span></div></button>`:''}</div>
  ${CFG.lineOn?'':'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ระบบจะบันทึกสถานะตามปกติแต่ไม่ส่งแจ้งเตือน (ตั้งค่าที่แท็บ LINE)</div></div>'}
  <div class="row" style="margin-bottom:12px"><div class="grow ig"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส" aria-label="ค้นหา" value="${esc(q)}" style="padding-left:44px"></div><button class="btn sec" id="a-rf"><i class="ph-bold ph-arrows-clockwise"></i> รีเฟรช</button></div>
  <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ไฟล์ผลงาน</th><th>สถานะ</th><th>ค้างอยู่</th><th>LINE</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
- const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();$('#tb').innerHTML=rowsHtml(ROWS.filter(r=>(!FILTER||(FILTER==='__late'?isLate(r):r.status===FILTER))&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq))));
-  $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n));
+ const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();$('#tb').innerHTML=rowsHtml(ROWS.filter(r=>matchF(r)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq))));
+  $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n));$$('[data-q]').forEach(b=>b.onclick=()=>openQa(b.dataset.q));
   if(FLASH){const tr=$(`tr[data-id="${FLASH}"]`);if(tr){tr.classList.add('flash');tr.scrollIntoView({block:'nearest',behavior:'smooth'})}FLASH=''}};
  $$('[data-f]',el).forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;renderList()});$('#q').oninput=fill;
  $('#a-rf').onclick=async e=>{const b=e.currentTarget;busy(b,1,'กำลังโหลด...');await loadList()};fill()}
-const rowsHtml=rows=>rows.length?rows.map(r=>`<tr data-id="${esc(r.id)}"><td data-l="รหัส">${esc(r.id)}<div class="meta">${esc(thDT(r.ts))}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div></td><td data-l="กลุ่มงาน">${esc(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status)}</td><td data-l="ค้างอยู่">${ageHtml(r)}</td><td data-l="LINE">${lnBadge(r)}</td><td><div class="row"><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm line" data-n="${esc(r.id)}"><i class="ph ph-chat-circle-text"></i> แจ้ง LINE</button></div></td></tr>`).join(''):'<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>';
+const rowsHtml=rows=>rows.length?rows.map(r=>`<tr data-id="${esc(r.id)}"><td data-l="รหัส">${esc(r.id)}<div class="meta">${esc(thDT(r.ts))}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div></td><td data-l="กลุ่มงาน">${esc(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status)}</td><td data-l="ค้างอยู่">${ageHtml(r)}</td><td data-l="LINE">${lnBadge(r)}</td><td><div class="row"><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm sec" data-q="${esc(r.id)}"><i class="ph ph-chats-circle"></i> ถาม-ตอบ${r.qa?`<span class="dtl-new">${r.qa}</span>`:''}</button><button class="btn sm line" data-n="${esc(r.id)}"><i class="ph ph-chat-circle-text"></i> แจ้ง LINE</button></div></td></tr>`).join(''):'<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>';
 /* ---- แก้ไขรายการ + แนบไฟล์ + ส่ง LINE อัตโนมัติ ---- */
 const FIELDS=[['prefix','คำนำหน้า'],['first','ชื่อ'],['last','นามสกุล'],['cid','เลขบัตรประชาชน'],['position','ตำแหน่ง'],['group','กลุ่มงาน'],['posNo','ตำแหน่งเลขที่'],['start','วันเริ่มงาน'],['edu','วุฒิการศึกษาสูงสุด'],['phone','เบอร์โทร'],['email','อีเมล'],['link','ลิงก์ไฟล์ผลงาน']];
 const FED=mkFile($('#d-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls','xlsx'],max:8,hint:'รูป (jpg, png) หรือไฟล์ (pdf, doc, docx, xls, xlsx) ไม่เกิน 8 MB — รูปใหญ่จะถูกย่อให้อัตโนมัติ'});
 function openEdit(id){EDIT=ROWS.find(r=>r.id===id);if(!EDIT)return;$('#d-ttl').textContent='แก้ไข '+id;msg($('#d-msg'),'');FED.clear();
- $('#d-grid').innerHTML=`<div><label for="e-status">สถานะ</label><select id="e-status">${CFG.stages.map(s=>`<option value="${s.k}" ${s.k===EDIT.status?'selected':''}>${esc(s.t)}</option>`).join('')}</select></div>
+ $('#d-grid').innerHTML=`<div><label for="e-status">สถานะ</label><select id="e-status">${statusOpts(EDIT.status)}</select></div>
  <div class="full"><label for="e-note">หมายเหตุถึงผู้ยื่น (แสดงในหน้าติดตามและส่งใน LINE/อีเมล)</label><textarea id="e-note" rows="2">${esc(EDIT.note)}</textarea></div>`+FIELDS.map(([k,l])=>`<div class="${k==='title'?'full':''}"><label for="e-${k}">${l}</label><input id="e-${k}" ${k==='start'?'type="date"':''} value="${esc(k==='start'?(EDIT[k]||'').slice(0,10):EDIT[k])}"></div>`).join('');
  const lk=EDIT.lk;$('#d-lnst').textContent=!CFG.lineOn?'(ยังไม่ได้ตั้งค่า LINE)':lk?'(ผู้ยื่นผูก LINE แล้ว)':'(ผู้ยื่นยังไม่ผูก LINE — ระบบจะบันทึกแต่ส่งไม่ได้)';
  $('#d-send').checked=true;$('#d-del').classList.toggle('hide',USER.r!=='admin');dlgOpen($('#dlg'))}
@@ -690,9 +746,9 @@ async function openNotify(id){const r=ROWS.find(x=>x.id===id);if(!r)return;NID=i
 async function refreshNotify(){const d=await api('lineInfo',[TOKEN,NID]);if(!d.ok){$('#n-state').innerHTML='';$('#n-hist').innerHTML='';return msg($('#n-msg'),d.message)}NINFO=d;
  $('#n-state').innerHTML=!d.enabled?'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ส่งแจ้งเตือนไม่ได้ (ผู้ดูแลระบบตั้งค่าที่แท็บ LINE) การกดส่งจะถูกบันทึกในประวัติ</div></div>'
   :d.linked?`<div class="msg ok"><i class="ph ph-check-circle"></i><div>ผู้ยื่นผูก LINE แล้ว${d.names.length?': '+esc(d.names.join(', ')):''} · สถานะปัจจุบัน: <b>${esc(stg(d.status).t)}</b></div></div>`
-  :'<div class="msg warn"><i class="ph ph-warning"></i><div>ผู้ยื่นรายนี้ยังไม่ได้เชื่อมต่อ LINE — ให้ผู้ยื่นกด "เชื่อมต่อ LINE" ที่หน้าติดตามสถานะ (การกดส่งจะถูกบันทึกในประวัติ)</div></div>';
+  :'<div class="msg warn"><i class="ph ph-warning"></i><div>ผู้ยื่นรายนี้ยังไม่ได้เชื่อมต่อ LINE — ให้ผู้ยื่นกด "เชื่อมต่อ LINE" ที่หน้าติดตามสถานะ หรือพิมพ์เลขบัตรในแชท LINE OA — หากเพิ่มเพื่อนไปแล้ว ผู้ดูแลระบบผูกให้ได้ที่แท็บ LINE → "เพิ่มเพื่อนแล้วแต่ยังไม่ผูก" (การกดส่งจะถูกบันทึกในประวัติ)</div></div>';
  $('#n-hist').innerHTML=histHtml(d.log)}
-const LT={auto:['แจ้งอัตโนมัติ','ph-robot'],manual:['กดแจ้ง/สำเร็จรูป','ph-hand-pointing'],typed:['พิมพ์เอง','ph-pencil-simple'],bot:['ระบบตอบแชท','ph-chats'],inbound:['ผู้ยื่นพิมพ์เข้ามา','ph-arrow-bend-down-left'],link:['ผูกบัญชี','ph-link']};
+const LT={auto:['แจ้งอัตโนมัติ','ph-robot'],manual:['กดแจ้ง/สำเร็จรูป','ph-hand-pointing'],typed:['พิมพ์เอง','ph-pencil-simple'],bot:['ระบบตอบแชท','ph-chats'],inbound:['ผู้ยื่นพิมพ์เข้ามา','ph-arrow-bend-down-left'],link:['ผูกบัญชี','ph-link'],qa:['ตอบคำถาม','ph-chats-circle']};
 const LR={sent:['ส่งแล้ว','green','ph-check-circle'],success:['สำเร็จ','green','ph-check-circle'],failed:['ส่งไม่สำเร็จ','red','ph-x-circle'],no_line:['ยังไม่ผูก LINE','orange','ph-minus-circle'],skipped:['ข้ามการส่ง','orange','ph-minus-circle'],received:['รับแล้ว','gray','ph-arrow-down'],info:['ข้อมูล','gray','ph-info']};
 const lt=t=>{const x=LT[t]||[t,'ph-dot'];return `<span class="chip gray" style="font-size:12px"><i class="ph ${x[1]}"></i>${esc(x[0])}</span>`};
 const lr=r=>{const x=LR[r]||[r,'gray','ph-dot'];return `<span class="chip ${x[1]}" style="font-size:12px"><i class="ph ${x[2]}"></i>${esc(x[0])}</span>`};
@@ -704,10 +760,20 @@ $('#n-send').onclick=async()=>{const b=$('#n-send'),m=$('#n-msg');msg(m,'');cons
  const d=await api('lineSend',[TOKEN,NID,p],{timeout:120000,write:true});busy(b,0);
  if(d.ok){toast('ส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':''));$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear()}else msg(m,d.message);
  await refreshNotify()};
+/* ---- ถาม-ตอบ (เจ้าหน้าที่) ---- */
+let QID=null;
+const drawQ=t=>{const el=$('#q-th');el.innerHTML=t.length?t.map(m=>`<div class="qb ${m.from==='staff'?'a':'s'}">${esc(m.m)}<small>${esc(m.by||(m.from==='staff'?'เจ้าหน้าที่':'ผู้ยื่น'))} · ${esc(thShort(m.t))}</small></div>`).join(''):'<div class="empty">ยังไม่มีข้อความ</div>';el.scrollTop=el.scrollHeight};
+async function openQa(id){QID=id;const r=ROWS.find(x=>x.id===id);if(!r)return;$('#q-sub').textContent=id+' · '+r.prefix+r.first+' '+r.last;$('#q-th').innerHTML=skel(3);$('#q-t').value='';msg($('#q-m'),'');dlgOpen($('#dq'));
+ const d=await api('qaThread',[TOKEN,id]);if(!d.ok){$('#q-th').innerHTML='';return msg($('#q-m'),d.message)}drawQ(d.thread)}
+$('#q-send').onclick=async()=>{const b=$('#q-send'),m=$('#q-m'),t=$('#q-t').value.trim();msg(m,'');if(t.length<2)return msg(m,'กรุณาพิมพ์ข้อความ');busy(b,1,'กำลังส่ง...');
+ const d=await api('qaReply',[TOKEN,QID,t],{write:true});busy(b,0);if(!d.ok)return msg(m,d.message);$('#q-t').value='';drawQ(d.thread);const r=ROWS.find(x=>x.id===QID);if(r)r.qa=0;renderList();
+ const L=d.line||{};toast(L.sent>0?'ส่งคำตอบแล้ว และแจ้งทาง LINE แล้ว':'บันทึกคำตอบแล้ว (ผู้ยื่นเห็นในหน้าติดตามสถานะ'+(L.skipped==='none'?' — ยังไม่ได้ผูก LINE':'')+')',L.sent>0?'ok':'warn')};
 /* ---- แท็บ LINE (ผู้ดูแลระบบ): ตรวจการเชื่อมต่อ + ผู้ใช้ที่ผูก + ประวัติทั้งหมด ---- */
 let LNLOG=[];
-async function loadLine(){const el=$('#a-line');el.innerHTML=skTable(5);const d=await api('lineAdmin',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}LNLOG=d.log;
+async function loadLine(){const el=$('#a-line');el.innerHTML=skTable(5);const d=await api('lineAdmin',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}LNLOG=d.log;const pd=await api('linePending',[TOKEN]),PR=pd.ok?pd.rows:[];
  el.innerHTML=`<div class="card"><div class="hd"><h2><i class="ph ph-plugs-connected"></i> การเชื่อมต่อ LINE Messaging API</h2><button class="btn sec sm" id="ln-chk"><i class="ph ph-stethoscope"></i> ตรวจสอบการเชื่อมต่อ</button></div><div id="ln-res" class="meta">กด "ตรวจสอบการเชื่อมต่อ" เพื่อทดสอบ Channel access token และดู Webhook URL</div></div>
+ <div class="card"><h2><i class="ph ph-user-plus"></i> เพิ่มเพื่อนแล้วแต่ยังไม่ผูก (${PR.length})</h2><p class="meta">ระบบเก็บ LINE userId ตั้งแต่ผู้ยื่นเพิ่มเพื่อน (ระบบสำรองกรณีไม่ได้รับรหัส) — เลือกผู้ยื่นที่ตรงกับชื่อ LINE แล้วกดผูก หรือกด \"ใช้ userId นี้\" เพื่อกรอกเลขบัตรเอง</p>
+  <div class="tw"><table class="rt"><thead><tr><th>ชื่อ LINE</th><th>เพิ่มเพื่อนเมื่อ</th><th>ข้อความล่าสุด</th><th>ผู้ยื่นที่น่าจะตรง</th><th></th></tr></thead><tbody>${PR.map(p=>`<tr><td data-l="ชื่อ LINE">${esc(p.name||'-')}<div class="meta mono">${esc(p.uid.slice(0,8))}…</div></td><td data-l="เพิ่มเพื่อนเมื่อ">${esc(thDT(p.at))}</td><td data-l="ข้อความล่าสุด">${esc(p.last||'-')}</td><td data-l="ผู้ยื่นที่น่าจะตรง">${p.cands.map(c=>`<button type="button" class="btn sm sec" data-pl="${esc(c.cid)}|${esc(p.uid)}|${esc(c.name)}" style="margin:0 6px 6px 0"><i class="ph ph-link"></i> ${esc(c.name)}</button>`).join('')||'<span class="meta">ไม่พบชื่อที่ใกล้เคียง</span>'}</td><td><button type="button" class="btn sm sec" data-pu="${esc(p.uid)}">ใช้ userId นี้</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">ไม่มีผู้เพิ่มเพื่อนที่รอผูก</td></tr>'}</tbody></table></div></div>
  <div class="card"><h2><i class="ph ph-link"></i> บัญชี LINE ที่ผูกแล้ว (${d.users.filter(u=>u.active).length})</h2>
   <form id="ln-add" class="row" style="margin-bottom:12px"><div class="grow"><label for="la-c">เลขบัตรประชาชน</label><input id="la-c" inputmode="numeric" maxlength="17" required></div><div class="grow"><label for="la-u">LINE userId (U + 32 ตัว)</label><input id="la-u" required></div><div style="align-self:end"><button class="btn sm" id="la-go"><i class="ph ph-plus"></i> ผูกให้</button></div></form>
   <div class="tw"><table class="rt"><thead><tr><th>เลขบัตร</th><th>ชื่อ LINE</th><th>ผูกเมื่อ</th><th>วิธี</th><th>สถานะ</th><th></th></tr></thead><tbody>${d.users.map(u=>`<tr><td data-l="เลขบัตร">${esc(maskCid(u.cid))}</td><td data-l="ชื่อ LINE">${esc(u.name||'-')}</td><td data-l="ผูกเมื่อ">${esc(thDT(u.at))}</td><td data-l="วิธี">${esc(u.via)}</td><td data-l="สถานะ">${u.active?'<span class="chip green" style="font-size:12px"><i class="ph ph-check-circle"></i>ใช้งาน</span>':'<span class="chip gray" style="font-size:12px"><i class="ph ph-minus-circle"></i>ยกเลิก</span>'}</td><td>${u.active?`<button class="btn sm sec" data-ul="${esc(u.cid)}|${esc(u.uid)}">ยกเลิกการผูก</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">ยังไม่มีผู้ผูก LINE</td></tr>'}</tbody></table></div></div>
@@ -723,6 +789,8 @@ async function loadLine(){const el=$('#a-line');el.innerHTML=skTable(5);const d=
   <li><span class="chip blue"><i class="ph ph-webhooks-logo"></i>Webhook URL</span><span class="t"><code>${esc(r.webhookUrl)}</code><br><button class="btn sm sec" id="ln-cp" style="margin-top:6px"><i class="ph ph-copy"></i> คัดลอก</button> <span class="meta">วางที่ LINE Developers → Messaging API → Webhook URL แล้วกด Verify และเปิด Use webhook</span></span></li></ul>`;
   $('#ln-cp').onclick=()=>copy(r.webhookUrl,'คัดลอก Webhook URL')};
  $('#ln-add').onsubmit=async e=>{e.preventDefault();const b=$('#la-go');busy(b,1,'กำลังผูก...');const r=await api('lineAdd',[TOKEN,$('#la-c').value,$('#la-u').value.trim()],{write:true});busy(b,0);if(!r.ok)return toast(r.message,'err');toast('ผูกบัญชี LINE แล้ว');loadLine()};
+ $$('[data-pu]',el).forEach(b=>b.onclick=()=>{$('#la-u').value=b.dataset.pu;$('#la-c').focus();$('#ln-add').scrollIntoView({behavior:'smooth',block:'center'})});
+ $$('[data-pl]',el).forEach(b=>b.onclick=()=>{const[c,u,n]=b.dataset.pl.split('|');confirmBox({title:'ผูกบัญชี LINE นี้กับ '+n+'?',text:'ตรวจชื่อ LINE ให้ตรงกับผู้ยื่นก่อนยืนยัน ระบบจะส่งแจ้งเตือนสถานะไปยังบัญชีนี้',ok:'ผูกบัญชี',icon:'ph-link'},async()=>{const r=await api('lineAdd',[TOKEN,c,u],{write:true});if(!r.ok)throw new Error(r.message)}).then(ok=>{if(ok){toast('ผูกบัญชี LINE แล้ว');loadLine()}})});
  $$('[data-ul]',el).forEach(b=>b.onclick=()=>{const[c,u]=b.dataset.ul.split('|');confirmBox({title:'ยกเลิกการผูก LINE นี้?',text:'ผู้ยื่นจะไม่ได้รับแจ้งเตือนทาง LINE จนกว่าจะผูกใหม่',ok:'ยกเลิกการผูก',danger:true,icon:'ph-link-break'},async()=>{const r=await api('lineUnlink',[TOKEN,c,u],{write:true});if(!r.ok)throw new Error(r.message)}).then(ok=>{if(ok){toast('ยกเลิกการผูกแล้ว');loadLine()}})})}
 async function loadUsers(){const el=$('#a-users');el.innerHTML=skTable(4);const d=await api('usersList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
  const ROLE=r=>r==='admin'?'ผู้ดูแลระบบ':'เจ้าหน้าที่';
