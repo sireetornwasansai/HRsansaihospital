@@ -4,15 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
+<meta name="description" content="ติดตามสถานะการประเมินผลงาน (อวช.) กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/favicon-192.png">
+<meta property="og:title" content="ระบบติดตามสถานะการประเมินผลงาน (อวช.) · รพ.สันทราย">
+<meta property="og:image" content="/assets/logo.png">
+<link rel="preload" as="image" href="assets/logo.png">
 <title>ระบบติดตามสถานะการประเมินผลงาน (อวช.) · โรงพยาบาลสันทราย</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <style>
 :root{--pri:#0f766e;--pri-d:#0b5a54;--ink:#12303a;--mut:#51676f;--bg:#f3f8f8;--card:#fff;--line:#d5e3e5;--ok:#15803d;--okb:#e6f5ea;--warn:#a1480a;--warnb:#fdf0e1;--bad:#b91c1c;--badb:#fdeaea;--info:#1d4ed8;--infob:#e8effd;--gray:#475569;--grayb:#eef2f4;--r:12px}
 *{box-sizing:border-box}html{scroll-padding-top:90px}
-body{margin:0;font:16px/1.65 'Noto Sans Thai',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+body{margin:0;font:16px/1.65 'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
 a{color:var(--pri-d)}button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
@@ -32,11 +40,11 @@ a{color:var(--pri-d)}button,input,select,textarea{font:inherit;color:inherit}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}#bar.on::after{width:100%}}
 header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .top{display:flex;align-items:center;gap:12px;padding:10px 0}
-.logo{width:48px;height:48px;border:1.5px dashed var(--line);border-radius:10px;display:grid;place-items:center;font-size:9px;color:var(--mut);text-align:center;line-height:1.1;flex:none}
+.logo{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:none;box-shadow:0 0 0 1px var(--line)}
 .brand b{display:block;font-size:17px;line-height:1.3}.brand small{color:var(--mut);font-size:13px;line-height:1.3;display:block}
-nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px}
-nav a{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;color:var(--mut);font-weight:500;white-space:nowrap}
-nav a.on{background:var(--pri);color:#fff}
+header nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px}
+header nav a{display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;color:var(--mut);font-weight:500;white-space:nowrap}
+header nav a.on{background:var(--pri);color:#fff}
 main{padding:24px 0 48px}h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:0 0 12px}h3{font-size:16px;margin:0 0 6px}
 .sub{color:var(--mut);margin:0 0 20px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:16px}
@@ -81,79 +89,271 @@ label{display:block;font-weight:500;margin:0 0 4px;font-size:15px}.req::after{co
 dialog{border:0;border-radius:var(--r);padding:20px;max-width:760px;width:calc(100% - 24px);max-height:92vh;overflow:auto}dialog::backdrop{background:#0008}
 .empty{text-align:center;color:var(--mut);padding:24px}.hide{display:none!important}.qr{display:flex;gap:16px;align-items:center;flex-wrap:wrap}.qr img{border-radius:12px;border:1px solid var(--line);background:#fff;width:132px;height:132px;object-fit:contain}.qr ol{margin:6px 0 10px;padding-left:20px}
 .drop{border:2px dashed #b9cdd1;border-radius:10px;padding:12px;background:#fafdfd}.drop .pv{display:flex;gap:12px;align-items:center;margin-top:8px}.drop img{width:64px;height:64px;object-fit:cover;border-radius:8px}
-.code{font:700 40px/1.2 'Noto Sans Thai',monospace;letter-spacing:8px;text-align:center;padding:12px;background:#eef7f6;border-radius:12px;color:var(--pri-d)}
+.code{font:700 40px/1.2 'IBM Plex Sans Thai','Noto Sans Thai',monospace;letter-spacing:8px;text-align:center;padding:12px;background:#eef7f6;border-radius:12px;color:var(--pri-d)}
 .hist{max-height:300px;overflow:auto}
 code,.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;word-break:break-all}
 footer{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-size:14px;text-align:center}
 @media(min-width:768px){h1{font-size:30px}.card{padding:28px}.brand b{font-size:20px}}
 @media(max-width:720px){.rt{min-width:0}.rt thead{display:none}.rt,.rt tbody,.rt tr,.rt td{display:block;width:100%}.rt tr{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:8px}.rt td{border:0;padding:4px 6px}.rt td[data-l]::before{content:attr(data-l);display:block;font-size:12px;color:var(--mut)}}
+/* ================= v2: ภาษาออกแบบเดียวกับระบบสารบรรณ (Smart E-Office) ================= */
+:root{--brand:#0f766e;--brand-2:#4f46e5;--sh:0 1px 2px #0f2a3010,0 6px 20px #0f2a3010}
+.tone-sky{--t:#0369a1;--tb:#e0f2fe;--tg:#0ea5e9}.tone-cyan{--t:#0e7490;--tb:#cffafe;--tg:#06b6d4}
+.tone-violet{--t:#6d28d9;--tb:#ede9fe;--tg:#8b5cf6}.tone-blue{--t:#1d4ed8;--tb:#dbeafe;--tg:#3b82f6}
+.tone-fuchsia{--t:#a21caf;--tb:#fae8ff;--tg:#d946ef}.tone-emerald{--t:#047857;--tb:#d1fae5;--tg:#10b981}
+.tone-amber{--t:#b45309;--tb:#fef3c7;--tg:#f59e0b}.tone-rose{--t:#be123c;--tb:#ffe4e6;--tg:#f43f5e}
+.tone-slate{--t:#475569;--tb:#f1f5f9;--tg:#94a3b8}.tone-teal{--t:#0f766e;--tb:#ccfbf1;--tg:#14b8a6}
+.tone-indigo{--t:#4338ca;--tb:#e0e7ff;--tg:#6366f1}
+.card{box-shadow:var(--sh);border-radius:16px}
+.ph-bold,.ph-fill,.ph-duotone{line-height:1}
+
+/* --- หน้าโหลดแรกเข้า + หน้าคั่นเมื่อไปหน้าอื่น (มีโลโก้) --- */
+#boot,#go{position:fixed;inset:0;z-index:300;display:grid;place-items:center;transition:opacity .3s,visibility .3s}
+#boot{background:radial-gradient(900px 500px at 15% -10%,#d4efec,transparent 60%),radial-gradient(800px 480px at 100% 0,#e3e5ff,transparent 55%),#f6fafa}
+#go{background:#f6fafad9;backdrop-filter:blur(8px);opacity:0;visibility:hidden}#go.on{opacity:1;visibility:visible}
+#boot.off{opacity:0;visibility:hidden}
+.ld{text-align:center;padding:24px;max-width:320px}
+.ld img{width:96px;height:96px;border-radius:50%;box-shadow:0 10px 30px #0f766e33;animation:breath 1.8s ease-in-out infinite}
+.ld b{display:block;margin-top:16px;font-size:18px}.ld span{display:block;color:var(--mut);font-size:14px;margin-top:2px}
+.ld-bar{width:180px;height:4px;border-radius:99px;background:#d5e3e5;margin:18px auto 0;overflow:hidden}
+.ld-bar::after{content:"";display:block;height:100%;width:40%;background:linear-gradient(90deg,var(--brand),var(--brand-2));animation:slide 1.1s ease-in-out infinite}
+@keyframes breath{50%{transform:scale(1.05);box-shadow:0 14px 38px #0f766e44}}
+
+/* --- ส่วนหัว --- */
+header{background:#ffffffeb;backdrop-filter:saturate(1.4) blur(10px)}
+.logo{width:52px;height:52px;box-shadow:0 0 0 2px #fff,0 0 0 4px #cfe9e6;background:#fff}
+header nav a{transition:background .15s,color .15s}header nav a:hover{background:#eef7f6;color:var(--pri-d)}
+header nav a.on{background:linear-gradient(120deg,var(--brand),#0e7490);box-shadow:0 4px 12px #0f766e40}
+header nav a.out{margin-left:auto;border:1.5px solid var(--line)}
+.vin{animation:vin .28s ease-out}@keyframes vin{from{opacity:0;transform:translateY(6px)}}
+
+/* --- หัวหน้า (breadcrumb + ไอคอน) --- */
+.crumbs{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--mut);margin:0 0 10px;flex-wrap:wrap}
+.crumbs a{color:var(--mut);text-decoration:none}.crumbs a:hover{color:var(--pri-d)}.crumbs i{font-size:11px}
+.page-head{display:flex;gap:14px;align-items:center;margin:0 0 18px}
+.page-head h1{margin:0;font-size:26px;line-height:1.25}.page-head p{margin:2px 0 0;color:var(--mut)}
+.ph-title-ico{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),#0d9488);color:#fff;font-size:27px;flex:none;box-shadow:0 8px 18px #0f766e38}
+
+/* --- ช่องค้นหา --- */
+.thero{background:linear-gradient(120deg,#0f766e 0%,#0e7490 48%,#4f46e5 100%);color:#fff;border:0;padding:20px;position:relative;overflow:hidden;margin-bottom:18px}
+.thero::after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,#ffffff30,transparent 65%);pointer-events:none}
+.thero-in{display:flex;gap:16px;align-items:center;position:relative;z-index:1}
+.thero-logo{width:64px;height:64px;border-radius:50%;background:#fff;flex:none;box-shadow:0 6px 16px #0004}
+.thero form{flex:1;display:flex;gap:8px;min-width:0}
+.ig{position:relative;flex:1;min-width:0}.ig i{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#64748b;font-size:20px;pointer-events:none}
+.ig input{padding-left:46px;min-height:54px;font-size:18px;border:0;border-radius:12px;letter-spacing:.4px;color:var(--ink)}
+.thero .btn{min-height:54px;background:#fff;color:var(--pri-d);padding:0 22px}.thero .btn:hover{background:#eefaf8}
+.ttips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
+.ttips span{display:inline-flex;gap:6px;align-items:center;background:#ffffff24;border:1px solid #ffffff42;padding:3px 12px;border-radius:999px;font-size:13px}
+@media(max-width:720px){.thero{padding:16px}.thero-in{flex-direction:column;align-items:stretch;gap:12px}.thero-logo{width:52px;height:52px}.thero form{flex-direction:column}}
+
+/* --- ป้ายสถานะ --- */
+.dstage,.dbadge{display:inline-flex;align-items:center;gap:6px;padding:2px 11px;border-radius:999px;font-weight:600;font-size:13.5px;white-space:nowrap;background:var(--tb);color:var(--t)}
+.dbadge.late{background:#ffe4e6;color:#be123c}.dbadge.ok{background:#d1fae5;color:#047857}.dbadge.wait{background:#fef3c7;color:#b45309}
+.dbadges{display:flex;gap:8px;flex-wrap:wrap}
+
+/* --- ข้อมูลผู้ยื่น --- */
+.who{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.who-l{display:flex;gap:14px;align-items:center;min-width:0}
+.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:19px;flex:none;background:linear-gradient(135deg,var(--tg,#14b8a6),var(--t,#0f766e));box-shadow:0 0 0 3px #fff,0 0 0 5px var(--tb,#ccfbf1);overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;background:#fff}
+.avatar.sm{width:22px;height:22px;font-size:10px;box-shadow:none}
+.who h2{margin:0;font-size:20px}
+.checked{font-size:13px;color:var(--mut);display:flex;gap:6px;align-items:center}
+
+/* --- เส้นทางสถานะ (dflow) --- */
+.dflow{--n:4;--p:0%}
+.dflow-head{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding-bottom:22px}
+.dflow-now{display:flex;gap:14px;align-items:center;min-width:0}
+.dflow-now .avatar{width:60px;height:60px}
+.dflow-now-k{font-size:13px;color:var(--t);font-weight:600;display:flex;gap:8px;align-items:center}
+.dflow-now-v{font-size:19px;font-weight:700;line-height:1.35}.dflow-now-s{font-size:14px;color:var(--mut)}
+.live-pulse{width:8px;height:8px;border-radius:50%;background:var(--tg);position:relative;flex:none}
+.live-pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--tg);animation:pulse 1.7s ease-out infinite}
+@keyframes pulse{from{transform:scale(.5);opacity:.9}to{transform:scale(1.7);opacity:0}}
+.dflow-kpis{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.dflow-kpi{background:#f6fafa;border:1px solid var(--line);border-radius:12px;padding:8px 14px;min-width:104px}
+.dflow-kpi span{display:block;font-size:12px;color:var(--mut)}.dflow-kpi b{font-size:18px;line-height:1.35;display:block}
+.dflow-track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(var(--n),1fr);position:relative}
+.dflow-rail{position:absolute;left:calc(50% / var(--n));right:calc(50% / var(--n));top:26px;height:4px;background:#e2ecee;border-radius:99px;overflow:hidden}
+.dflow-bar{display:block;height:100%;width:var(--p);background:linear-gradient(90deg,#0f766e,#4f46e5);border-radius:inherit;animation:grow .9s cubic-bezier(.2,.8,.2,1)}
+@keyframes grow{from{width:0}}
+.dflow-step{position:relative;text-align:center;padding:0 6px}
+.dflow-node{width:54px;height:54px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-size:23px;position:relative;z-index:1;background:#fff;border:3px dashed #cbd9dc;color:#94a3b8}
+.s-done .dflow-node{background:#0f766e;border:3px solid #0f766e;color:#fff}
+.s-skipped .dflow-node{background:#f1f5f9;border-style:dashed}
+.s-current .dflow-node{border:3px solid var(--tg);color:var(--t);box-shadow:0 0 0 6px var(--tb);animation:ring 2.2s ease-in-out infinite}
+@keyframes ring{50%{box-shadow:0 0 0 10px #0000}}
+.dflow-label{font-weight:600;line-height:1.35}.s-pending .dflow-label,.s-skipped .dflow-label{color:var(--mut)}.s-current .dflow-label{color:var(--t)}
+.dflow-time{font-size:13px;color:var(--mut)}
+.dflow-actor{display:inline-flex;gap:6px;align-items:center;font-size:13px;margin-top:4px}
+.dflow-dwell{display:inline-flex;gap:4px;align-items:center;font-size:12px;padding:1px 9px;border-radius:999px;background:#f1f5f9;color:#475569;margin-top:4px}
+.dflow-dwell.is-live{background:var(--tb);color:var(--t);font-weight:600}
+.dflow-next{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:14px;color:var(--mut);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:680px){
+ .dflow-track{grid-template-columns:1fr}
+ .dflow-rail{left:26px;right:auto;top:27px;bottom:60px;width:4px;height:auto}
+ .dflow-bar{width:100%;height:var(--p);animation:none}
+ .dflow-step{display:flex;gap:14px;text-align:left;padding:0 0 20px}
+ .dflow-node{margin:0;flex:none}.dflow-info{padding-top:2px}
+ .dflow-kpi{flex:1 1 90px}
+}
+
+/* --- ไทม์ไลน์ความเคลื่อนไหว (dtl) --- */
+.dtl-day{font-size:13px;font-weight:600;color:var(--mut);margin:16px 0 10px}.dtl-day:first-child{margin-top:0}
+.dtl-item{display:flex;gap:12px;padding:0 0 14px;position:relative}
+.dtl-item::before{content:"";position:absolute;left:17px;top:38px;bottom:2px;width:2px;background:var(--line)}.dtl-item:last-child::before{display:none}
+.dtl-ico{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--tb);color:var(--t);font-size:19px;flex:none}
+.dtl-title{font-weight:600;line-height:1.4}.dtl-meta{font-size:13px;color:var(--mut);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dtl-note{margin-top:6px;background:#f6fafa;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+.dtl-item.is-minor .dtl-ico{width:28px;height:28px;margin:4px 4px 0;font-size:15px}.dtl-item.is-minor::before{left:17px;top:34px}
+.dtl-item.is-minor .dtl-title{font-weight:500;font-size:14px}
+.dtl-new{font-size:11px;font-weight:700;background:var(--tg);color:#fff;border-radius:999px;padding:0 8px;margin-left:6px}
+
+/* --- รายละเอียดผู้ยื่น (kv) --- */
+.dgrid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr);margin-bottom:16px}
+@media(min-width:900px){.dgrid{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.card-t{display:flex;gap:10px;align-items:center;font-size:17px;font-weight:700;margin:0 0 14px}
+.card-t .ico{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--tb,#ccfbf1);color:var(--t,#0f766e);font-size:18px}
+.dl{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.dl li{display:flex;gap:12px;align-items:flex-start}.dl li>i{font-size:22px;color:var(--pri);flex:none;margin-top:1px}
+.dl b{display:block;font-weight:600;line-height:1.35}.dl span{display:block;font-size:13px;color:var(--mut)}
+
+/* --- Skeleton (ตรงรูปทรงของหน้าจริง) --- */
+.skeleton{background:linear-gradient(90deg,#e6eeef 25%,#f3f8f8 50%,#e6eeef 75%);background-size:200% 100%;animation:shim 1.2s infinite;border-radius:8px}
+.sk-text{height:14px;margin:8px 0}.sk-tile{width:44px;height:44px;border-radius:12px;flex:none}.sk-c{border-radius:50%;flex:none}
+.sk-row{display:flex;gap:12px;align-items:center;padding:8px 0}.sk-row>div:last-child{flex:1}
+.sk-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:22px}.sk-steps div{display:flex;flex-direction:column;align-items:center;gap:8px}
+@media(max-width:680px){.sk-steps{grid-template-columns:1fr}.sk-steps div{flex-direction:row}}
+
+/* --- KPI (แอดมิน) --- */
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-bottom:14px}
+.kpi{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:12px 14px;cursor:pointer;min-height:72px;transition:border-color .15s,box-shadow .15s,transform .05s}
+.kpi:hover{border-color:var(--tg,#14b8a6)}.kpi:active{transform:scale(.98)}
+.kpi-ico{width:42px;height:42px;border-radius:12px;background:var(--tb,#ccfbf1);color:var(--t,#0f766e);display:grid;place-items:center;font-size:22px;flex:none}
+.kpi b{font-size:26px;line-height:1.1;display:block}.kpi span{font-size:13px;color:var(--mut);line-height:1.3;display:block}
+.kpi.on{border-color:var(--tg,#14b8a6);box-shadow:0 0 0 3px var(--tb,#ccfbf1)}
+.age{display:inline-flex;gap:4px;align-items:center;font-size:12.5px;padding:1px 9px;border-radius:999px;background:#f1f5f9;color:#475569;white-space:nowrap}
+.age.late{background:#ffe4e6;color:#be123c;font-weight:600}
+tr.flash td{animation:flash 2.2s ease-out}@keyframes flash{from{background:#d1fae5}}
+tbody tr:hover td{background:#f8fcfc}
+
+/* --- แบบฟอร์มยื่น: ขั้นตอน + เส้นทางหลังยื่น --- */
+.fsec{padding:0;overflow:hidden}
+.fsec-h{display:flex;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,#eef8f7,#fff)}
+.fsec-h h2{margin:0;font-size:17px}.fsec-h .meta{margin-left:auto}
+.fsec-n{width:30px;height:30px;border-radius:50%;background:var(--pri);color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px;flex:none}
+.fsec-b{padding:20px}
+.rte{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rte i.sep{color:#94a3b8;font-size:14px}
+.rte .dstage{font-size:13px}
+.ferr{color:var(--bad);font-size:13px;margin-top:4px;display:flex;gap:4px;align-items:center}
+input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--bad);background:#fff8f8}
+.sendp{border:1.5px solid #b6dcd8;background:#f1faf9;border-radius:12px;padding:12px 16px;margin:12px 0;display:grid;gap:8px}
+.sp-s{display:flex;gap:10px;align-items:center;color:var(--mut)}.sp-s.act{color:var(--ink);font-weight:600}.sp-s.done{color:var(--ok)}.sp-s i{font-size:18px}
+.sendp.err{border-color:#f1b4b4;background:#fff6f6}.sp-s.fail{color:var(--bad);font-weight:600}
+
+/* --- กล่องยืนยัน + dialog --- */
+dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out}dialog::backdrop{background:#0f172a99;backdrop-filter:blur(2px)}
+@keyframes dpop{from{opacity:0;transform:translateY(12px) scale(.98)}}
+@keyframes dsheet{from{transform:translateY(40px);opacity:0}}
+@media(max-width:640px){dialog{margin:auto 0 0;width:100%;max-width:100%;border-bottom-left-radius:0;border-bottom-right-radius:0}dialog[open]{animation:dsheet .24s ease-out}}
+#dc{max-width:440px}.dc-ico{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:var(--tb);color:var(--t);margin-bottom:12px}
+.dc-t{font-size:19px;font-weight:700;margin:0 0 6px}.dc-x{color:var(--mut);margin:0 0 14px}
+.dlg-logo{width:34px;height:34px;border-radius:50%;vertical-align:middle;margin-right:8px}
+
+/* --- ท้ายหน้า + ตัวช่วยอื่น --- */
+.foot{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}.foot img{width:30px;height:30px;border-radius:50%}
+.pw{position:relative}.pw button{position:absolute;right:4px;top:4px;min-height:36px;min-width:40px;border:0;background:none;cursor:pointer;color:var(--mut);font-size:20px}
+.login-card{max-width:440px;text-align:center}.login-card form{text-align:left}.login-card>img{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:block;box-shadow:0 8px 22px #0f766e30}
+.empty-s{text-align:center;padding:28px 16px}.empty-s>i{font-size:46px;color:var(--pri);display:block;margin-bottom:6px}.empty-s h2{margin-bottom:4px}
+.msg a{color:inherit;font-weight:600}
+.btn.ghost{background:transparent;color:var(--pri-d);border-color:transparent}.btn.ghost:hover{background:#eef7f6}
+@media(max-width:640px){.page-head h1{font-size:22px}.ph-title-ico{width:44px;height:44px;font-size:24px}.fsec-b{padding:16px}.fsec-h{padding:12px 16px}}
 </style>
 </head>
 <body>
+<div id="boot" role="status" aria-live="polite"><div class="ld"><img src="assets/logo.png" alt="" width="96" height="96"><b>กลุ่มงานทรัพยากรบุคคล</b><span>โรงพยาบาลสันทราย · กำลังเตรียมระบบ</span><div class="ld-bar" aria-hidden="true"></div></div></div>
+<div id="go" role="status" aria-live="polite"><div class="ld"><img src="assets/logo.png" alt="" width="96" height="96"><b id="go-t">กำลังเปิดหน้า…</b><span>กรุณารอสักครู่</span><div class="ld-bar" aria-hidden="true"></div></div></div>
 <div id="bar" role="progressbar" aria-label="กำลังโหลด"></div>
 <div id="toasts" aria-live="polite"></div>
+<noscript><div class="wrap"><div class="msg err">ระบบนี้ต้องเปิดใช้งาน JavaScript ในเบราว์เซอร์</div></div></noscript>
 <header><div class="wrap">
- <div class="top"><div class="logo" aria-label="พื้นที่ตราหน่วยงาน">[OFFICIAL LOGO]</div>
+ <div class="top"><img class="logo" src="assets/logo.png" alt="ตรากลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย" width="52" height="52" decoding="async">
   <div class="brand"><b id="ttl">ระบบติดตามสถานะการประเมินผลงาน (อวช.)</b><small id="org">กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่</small></div></div>
  <nav aria-label="เมนูหลัก">
-  <a href="#track" data-v="track"><i class="ph ph-path"></i> ติดตามสถานะ</a>
-  <a href="#submit" data-v="submit"><i class="ph ph-upload-simple"></i> ยื่นเอกสาร</a>
-  <a href="#admin" data-v="admin"><i class="ph ph-shield-check"></i> เจ้าหน้าที่ HR</a>
- <a href="fte/" id="fte-link"><i class="ph ph-users-three"></i> ระบบอัตรากำลัง FTE</a>
+  <a href="#track" data-v="track"><i class="ph-bold ph-path"></i> ติดตามสถานะ</a>
+  <a href="#submit" data-v="submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a>
+  <a href="#admin" data-v="admin"><i class="ph-bold ph-shield-check"></i> เจ้าหน้าที่ HR</a>
+  <a href="fte/" id="fte-link" class="out"><i class="ph-bold ph-users-three"></i> ระบบอัตรากำลัง FTE</a>
  </nav></div></header>
 <main class="wrap">
 
 <!-- ===== ติดตามสถานะ ===== -->
 <section id="v-track" hidden>
- <div class="card hero"><h1><i class="ph ph-path"></i> ติดตามสถานะ อวช.</h1>
-  <p class="sub">กรอกเลขบัตรประชาชน 13 หลัก เพื่อดูว่าผลงานของท่านอยู่ขั้นตอนใด ไม่ต้องโทรสอบถาม HR</p>
-  <form id="f-track" class="row" role="search"><div class="grow"><label for="t-cid" style="color:#fff">เลขบัตรประชาชน</label><input id="t-cid" inputmode="numeric" maxlength="17" autocomplete="off" placeholder="เช่น 1-2345-67890-12-3"></div>
-  <div style="align-self:end"><button class="btn" id="t-go"><i class="ph ph-magnifying-glass"></i> ติดตาม</button></div></form>
-  <div id="rc-track" style="margin-top:12px"></div></div>
- <div id="t-out"></div>
+ <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>ระบบ อวช.</span><i class="ph-bold ph-caret-right"></i><span>ติดตามสถานะ</span></nav>
+ <div class="page-head"><span class="ph-title-ico"><i class="ph-duotone ph-path"></i></span><div><h1>ติดตามสถานะ อวช.</h1><p>ดูว่าผลงานของท่านอยู่ขั้นตอนใด ใครกำลังพิจารณา และอยู่ในขั้นนี้มานานเท่าไร</p></div></div>
+ <div class="card thero">
+  <div class="thero-in">
+   <img class="thero-logo" src="assets/logo.png" alt="" width="64" height="64">
+   <form id="f-track" role="search"><div class="ig"><i class="ph ph-identification-card" aria-hidden="true"></i><input id="t-cid" inputmode="numeric" maxlength="17" autocomplete="off" placeholder="เลขบัตรประชาชน 13 หลัก" aria-label="เลขบัตรประชาชน 13 หลัก"></div>
+    <button class="btn" id="t-go"><i class="ph-bold ph-magnifying-glass"></i> ติดตาม</button></form>
+  </div>
+  <div class="ttips"><span><i class="ph ph-lock-simple-open"></i>ไม่ต้องเข้าสู่ระบบ</span><span><i class="ph ph-clock-counter-clockwise"></i>เห็นประวัติทุกขั้นตอน</span><span><i class="ph ph-chat-circle-text"></i>รับแจ้งเตือนทาง LINE ได้</span></div>
+ </div>
+ <div id="t-out" aria-live="polite"></div>
  <div id="t-guide"></div>
 </section>
 
 <!-- ===== ยื่นเอกสาร ===== -->
 <section id="v-submit" hidden>
- <h1>ยื่นเอกสารผลงาน (อวช.)</h1><p class="sub">กรอกข้อมูลผู้ยื่น แล้วแนบไฟล์หรือลิงก์ผลงาน ระบบจะให้รหัสติดตาม</p>
+ <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>ระบบ อวช.</span><i class="ph-bold ph-caret-right"></i><span>ยื่นเอกสาร</span></nav>
+ <div class="page-head"><span class="ph-title-ico"><i class="ph-duotone ph-upload-simple"></i></span><div><h1>ยื่นเอกสารผลงาน (อวช.)</h1><p>กรอกข้อมูล 3 ส่วน แล้วระบบจะให้รหัสติดตามทันที</p></div></div>
  <div id="s-done"></div>
  <div id="s-qr" class="card" hidden></div>
- <form id="f-sub" class="card"><div class="grid">
-  <div><label class="req" for="s-cid">เลขบัตรประชาชน</label><input id="s-cid" inputmode="numeric" maxlength="17" required></div>
-  <div><label class="req" for="s-prefix">คำนำหน้า</label><select id="s-prefix" required><option value="">เลือก</option></select><input id="s-prefix-o" placeholder="ระบุคำนำหน้า/ยศ" maxlength="40" hidden style="margin-top:6px" aria-label="ระบุคำนำหน้าอื่น ๆ"></div>
-  <div><label class="req" for="s-first">ชื่อ</label><input id="s-first" required></div>
-  <div><label class="req" for="s-last">นามสกุล</label><input id="s-last" required></div>
-  <div><label class="req" for="s-position">ตำแหน่ง</label><input id="s-position" required></div>
-  <div><label class="req" for="s-group">กลุ่มงาน</label><input id="s-group" required></div>
-  <div><label for="s-posNo">ตำแหน่งเลขที่</label><input id="s-posNo"></div>
-  <div><label for="s-start">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><input id="s-start" type="date"><div class="meta" id="s-ten" aria-live="polite"></div></div>
-  <div><label class="req" for="s-edu">วุฒิการศึกษาสูงสุด</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่ามัธยมศึกษา</option><option>มัธยมศึกษา / ปวช.</option><option>ปวส. / อนุปริญญา</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>วุฒิบัตร / อนุมัติบัตรผู้เชี่ยวชาญเฉพาะทาง</option><option>อื่น ๆ</option></select></div>
-  <div><label for="s-phone">เบอร์โทรศัพท์ (ใช้ยืนยันตัวตนตอนเชื่อมต่อ LINE)</label><input id="s-phone" type="tel" inputmode="tel"></div>
-  <div><label for="s-email">อีเมล (รับแจ้งเตือนเมื่อสถานะเปลี่ยน)</label><input id="s-email" type="email"></div>
-  <div><label>แนบไฟล์ผลงาน</label><div id="s-file"></div></div>
-  <div><label for="s-link">หรือลิงก์ไฟล์ (Google Drive ฯลฯ)</label><input id="s-link" type="url" placeholder="https://"></div>
- </div>
- <div id="rc-sub" style="margin-top:16px"></div><div id="s-msg" aria-live="polite"></div>
- <button class="btn" id="s-go" style="margin-top:12px"><i class="ph ph-paper-plane-tilt"></i> ส่งเอกสาร</button></form>
+ <form id="f-sub" novalidate>
+  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">1</span><h2>ข้อมูลผู้ยื่น</h2></div><div class="fsec-b"><div class="grid">
+   <div><label class="req" for="s-cid">เลขบัตรประชาชน</label><input id="s-cid" inputmode="numeric" maxlength="17" required placeholder="x-xxxx-xxxxx-xx-x"><div class="ferr hide" id="s-cid-e" role="alert"><i class="ph-fill ph-warning-circle"></i>เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง</div></div>
+   <div><label class="req" for="s-prefix">คำนำหน้า</label><select id="s-prefix" required><option value="">เลือก</option></select><input id="s-prefix-o" placeholder="ระบุคำนำหน้า/ยศ" maxlength="40" hidden style="margin-top:6px" aria-label="ระบุคำนำหน้าอื่น ๆ"></div>
+   <div><label class="req" for="s-first">ชื่อ</label><input id="s-first" required></div>
+   <div><label class="req" for="s-last">นามสกุล</label><input id="s-last" required></div>
+   <div><label for="s-phone">เบอร์โทรศัพท์ (ใช้ยืนยันตัวตนตอนเชื่อมต่อ LINE)</label><input id="s-phone" type="tel" inputmode="tel"></div>
+   <div><label for="s-email">อีเมล (รับแจ้งเตือนเมื่อสถานะเปลี่ยน)</label><input id="s-email" type="email"></div>
+  </div></div></div>
+  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">2</span><h2>ตำแหน่งและสังกัด</h2></div><div class="fsec-b"><div class="grid">
+   <div><label class="req" for="s-position">ตำแหน่ง</label><input id="s-position" required></div>
+   <div><label class="req" for="s-group">กลุ่มงาน</label><input id="s-group" required></div>
+   <div><label for="s-posNo">ตำแหน่งเลขที่</label><input id="s-posNo"></div>
+   <div><label for="s-start">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><input id="s-start" type="date"><div class="meta" id="s-ten" aria-live="polite"></div></div>
+   <div class="full"><label class="req" for="s-edu">วุฒิการศึกษาสูงสุด</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่ามัธยมศึกษา</option><option>มัธยมศึกษา / ปวช.</option><option>ปวส. / อนุปริญญา</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>วุฒิบัตร / อนุมัติบัตรผู้เชี่ยวชาญเฉพาะทาง</option><option>อื่น ๆ</option></select></div>
+  </div></div></div>
+  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">3</span><h2>ผลงาน</h2><span class="meta">แนบไฟล์หรือใส่ลิงก์ อย่างใดอย่างหนึ่ง</span></div><div class="fsec-b"><div class="grid">
+   <div><label>แนบไฟล์ผลงาน</label><div id="s-file"></div></div>
+   <div><label for="s-link">หรือลิงก์ไฟล์ (Google Drive ฯลฯ)</label><input id="s-link" type="url" placeholder="https://"></div>
+  </div>
+  <div style="margin-top:18px"><div class="meta" style="margin-bottom:6px">หลังยื่นแล้ว ผลงานจะผ่านขั้นตอน</div><div class="rte" id="s-route"></div></div>
+  <div id="s-msg" aria-live="polite"></div>
+  <button class="btn" id="s-go" style="margin-top:14px"><i class="ph-bold ph-paper-plane-tilt"></i> ส่งเอกสาร</button></div></div>
+ </form>
 </section>
 
 <!-- ===== เจ้าหน้าที่ HR ===== -->
 <section id="v-admin" hidden>
- <div id="a-login"><h1>เจ้าหน้าที่ HR</h1><p class="sub">เข้าสู่ระบบเพื่อจัดการผลงาน แจ้งเตือน LINE ผู้ใช้ และดูประวัติการใช้งาน</p>
-  <form id="f-login" class="card" style="max-width:420px"><label for="l-u">ชื่อผู้ใช้</label><input id="l-u" autocomplete="username" required>
-   <label for="l-p" style="margin-top:12px">รหัสผ่าน</label><input id="l-p" type="password" autocomplete="current-password" required>
-   <div id="rc-login" style="margin-top:12px"></div><div id="l-msg" aria-live="polite"></div>
-   <button class="btn" id="l-go" style="margin-top:12px"><i class="ph ph-sign-in"></i> เข้าสู่ระบบ</button></form></div>
+ <div id="a-login">
+  <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>เจ้าหน้าที่ HR</span></nav>
+  <div class="card login-card" style="margin:24px auto"><img src="assets/logo.png" alt="" width="84" height="84"><h1 style="font-size:22px">เจ้าหน้าที่ HR</h1><p class="sub" style="margin-bottom:16px">เข้าสู่ระบบเพื่อจัดการผลงาน แจ้งเตือน LINE และดูประวัติการใช้งาน</p>
+   <form id="f-login"><label for="l-u">ชื่อผู้ใช้</label><input id="l-u" autocomplete="username" required>
+    <label for="l-p" style="margin-top:12px">รหัสผ่าน</label><div class="pw"><input id="l-p" type="password" autocomplete="current-password" required><button type="button" id="l-eye" aria-label="แสดงรหัสผ่าน"><i class="ph ph-eye"></i></button></div>
+    <div id="l-msg" aria-live="polite"></div>
+    <button class="btn" id="l-go" style="margin-top:14px;width:100%"><i class="ph-bold ph-sign-in"></i> เข้าสู่ระบบ</button></form></div>
+ </div>
  <div id="a-panel" class="hide">
-  <div class="hd"><div><h1>จัดการ อวช.</h1><p class="sub">ผู้ใช้: <b id="a-user"></b></p></div><button class="btn sec sm" id="a-out"><i class="ph ph-sign-out"></i> ออกจากระบบ</button></div>
+  <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>เจ้าหน้าที่ HR</span><i class="ph-bold ph-caret-right"></i><span>จัดการ อวช.</span></nav>
+  <div class="page-head"><span class="ph-title-ico" style="padding:0;overflow:hidden;background:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px #cfe9e6"><img src="assets/logo.png" alt="" width="50" height="50" style="width:100%;height:100%;object-fit:cover"></span><div style="flex:1"><h1>จัดการ อวช.</h1><p>ผู้ใช้: <b id="a-user"></b></p></div><button class="btn sec sm" id="a-out"><i class="ph-bold ph-sign-out"></i> ออกจากระบบ</button></div>
   <div class="tabs" role="tablist"><button data-t="list" class="on"><i class="ph ph-list-checks"></i> รายการผลงาน</button><button data-t="line" id="tb-line"><i class="ph ph-chat-circle-text"></i> LINE</button><button data-t="users" id="tb-users"><i class="ph ph-users"></i> ผู้ใช้</button><button data-t="log" id="tb-log"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการใช้งาน</button></div>
   <div id="a-list"></div><div id="a-line" class="hide"></div><div id="a-users" class="hide"></div><div id="a-log" class="hide"></div>
  </div>
 </section>
 </main>
-<footer><div class="wrap">© กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่</div></footer>
-
+<footer><div class="wrap foot"><img src="assets/logo.png" alt="" width="30" height="30" loading="lazy"><span>© กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่</span></div></footer>
 <!-- Dialog: แก้ไขรายการ -->
 <dialog id="dlg" aria-labelledby="d-ttl"><div class="hd"><h2 id="d-ttl">แก้ไขรายการ</h2><button class="btn sec sm" type="button" id="d-x">ปิด</button></div>
  <div class="grid" id="d-grid"></div>
@@ -176,20 +376,35 @@ footer{border-top:1px solid var(--line);padding:16px 0;color:var(--mut);font-siz
  <h3 style="margin-top:20px"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการแจ้งเตือนและการกดส่งของรายการนี้</h3><div id="n-hist" class="hist"></div></dialog>
 
 <!-- Dialog: เชื่อมต่อ LINE (ผู้ยื่น) -->
-<dialog id="dl" aria-labelledby="l-ttl"><div class="hd"><h2 id="l-ttl"><i class="ph ph-chat-circle-text"></i> เชื่อมต่อ LINE</h2><button class="btn sec sm" type="button" id="l-x">ปิด</button></div>
+<dialog id="dl" aria-labelledby="l-ttl"><div class="hd"><h2 id="l-ttl"><img class="dlg-logo" src="assets/logo.png" alt="" width="34" height="34">เชื่อมต่อ LINE</h2><button class="btn sec sm" type="button" id="l-x">ปิด</button></div>
  <div id="l-body"></div></dialog>
 
 <dialog id="du" aria-labelledby="du-t"><div class="hd"><h2 id="du-t"><i class="ph ph-user-gear"></i> แก้ไขผู้ใช้</h2><button class="btn sec sm" type="button" id="du-x">ปิด</button></div><div id="du-b"></div></dialog>
 
+<dialog id="dc" aria-labelledby="dc-t"><div class="dc-ico" id="dc-ico"></div><h2 class="dc-t" id="dc-t"></h2><p class="dc-x" id="dc-p"></p><div id="dc-m" aria-live="polite"></div><div class="row" style="justify-content:flex-end"><button class="btn sec" type="button" id="dc-x">ยกเลิก</button><button class="btn" type="button" id="dc-ok">ยืนยัน</button></div></dialog>
 <script src="config.js"></script>
 <script>
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let CFG={stages:[],recaptcha:'',line:{}},TOKEN=localStorage.getItem('awc_tk')||'',USER=null,ROWS=[],COUNTS={},FILTER='',LASTCID='',LASTDATA=null,SKEW=0,EDIT=null,NID=null,NMODE='status',NINFO=null,LP=null;
+let CFG={stages:[],line:{}},TOKEN=localStorage.getItem('awc_tk')||'',USER=null,ROWS=[],COUNTS={},FILTER='',LASTCID='',LASTDATA=null,SKEW=0,EDIT=null,NID=null,NMODE='status',NINFO=null,LP=null;
 const FLOW=['submitted','qualify','review','passed'];
 const ICON={blue:'ph-hourglass-medium',orange:'ph-warning',green:'ph-check-circle'};
 const stg=k=>CFG.stages.find(s=>s.k===k)||{k,t:k,c:'blue',h:''};
-const chip=k=>{const s=stg(k);return `<span class="chip ${s.c}"><i class="ph ${ICON[s.c]||ICON.blue}"></i>${esc(s.t)}</span>`};
+const TONE={submitted:'sky',qualify:'cyan',review:'violet',revise:'amber',passed:'emerald'},tone=k=>TONE[k]||'slate';
+const SIC={submitted:'ph-paper-plane-tilt',qualify:'ph-clipboard-text',review:'ph-users-three',revise:'ph-note-pencil',passed:'ph-seal-check'};
+const chip=k=>{const s=stg(k);return `<span class="dstage tone-${tone(k)}"><i class="ph-bold ${SIC[k]||'ph-flag'}"></i>${esc(s.t)}</span>`};
+const PRE=/^(นางสาว|นาย|นาง|เด็กชาย|เด็กหญิง|ดร\.|นพ\.|พญ\.|ทพ\.|ทพญ\.|ภก\.|ภญ\.|ผศ\.|รศ\.|ศ\.|คุณ)+/;
+const fc=s=>(String(s||'').replace(/^[เแโใไ]+/,'')[0]||'?');
+const shortName=n=>{n=String(n||'').trim();if(!n||/^\d{13}$/.test(n))return '';const t=n.replace(PRE,'').trim().split(/\s+/).filter(Boolean);return t.length>1?t[0]+' '+fc(t[t.length-1])+'.':(t[0]||'')};
+const initials=n=>{const t=String(n||'').replace(PRE,'').trim().split(/\s+/).filter(Boolean);return fc(t[0])+(t.length>1?fc(t[t.length-1]):'')};
+const AVT=['teal','indigo','sky','violet','fuchsia','amber','rose','cyan'];
+const avTone=n=>{let h=0;for(const c of String(n||''))h=(h*31+c.charCodeAt(0))>>>0;return AVT[h%AVT.length]};
+const avatar=(n,cls)=>`<span class="avatar ${cls||''} tone-${avTone(n)}" title="${esc(n)}">${esc(initials(n))}</span>`;
+const validCid=c=>{if(!/^\d{13}$/.test(c))return false;let s=0;for(let i=0;i<12;i++)s+=+c[i]*(13-i);return (11-s%11)%10===+c[12]};
+const hm=s=>(s||'').slice(11,16);
+const thShort=s=>{const m=TS.exec(s||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${m[4]}:${m[5]}`:(s||'')};
+const bkk=ms=>new Date(ms+7*36e5).toISOString().slice(0,10);
+const dayLabel=k=>{const n=nowMs();if(k===bkk(n))return 'วันนี้';if(k===bkk(n-864e5))return 'เมื่อวาน';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(k);return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543}`:k};
 const MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 const TS=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/;
 const thDT=s=>{const m=TS.exec(s||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543} ${m[4]}:${m[5]} น.`:(s||'')};
@@ -203,7 +418,25 @@ function toast(t,k='ok',ms=5200){const el=document.createElement('div');el.class
  el.innerHTML=`<i class="ph ${k==='ok'?'ph-check-circle':k==='err'?'ph-warning-circle':'ph-info'}" style="font-size:22px"></i><div>${esc(t)}</div><button aria-label="ปิด">×</button>`;
  const rm=()=>el.remove();el.querySelector('button').onclick=rm;$('#toasts').appendChild(el);if(ms)setTimeout(rm,ms)}
 const msg=(el,t,k='err')=>{el.innerHTML=t?`<div class="msg ${k}" role="alert"><i class="ph ${k==='ok'?'ph-check-circle':k==='info'?'ph-info':k==='warn'?'ph-warning':'ph-warning-circle'}"></i><div>${esc(t)}</div></div>`:''};
-const skel=n=>'<div class="card" aria-busy="true" aria-label="กำลังโหลด">'+Array.from({length:n||4},(_,i)=>`<div class="sk" style="width:${[90,70,80,50][i%4]}%"></div>`).join('')+'</div>';
+const skel=n=>'<div class="card" aria-busy="true" aria-label="กำลังโหลด">'+Array.from({length:n||4},(_,i)=>`<div class="skeleton sk-text" style="width:${[90,70,80,50][i%4]}%"></div>`).join('')+'</div>';
+const skTable=n=>`<div class="card" aria-busy="true" aria-label="กำลังโหลด" style="padding:12px">${Array.from({length:n||6},()=>'<div class="sk-row"><div class="skeleton sk-tile" style="width:36px;height:36px"></div><div><div class="skeleton sk-text" style="width:60%;margin:4px 0"></div><div class="skeleton sk-text" style="width:35%;margin:4px 0"></div></div></div>').join('')}</div>`;
+const skTrack=()=>`<div aria-busy="true" aria-label="กำลังค้นหา"><div class="card"><div class="sk-row"><div class="skeleton sk-c" style="width:56px;height:56px"></div><div><div class="skeleton sk-text" style="width:45%"></div><div class="skeleton sk-text" style="width:30%"></div></div></div></div>
+<div class="card"><div class="skeleton sk-text" style="width:30%;height:20px"></div><div class="sk-steps">${'<div><div class="skeleton sk-c" style="width:54px;height:54px"></div><div class="skeleton sk-text" style="width:70px"></div></div>'.repeat(4)}</div></div>
+<div class="dgrid"><div class="card">${'<div class="sk-row"><div class="skeleton sk-tile" style="width:28px;height:28px"></div><div><div class="skeleton sk-text" style="width:70%"></div></div></div>'.repeat(4)}</div><div class="card">${'<div class="sk-row"><div class="skeleton sk-c" style="width:36px;height:36px"></div><div><div class="skeleton sk-text" style="width:55%"></div><div class="skeleton sk-text" style="width:35%"></div></div></div>'.repeat(3)}</div></div></div>`;
+function leave(label,href){$('#go-t').textContent=label;$('#go').classList.add('on');setTimeout(()=>{location.href=href},120)}
+addEventListener('pageshow',e=>{if(e.persisted)$('#go').classList.remove('on')});
+$('#fte-link').addEventListener('click',e=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button)return;e.preventDefault();leave('กำลังไปยังระบบอัตรากำลัง FTE','fte/')});
+setInterval(()=>$$('[data-live]').forEach(e=>{const a=toDate(e.dataset.live);if(a)e.textContent=span(nowMs()-a)}),30000);
+/* กล่องยืนยัน: ปุ่มยืนยันหมุนระหว่างทำงาน ถ้าล้มเหลวจะแจ้งในกล่องและไม่ปิด */
+function confirmBox(o,run){return new Promise(res=>{const d=$('#dc'),ok=$('#dc-ok'),cx=$('#dc-x'),m=$('#dc-m');let done=false;
+ $('#dc-ico').className='dc-ico tone-'+(o.danger?'rose':'teal');$('#dc-ico').innerHTML=`<i class="ph-duotone ${o.icon||'ph-question'}"></i>`;
+ $('#dc-t').textContent=o.title;$('#dc-p').textContent=o.text||'';m.innerHTML='';ok.className='btn'+(o.danger?' bad':'');ok.innerHTML=esc(o.ok||'ยืนยัน');
+ const fin=v=>{if(done)return;done=true;res(v)};
+ ok.onclick=async()=>{busy(ok,1,'กำลังดำเนินการ...');cx.disabled=true;let good=false;try{if(run)await run();good=true}catch(er){msg(m,er.message||String(er))}busy(ok,0);cx.disabled=false;if(good){fin(true);d.close()}};
+ cx.onclick=()=>d.close();d.addEventListener('close',()=>fin(false),{once:true});dlgOpen(d);setTimeout(()=>cx.focus(),30)})}
+/* แผงสถานะตอนส่งเอกสาร */
+function sendPanel(el,labels){let cur=0;const draw=(fail,t)=>{el.innerHTML=`<div class="sendp ${fail?'err':''}" role="${fail?'alert':'status'}">`+labels.map((l,k)=>`<div class="sp-s ${fail&&k===cur?'fail':k<cur?'done':k===cur?'act':''}">${fail&&k===cur?'<i class="ph-fill ph-x-circle"></i>':k<cur?'<i class="ph-fill ph-check-circle"></i>':k===cur?'<span class="spin"></span>':'<i class="ph ph-circle"></i>'}<span>${esc(l)}</span></div>`).join('')+(fail?`<div>${esc(t)}</div>`:'<div class="meta">อย่าปิดหน้านี้จนกว่าจะขึ้นรหัสติดตาม</div>')+'</div>'};draw();
+ return{go(i){cur=i;draw()},fail(t){draw(true,t)},done(){el.innerHTML=''}}}
 async function api(fn,args=[],o={}){
  prog(1);const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),o.timeout||45000);
  try{const r=await fetch(APP_CONFIG.GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,args}),signal:ctl.signal});
@@ -214,7 +447,7 @@ const fmtCid=v=>{const d=v.replace(/\D/g,'').slice(0,13);return[d.slice(0,1),d.s
 const maskCid=c=>c?('x-xxxx-xxxxx-'+c.slice(-3,-1)+'-'+c.slice(-1)):'';
 const copy=async(t,label)=>{try{await navigator.clipboard.writeText(t);toast((label||'คัดลอก')+'แล้ว')}catch{toast('คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง','warn')}};
 const dlgOpen=d=>{if(!d.open)d.showModal()};
-['dlg','dn','dl'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
+['dlg','dn','dl','dc'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
 $('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();
 $('#dl').addEventListener('close',()=>{clearInterval(LP);LP=null});
 /* ===== ตัวเลือกไฟล์ (ตรวจชนิด/ขนาด + ตัวอย่างรูป + บีบอัดรูป) ===== */
@@ -238,14 +471,10 @@ function mkFile(el,{exts,max=8,hint}){
      const bl=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));if(bl&&bl.size<f.size)return{name:f.name.replace(/\.\w+$/,'')+'.jpg',mime:'image/jpeg',data:await b64(bl)}}catch(e){}}
    if(f.size>max*1048576)throw new Error('ไฟล์ใหญ่เกิน '+max+' MB');
    return{name:f.name,mime:f.type,data:await b64(f)}}}}
-/* reCAPTCHA (เปิดเฉพาะเมื่อตั้งค่าคีย์ใน Script Properties) */
-const RC={};
-window.rcReady=()=>{['track','sub','login'].forEach(n=>{const el=$('#rc-'+n);if(el&&RC[n]===undefined)RC[n]=grecaptcha.render(el,{sitekey:CFG.recaptcha})})};
-const rcTok=n=>CFG.recaptcha&&RC[n]!==undefined?grecaptcha.getResponse(RC[n]):'';
-const rcReset=n=>{if(CFG.recaptcha&&RC[n]!==undefined)grecaptcha.reset(RC[n])};
-/* Router */
+const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',admin:'เจ้าหน้าที่ HR'};
 function route(){const v=(location.hash||'#track').slice(1);const id=['track','submit','admin'].includes(v)?v:'track';
- $$('main>section').forEach(s=>s.hidden=s.id!=='v-'+id);$$('nav a').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});scrollTo(0,0)}
+ $$('main>section').forEach(s=>{const on=s.id==='v-'+id;s.hidden=!on;if(on){s.classList.remove('vin');void s.offsetWidth;s.classList.add('vin')}});
+ $$('header nav a[data-v]').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});document.title=TITLES[id]+' · อวช. รพ.สันทราย';scrollTo(0,0)}
 addEventListener('hashchange',route);
 
 /* ===================== ติดตามสถานะ ===================== */
@@ -258,39 +487,70 @@ function guideHtml(){
   <div class="g"><i class="ph ph-clock-counter-clockwise"></i><div><h3>ประวัติและหมายเหตุ</h3><span class="meta">วันเวลาที่สถานะเปลี่ยน และสิ่งที่ต้องแก้ไข (ถ้ามี)</span></div></div>
   <div class="g"><i class="ph ph-chat-circle-text"></i><div><h3>แจ้งเตือนทาง LINE</h3><span class="meta">รับข้อความอัตโนมัติเมื่อสถานะเปลี่ยน พร้อมรูปหรือไฟล์ที่ HR ส่งเพิ่ม (เมื่อเชื่อมต่อ LINE)</span></div></div></div></div>
   <div class="card"><h2>ความหมายของสถานะ</h2><ul class="legend">${st}</ul></div>`}
-$('#f-track').addEventListener('submit',async e=>{e.preventDefault();const b=$('#t-go'),o=$('#t-out');const cid=$('#t-cid').value.replace(/\D/g,'');
- if(cid.length!==13)return msg(o,'กรุณากรอกเลขบัตรประชาชน 13 หลัก');
- busy(b,1,'กำลังค้นหา...');o.innerHTML=skel(5);$('#t-guide').innerHTML='';
- const d=await api('track',[cid,rcTok('track')]);busy(b,0);rcReset('track');
- if(!d.ok){o.innerHTML='';$('#t-guide').innerHTML=guideHtml();return msg(o,d.message)}
+$('#f-track').addEventListener('submit',async e=>{e.preventDefault();const b=$('#t-go'),o=$('#t-out'),inp=$('#t-cid');const cid=inp.value.replace(/\D/g,'');
+ if(cid.length!==13){inp.setAttribute('aria-invalid','true');inp.focus();return msg(o,'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก')}
+ inp.removeAttribute('aria-invalid');busy(b,1,'กำลังค้นหา...');o.innerHTML=skTrack();$('#t-guide').innerHTML='';
+ const d=await api('track',[cid]);busy(b,0);
+ if(!d.ok){o.innerHTML='';$('#t-guide').innerHTML=guideHtml();return notFound(o,d.message)}
  LASTCID=cid;LASTDATA=d;SKEW=(d.nowMs||Date.now())-Date.now();renderTrack(d)});
-function stepper(status){const rev=status==='revise',idx=FLOW.indexOf(rev?'review':status);
- return '<ol class="stepper" aria-label="ขั้นตอนการประเมิน">'+FLOW.map((k,i)=>{const done=i<idx||status==='passed',cur=i===idx&&status!=='passed',warn=cur&&rev;
-  const lbl=warn?stg('revise').t:stg(k).t,ic=done?'ph-check':warn?'ph-warning':cur?'ph-hourglass-medium':'ph-circle',st=done?'เสร็จแล้ว':warn?'ต้องแก้ไข':cur?'ขั้นตอนปัจจุบัน':'ยังไม่ถึงขั้นตอนนี้';
-  return `<li class="stp ${done?'done':''} ${cur?'cur':''} ${warn?'warn':''}" ${cur?'aria-current="step"':''}><i class="ph ${ic}"></i><b>${esc(lbl)}</b><span>${st}</span></li>`}).join('')+'</ol>'}
-function tlHtml(hist,status){const now=nowMs();
- return '<ul class="tl">'+hist.map((x,i)=>{const a=toDate(x.t),nx=hist[i+1]?toDate(hist[i+1].t):null,last=i===hist.length-1;
-  let dur='';if(a){if(nx)dur=' · อยู่ในขั้นตอนนี้ '+span(nx-a);else if(status!=='passed')dur=' · ผ่านมาแล้ว '+span(now-a)}
-  return `<li class="${last?'last':''}"><b>${esc(stg(x.s).t)}</b>${x.n?' — '+esc(x.n):''}${last?' <span class="chip blue" style="font-size:12px;padding:0 8px">ล่าสุด</span>':''}<div class="meta">${esc(thDT(x.t))}${dur}</div></li>`}).reverse().join('')+'</ul>'}
 const NT={auto:'แจ้งอัตโนมัติ',manual:'แจ้งโดย HR',typed:'ข้อความจาก HR'};
 function lineCard(d){const L=d.line||{};if(!L.enabled)return '';
- return `<div class="card" id="t-line"><div class="hd"><div><h2><i class="ph ph-chat-circle-text"></i> แจ้งเตือนทาง LINE</h2>${L.linked?'<p class="meta" style="margin:0">เชื่อมต่อแล้ว — ท่านจะได้รับข้อความเมื่อสถานะเปลี่ยน และเมื่อ HR ส่งข้อความหรือไฟล์เพิ่ม พิมพ์ "สถานะ" ในแชทเพื่อดูสถานะล่าสุดได้ทุกเมื่อ</p>':'<p class="meta" style="margin:0">เชื่อมต่อ LINE เพื่อรับข้อความทันทีที่สถานะ อวช. เปลี่ยน ไม่ต้องเปิดเว็บมาตรวจเอง</p>'}</div>
-  ${L.linked?'<span class="chip green"><i class="ph ph-check-circle"></i>เชื่อมต่อแล้ว</span>':'<button class="btn line" id="t-link"><i class="ph ph-link"></i> เชื่อมต่อ LINE</button>'}</div></div>`}
-function renderTrack(d){const o=$('#t-out'),now=nowMs();
- let h=`<div class="card"><div class="hd"><div><div class="meta">ผู้ยื่น</div><h2 style="margin:0">${esc(d.name)}</h2><div class="meta">${esc([d.position,d.group].filter(Boolean).join(' · '))}</div></div><button class="btn sec sm" id="t-re"><i class="ph ph-arrows-clockwise"></i> ตรวจสอบอีกครั้ง</button></div></div>`;
- if(!d.items.length)h+=`<div class="card empty"><i class="ph ph-folder-open" style="font-size:40px"></i><p>ยังไม่พบรายการยื่นผลงานของท่าน</p><a class="btn" href="#submit">ยื่นเอกสาร</a></div>`;
- h+=d.items.map(it=>{const s=stg(it.status),sub=toDate(it.ts),last=it.history.length?toDate(it.history[it.history.length-1].t):null;
-  const tm=[sub?'ยื่นมาแล้ว '+span(now-sub):'',last&&it.status!=='passed'?'อยู่ในสถานะนี้ '+span(now-last):''].filter(Boolean).join(' · ');
-  return `<article class="card"><div class="hd"><div><b>${esc(it.id)}</b><div class="meta">ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div>${chip(it.status)}</div>
-  <div class="now ${s.c==='blue'?'':s.c}"><i class="ph ${ICON[s.c]||ICON.blue}"></i><div><b>ตอนนี้: ${esc(s.t)}</b>${esc(s.h||'')}${tm?`<div class="meta" style="color:inherit;opacity:.85">${esc(tm)}</div>`:''}</div></div>
-  ${it.status==='revise'&&it.note?`<div class="msg warn"><i class="ph ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
-  ${stepper(it.status)}
-  <div class="kv"><div><span>ตำแหน่ง</span>${esc(it.position||'-')}</div><div><span>กลุ่มงาน</span>${esc(it.group||'-')}</div><div><span>ตำแหน่งเลขที่</span>${esc(it.posNo||'-')}</div><div><span>อายุงาน</span>${esc(it.tenure||'-')}</div><div><span>วุฒิการศึกษา</span>${esc(it.edu||'-')}</div><div><span>อัปเดตล่าสุด</span>${esc(thDT(it.upd))}</div></div>
-  <h2 style="margin-top:18px">ประวัติสถานะ</h2>${tlHtml(it.history,it.status)}</article>`}).join('');
- if(d.items.length&&d.notes.length)h+=`<div class="card"><h2><i class="ph ph-bell"></i> การแจ้งเตือนที่ท่านได้รับ</h2><ul class="tl">${d.notes.map(n=>`<li><span class="chip gray" style="font-size:12px;padding:0 8px">${esc(NT[n.type]||n.type)}</span> ${esc(n.m)}${n.fu?` <a href="${esc(n.fu)}" target="_blank" rel="noopener"><i class="ph ph-paperclip"></i> ${esc(n.fn||'ไฟล์แนบ')}</a>`:''}${n.ok?'':' <span class="chip red" style="font-size:12px;padding:0 8px"><i class="ph ph-x-circle"></i>ส่งไม่สำเร็จ</span>'}<div class="meta">${esc(thDT(n.t))} · ${esc(n.id||'')}</div></li>`).join('')}</ul></div>`;
+ return `<div class="card" id="t-line"><div class="hd"><div><h2><i class="ph-duotone ph-chat-circle-text"></i> แจ้งเตือนทาง LINE</h2>${L.linked?'<p class="meta" style="margin:0">เชื่อมต่อแล้ว — ท่านจะได้รับข้อความเมื่อสถานะเปลี่ยน และเมื่อ HR ส่งข้อความหรือไฟล์เพิ่ม พิมพ์ "สถานะ" ในแชทเพื่อดูสถานะล่าสุดได้ทุกเมื่อ</p>':'<p class="meta" style="margin:0">เชื่อมต่อ LINE เพื่อรับข้อความทันทีที่สถานะ อวช. เปลี่ยน ไม่ต้องเปิดเว็บมาตรวจเอง</p>'}</div>
+  ${L.linked?'<span class="dbadge ok"><i class="ph-fill ph-check-circle"></i>เชื่อมต่อแล้ว</span>':'<button class="btn line" id="t-link"><i class="ph-bold ph-link"></i> เชื่อมต่อ LINE</button>'}</div></div>`}
+function holderOf(st){const s=stg(st),tn=tone(st);
+ if(st==='submitted'||st==='qualify')return{name:s.o||'กลุ่มงานทรัพยากรบุคคล',av:'<span class="avatar tone-teal"><img src="assets/logo.png" alt=""></span>'};
+ const ic={review:'ph-users-three',revise:'ph-pencil-line',passed:'ph-seal-check'}[st]||'ph-flag';
+ return{name:s.o||s.t,av:`<span class="avatar tone-${tn}"><i class="ph-fill ${ic}" style="font-size:28px"></i></span>`}}
+function flowHtml(it){const now=nowMs(),st=it.status,rev=st==='revise',passed=st==='passed',h=it.history||[];
+ const curIdx=passed?FLOW.length-1:Math.max(0,FLOW.indexOf(rev?'review':st));
+ const first={},last={},dw={};h.forEach(x=>{if(!first[x.s])first[x.s]=x;last[x.s]=x});
+ h.forEach((x,i)=>{const a=toDate(x.t),n=h[i+1]&&toDate(h[i+1].t);if(a&&n)dw[x.s]=(dw[x.s]||0)+(n-a)});
+ const lastEv=h.length?h[h.length-1]:null,lastT=lastEv?toDate(lastEv.t):null,subT=toDate(it.ts),s=stg(st),T=tone(st);
+ const steps=FLOW.map((k,i)=>{const done=passed||i<curIdx,cur=!passed&&i===curIdx,warn=cur&&rev,ev=warn?last.revise:first[k];
+  const skipped=done&&!first[k]&&k!=='submitted'&&!(passed&&k==='passed');
+  const cls=skipped?'s-skipped':done?'s-done':cur?'s-current':'s-pending',tn=warn?'amber':tone(k);
+  const ic=skipped?'ph-fill ph-minus':done?'ph-bold ph-check':'ph-fill '+(warn?'ph-note-pencil':SIC[k]);
+  const time=skipped?'ข้าม':ev?thShort(ev.t):cur?'':'รอ';
+  const who=ev&&!skipped?shortName(ev.by):'';
+  const dwell=cur&&lastT?`<div class="dflow-dwell is-live"><i class="ph-bold ph-timer"></i>อยู่ในขั้นนี้ <span data-live="${esc(lastEv.t)}">${span(now-lastT)}</span></div>`
+   :done&&!skipped&&dw[k]!=null?`<div class="dflow-dwell"><i class="ph-bold ph-timer"></i>${span(dw[k])}</div>`:'';
+  return `<li class="dflow-step ${cls} tone-${tn}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${esc(warn?stg('revise').t:stg(k).t)}</div><div class="dflow-time">${esc(time)}</div>${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}).join('');
+ const ageD=lastT?Math.floor((now-lastT)/864e5):0;
+ const sla=passed?'<span class="dbadge ok"><i class="ph-fill ph-seal-check"></i>เสร็จสิ้นแล้ว</span>'
+  :rev?'<span class="dbadge wait"><i class="ph-fill ph-hourglass-medium"></i>รอท่านแก้ไข</span>'
+  :s.sla&&ageD>s.sla?`<span class="dbadge late" title="เกณฑ์ปกติของขั้นนี้ไม่เกิน ${s.sla} วัน"><i class="ph-fill ph-alarm"></i>ค้างนานกว่าปกติ</span>`
+  :'<span class="dbadge ok"'+(s.sla?` title="เกณฑ์ปกติของขั้นนี้ไม่เกิน ${s.sla} วัน"`:'')+'><i class="ph-fill ph-check-circle"></i>อยู่ในระยะเวลาปกติ</span>';
+ const hd=holderOf(st),p=FLOW.length>1?Math.round(curIdx/(FLOW.length-1)*100):0;
+ const total=passed?(lastT&&subT?span(lastT-subT):'-'):(subT?`<span data-live="${esc(it.ts)}">${span(now-subT)}</span>`:'-');
+ const nextK=passed?'':rev?'':FLOW[curIdx+1];
+ const next=passed?'':rev?'<i class="ph-fill ph-info"></i><span>เมื่อแก้ไขผลงานเสร็จ ให้แจ้งกลุ่มงานทรัพยากรบุคคล แล้วผลงานจะกลับเข้าสู่การตรวจของกรรมการ</span>'
+  :nextK?`<i class="ph-fill ph-arrow-bend-down-right"></i><span>ขั้นตอนถัดไป: <b>${esc(stg(nextK).t)}</b></span>`:'';
+ return `<div class="dflow tone-${T}" style="--n:${FLOW.length};--p:${p}%"><div class="dflow-head"><div class="dflow-now">${hd.av}<div><div class="dflow-now-k">${passed?'<i class="ph-fill ph-seal-check"></i>ผลการประเมิน':'<span class="live-pulse"></span>ตอนนี้อยู่ที่'}</div><div class="dflow-now-v">${esc(hd.name)}</div><div class="dflow-now-s">${esc(s.t)}</div></div></div>
+  <div class="dflow-kpis"><div class="dflow-kpi"><span>ขั้นตอน</span><b>${curIdx+1} / ${FLOW.length}</b></div><div class="dflow-kpi"><span>${passed?'ใช้เวลารวม':'ยื่นมาแล้ว'}</span><b>${total}</b></div>${sla}</div></div>
+  <ol class="dflow-track" aria-label="ขั้นตอนการประเมิน"><li class="dflow-rail" aria-hidden="true"><span class="dflow-bar"></span></li>${steps}</ol>${next?`<div class="dflow-next">${next}</div>`:''}</div>`}
+function timelineHtml(it,notes){const ev=(it.history||[]).map(x=>({k:'s',t:x.t,s:x.s,n:x.n,by:x.by}));
+ notes.filter(n=>n.id===it.id).forEach(n=>ev.push({k:'n',t:n.t,n:n}));
+ ev.sort((a,b)=>String(b.t).localeCompare(String(a.t)));if(!ev.length)return '<div class="empty">ยังไม่มีความเคลื่อนไหว</div>';
+ let day='',h='<div class="dtl">';
+ ev.forEach((x,i)=>{const dk=String(x.t).slice(0,10);if(dk!==day){day=dk;h+=`<div class="dtl-day">${esc(dayLabel(dk))}</div>`}
+  if(x.k==='s'){const sg=stg(x.s),w=shortName(x.by);
+   h+=`<div class="dtl-item tone-${tone(x.s)}"><span class="dtl-ico"><i class="ph-duotone ${SIC[x.s]||'ph-flag'}"></i></span><div class="dtl-main"><div class="dtl-title">${esc(sg.t)}${i===0?'<span class="dtl-new">ล่าสุด</span>':''}</div><div class="dtl-meta"><span><i class="ph ph-clock"></i> ${esc(hm(x.t))} น.</span>${w?`<span><i class="ph ph-user"></i> ${esc(w)}</span>`:''}</div>${x.n&&x.n!=='ยื่นเอกสาร'?`<div class="dtl-note">${esc(x.n)}</div>`:''}</div></div>`}
+  else{const n=x.n;h+=`<div class="dtl-item tone-slate is-minor"><span class="dtl-ico"><i class="ph-duotone ph-chat-circle-text"></i></span><div class="dtl-main"><div class="dtl-title">${esc(NT[n.type]||n.type)}${n.ok?'':' <span class="dbadge late">ส่งไม่สำเร็จ</span>'}</div><div class="dtl-meta"><span><i class="ph ph-clock"></i> ${esc(hm(n.t))} น.</span></div><div class="dtl-note">${esc(n.m)}${n.fu?` <a href="${esc(n.fu)}" target="_blank" rel="noopener"><i class="ph ph-paperclip"></i> ${esc(n.fn||'ไฟล์แนบ')}</a>`:''}</div></div></div>`}});
+ return h+'</div>'}
+function renderTrack(d){const o=$('#t-out');
+ let h=`<div class="card who"><div class="who-l">${avatar(d.name)}<div><div class="meta">ผู้ยื่น</div><h2>${esc(d.name)}</h2><div class="meta">${esc([d.position,d.group].filter(Boolean).join(' · '))}</div></div></div><div style="text-align:right"><button class="btn sec sm" id="t-re"><i class="ph-bold ph-arrows-clockwise"></i> ตรวจสอบอีกครั้ง</button><div class="checked" style="justify-content:flex-end;margin-top:4px"><i class="ph ph-clock"></i>ตรวจเมื่อ ${esc(hm(bkk0()))} น.</div></div></div>`;
+ if(!d.items.length)h+=`<div class="card empty-s"><i class="ph-duotone ph-folder-open"></i><h2>ยังไม่พบรายการยื่นผลงานของท่าน</h2><p class="meta">หากยังไม่เคยยื่น สามารถยื่นเอกสารได้ที่ปุ่มด้านล่าง</p><a class="btn" href="#submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a></div>`;
+ h+=d.items.map(it=>{const rows=[['ph-briefcase','ตำแหน่ง',it.position],['ph-buildings','กลุ่มงาน',it.group],['ph-hash','ตำแหน่งเลขที่',it.posNo],['ph-hourglass-medium','อายุงาน',it.tenure],['ph-graduation-cap','วุฒิการศึกษา',it.edu],['ph-paperclip','ไฟล์ผลงาน',it.hasFile?'แนบไฟล์/ลิงก์แล้ว':'ยังไม่ได้แนบ'],['ph-clock','อัปเดตล่าสุด',thDT(it.upd)]];
+  return `<section class="titem"><article class="card"><div class="hd" style="margin-bottom:16px"><div><div class="dbadges">${chip(it.status)}</div><h2 class="mono" style="font-size:20px;margin:8px 0 2px">${esc(it.id)}</h2><div class="meta"><i class="ph ph-calendar-blank"></i> ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div><button class="btn sec sm" data-copy="${esc(it.id)}"><i class="ph-bold ph-copy"></i> คัดลอกรหัส</button></div>
+  ${it.status==='revise'&&it.note?`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
+  ${flowHtml(it)}</article>
+  <div class="dgrid"><div class="card tone-teal"><div class="card-t"><span class="ico"><i class="ph-duotone ph-identification-card"></i></span>ข้อมูลที่ยื่น</div><ul class="dl">${rows.map(r=>`<li><i class="ph-duotone ${r[0]}"></i><div><span>${r[1]}</span><b>${esc(r[2]||'-')}</b></div></li>`).join('')}</ul></div>
+  <div class="card tone-violet"><div class="card-t"><span class="ico"><i class="ph-duotone ph-clock-counter-clockwise"></i></span>ความเคลื่อนไหว</div>${timelineHtml(it,d.notes||[])}</div></div></section>`}).join('');
  if(d.items.length)h+=lineCard(d);
  o.innerHTML=h;$('#t-guide').innerHTML=d.items.length?`<details class="card"><summary style="cursor:pointer;font-weight:600;min-height:44px">ความหมายของสถานะ</summary><ul class="legend" style="margin-top:12px">${CFG.stages.map(s=>`<li>${chip(s.k)}<span class="t">${esc(s.h||'')}</span></li>`).join('')}</ul></details>`:guideHtml();
- $('#t-re').onclick=()=>$('#t-go').click();const lk=$('#t-link');if(lk)lk.onclick=openLink;o.scrollIntoView({behavior:'smooth',block:'start'})}
+ $('#t-re').onclick=()=>$('#t-go').click();$$('[data-copy]',o).forEach(b=>b.onclick=()=>copy(b.dataset.copy,'คัดลอกรหัส'));const lk=$('#t-link');if(lk)lk.onclick=openLink;o.scrollIntoView({behavior:'smooth',block:'start'})}
+const bkk0=()=>new Date(nowMs()+7*36e5).toISOString().replace('T',' ').slice(0,19);
+function notFound(o,t){if(/ไม่พบ/.test(t||''))o.innerHTML=`<div class="card empty-s"><i class="ph-duotone ph-magnifying-glass"></i><h2>ไม่พบเลขบัตรประชาชนนี้ในระบบ</h2><p class="meta">ตรวจสอบตัวเลขอีกครั้ง หรือหากยังไม่เคยยื่นเอกสาร ให้ยื่นเอกสารก่อน แล้วกลับมาติดตามสถานะ</p><a class="btn" href="#submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a></div>`;else msg(o,t)}
 /* เชื่อมต่อ LINE ฝั่งผู้ยื่น: เลขบัตร + เลขท้ายเบอร์โทร → รับรหัส 6 หลัก → พิมพ์รหัสในแชท LINE OA */
 function openLink(cid){cid=typeof cid==='string'?cid:LASTCID;if(!cid)return toast('กรุณาค้นหาด้วยเลขบัตรประชาชนก่อน','warn');LASTCID=cid;
  $('#l-body').innerHTML=`<p>เพื่อป้องกันผู้อื่นผูก LINE แทนท่าน กรุณายืนยันตัวตนด้วยเลข 4 ตัวท้ายของเบอร์โทรศัพท์ที่ลงทะเบียนไว้กับ HR</p>
@@ -338,48 +598,60 @@ $('#s-cid').addEventListener('blur',async()=>{const c=$('#s-cid').value.replace(
   set('first',s.first);set('last',s.last);set('position',s.position);set('group',s.group);set('posNo',s.posNo);set('phone',s.phone);
   msg($('#s-msg'),'พบข้อมูลของท่านในระบบ เติมข้อมูลให้แล้ว กรุณาตรวจสอบ','info')}else if(!d.ok)msg($('#s-msg'),d.message)});
 $('#s-start').addEventListener('change',e=>{const v=e.target.value;if(!v)return $('#s-ten').textContent='';const a=new Date(v),n=new Date();let m=(n.getFullYear()-a.getFullYear())*12+n.getMonth()-a.getMonth();if(n.getDate()<a.getDate())m--;$('#s-ten').textContent=m<0?'':`อายุงาน ${Math.floor(m/12)} ปี ${m%12} เดือน`});
+$('#s-cid').addEventListener('blur',()=>{const c=$('#s-cid').value.replace(/\D/g,''),bad=c.length===13&&!validCid(c);$('#s-cid').setAttribute('aria-invalid',bad?'true':'false');$('#s-cid-e').classList.toggle('hide',!bad)});
+const REQ=['cid','prefix','first','last','position','group','edu'];
+function routeHtml(){return (CFG.stages.length?FLOW.map(k=>chip(k)):[]).join('<i class="ph-bold ph-caret-right sep"></i>')}
 $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s-msg'),b=$('#s-go');msg(m,'');
  const p={};['cid','prefix','first','last','position','group','posNo','start','edu','phone','email','link'].forEach(k=>p[k]=$('#s-'+k).value.trim());p.cid=p.cid.replace(/\D/g,'');
-  if(p.prefix==='__other')p.prefix=$('#s-prefix-o').value.trim();if(!p.prefix){$('#s-prefix').focus();return msg(m,'กรุณาเลือกหรือระบุคำนำหน้า')}
+ if(p.prefix==='__other')p.prefix=$('#s-prefix-o').value.trim();
+ let firstBad=null;REQ.forEach(k=>{let ok=!!p[k];if(k==='cid')ok=validCid(p.cid);const el=$('#s-'+k);el.setAttribute('aria-invalid',ok?'false':'true');if(!ok&&!firstBad)firstBad=el});
+ if(firstBad){firstBad.focus();return msg(m,p.cid&&!validCid(p.cid)?'เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง':'กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน')}
+ if(p.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.email)){$('#s-email').setAttribute('aria-invalid','true');$('#s-email').focus();return msg(m,'รูปแบบอีเมลไม่ถูกต้อง')}
  if(!FSUB.get()&&!p.link)return msg(m,'กรุณาแนบไฟล์หรือใส่ลิงก์ผลงานอย่างใดอย่างหนึ่ง');
- busy(b,1,'กำลังอัปโหลดและส่งเอกสาร...');msg(m,'กำลังส่งเอกสาร อย่าปิดหน้านี้ (อาจใช้เวลาสักครู่ตามขนาดไฟล์)','info');
- try{p.file=await FSUB.pack()}catch(er){busy(b,0);return msg(m,er.message)}
- const d=await api('submit',[p,rcTok('sub')],{timeout:120000,write:true});busy(b,0);rcReset('sub');
- if(!d.ok)return msg(m,d.message);
- LASTCID=p.cid;LASTDATA={line:{enabled:CFG.line&&CFG.line.enabled,linked:false}};
- $('#f-sub').reset();FSUB.clear();$('#s-ten').textContent='';msg(m,'');
- $('#s-done').innerHTML=`<div class="card" style="border-color:var(--ok)"><div class="msg ok" style="margin-top:0"><i class="ph ph-check-circle"></i><div><b>ส่งเอกสารเรียบร้อย</b></div></div>
-  <div class="meta">รหัสติดตาม</div><div class="row" style="align-items:center"><h2 style="margin:0" class="mono">${esc(d.id)}</h2><button class="btn sec sm" id="sd-cp"><i class="ph ph-copy"></i> คัดลอก</button></div>
+ busy(b,1,'กำลังส่งเอกสาร...');const sp=sendPanel(m,['เตรียมไฟล์','ส่งเอกสารและบันทึกข้อมูล']);
+ try{p.file=await FSUB.pack()}catch(er){busy(b,0);return sp.fail(er.message)}
+ sp.go(1);const d=await api('submit',[p],{timeout:120000,write:true});busy(b,0);
+ if(!d.ok)return sp.fail(d.message);
+ sp.done();LASTCID=p.cid;LASTDATA={line:{enabled:CFG.line&&CFG.line.enabled,linked:false}};
+ $('#f-sub').reset();FSUB.clear();$('#s-ten').textContent='';$$('#f-sub [aria-invalid]').forEach(x=>x.removeAttribute('aria-invalid'));
+ $('#s-done').innerHTML=`<div class="card" style="border-color:var(--ok)"><div class="row" style="align-items:center;margin-bottom:8px"><img src="assets/logo.png" alt="" width="44" height="44" style="border-radius:50%"><div class="msg ok" style="margin:0;flex:1"><i class="ph-fill ph-check-circle"></i><div><b>ส่งเอกสารเรียบร้อย</b></div></div></div>
+  <div class="meta">รหัสติดตาม</div><div class="row" style="align-items:center"><h2 style="margin:0" class="mono">${esc(d.id)}</h2><button class="btn sec sm" id="sd-cp"><i class="ph-bold ph-copy"></i> คัดลอก</button></div>
   <p>ใช้เลขบัตรประชาชนที่หน้า "ติดตามสถานะ" เพื่อดูความคืบหน้าได้ทุกเมื่อ</p>${qrHtml()?'<div style="margin:12px 0">'+qrHtml()+'</div>':''}
-  <div class="row"><button class="btn" id="sd-tr"><i class="ph ph-path"></i> ไปหน้าติดตามสถานะ</button>${CFG.line&&CFG.line.enabled?'<button class="btn line lk" id="sd-ln"><i class="ph ph-chat-circle-text"></i> เชื่อมต่อ LINE รับแจ้งเตือน</button>':''}<button class="btn sec" id="sd-new">ยื่นรายการใหม่</button></div></div>`;
+  <div class="row"><button class="btn" id="sd-tr"><i class="ph-bold ph-path"></i> ไปหน้าติดตามสถานะ</button>${CFG.line&&CFG.line.enabled?'<button class="btn line lk" id="sd-ln"><i class="ph-bold ph-chat-circle-text"></i> เชื่อมต่อ LINE รับแจ้งเตือน</button>':''}<button class="btn sec" id="sd-new">ยื่นรายการใหม่</button></div></div>`;
  $('#f-sub').classList.add('hide');$('#s-done').scrollIntoView({behavior:'smooth'});toast('ส่งเอกสารเรียบร้อย รหัส '+d.id);
  $('#sd-cp').onclick=()=>copy(d.id,'คัดลอกรหัส');
- $('#sd-tr').onclick=()=>{$('#t-cid').value=fmtCid(p.cid);location.hash='#track';if(!CFG.recaptcha)setTimeout(()=>$('#t-go').click(),50)};
+ $('#sd-tr').onclick=()=>{$('#t-cid').value=fmtCid(p.cid);location.hash='#track';setTimeout(()=>$('#t-go').click(),50)};
  const ln=$('#sd-ln');if(ln)ln.onclick=()=>openLink(p.cid);
  $('#sd-new').onclick=()=>{$('#s-done').innerHTML='';$('#f-sub').classList.remove('hide')}});
 
 /* ===================== เจ้าหน้าที่ HR ===================== */
 $('#f-login').addEventListener('submit',async e=>{e.preventDefault();const m=$('#l-msg'),b=$('#l-go');msg(m,'');busy(b,1,'กำลังเข้าสู่ระบบ...');
- const d=await api('login',[$('#l-u').value,$('#l-p').value,rcTok('login')]);busy(b,0);rcReset('login');
- if(!d.ok)return msg(m,d.message);TOKEN=d.token;localStorage.setItem('awc_tk',TOKEN);$('#l-p').value='';enter(d.user)});
+ const d=await api('login',[$('#l-u').value,$('#l-p').value]);busy(b,0);
+ if(!d.ok)return msg(m,d.message);TOKEN=d.token;localStorage.setItem('awc_tk',TOKEN);$('#l-p').value='';enter(d.user);toast('ยินดีต้อนรับ '+d.user.n)});
+$('#l-eye').onclick=()=>{const i=$('#l-p'),on=i.type==='password';i.type=on?'text':'password';$('#l-eye').innerHTML=`<i class="ph ph-eye${on?'-slash':''}"></i>`;$('#l-eye').setAttribute('aria-label',on?'ซ่อนรหัสผ่าน':'แสดงรหัสผ่าน')};
 async function enter(u){USER=u;$('#a-login').classList.add('hide');$('#a-panel').classList.remove('hide');$('#a-user').textContent=`${u.n} (${u.r==='admin'?'ผู้ดูแลระบบ':'เจ้าหน้าที่'})`;
  ['tb-users','tb-log','tb-line'].forEach(i=>$('#'+i).classList.toggle('hide',u.r!=='admin'));loadList()}
 function logout(silent){if(TOKEN&&!silent)api('logout',[TOKEN]);TOKEN='';USER=null;localStorage.removeItem('awc_tk');$('#a-panel').classList.add('hide');$('#a-login').classList.remove('hide');['dlg','dn'].forEach(i=>$('#'+i).open&&$('#'+i).close())}
 $('#a-out').onclick=()=>logout();
 $$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));['list','line','users','log'].forEach(t=>$('#a-'+t).classList.toggle('hide',t!==b.dataset.t));
  ({list:loadList,line:loadLine,users:loadUsers,log:loadLog})[b.dataset.t]()});
-const lnBadge=r=>r.lk?'<span class="chip green" style="font-size:12px"><i class="ph ph-check-circle"></i>ผูก LINE แล้ว</span>':'<span class="chip gray" style="font-size:12px"><i class="ph ph-minus-circle"></i>ยังไม่ผูก LINE</span>';
-async function loadList(){const el=$('#a-list');if(!ROWS.length)el.innerHTML=skel(6);const d=await api('adminList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}ROWS=d.rows;COUNTS=d.counts;CFG.lineOn=d.lineEnabled;renderList()}
-function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim().toLowerCase();
- el.innerHTML=`<div class="stats"><button class="stat ${FILTER?'':'on'}" data-f=""><b>${ROWS.length}</b><span>ทั้งหมด</span></button>${CFG.stages.map(s=>`<button class="stat ${FILTER===s.k?'on':''}" data-f="${s.k}"><b>${COUNTS[s.k]||0}</b><span>${esc(s.t)}</span></button>`).join('')}</div>
+const lnBadge=r=>r.lk?'<span class="dbadge ok" style="font-size:12px"><i class="ph-fill ph-check-circle"></i>ผูก LINE แล้ว</span>':'<span class="chip gray" style="font-size:12px"><i class="ph ph-minus-circle"></i>ยังไม่ผูก LINE</span>';
+async function loadList(){const el=$('#a-list');if(!ROWS.length)el.innerHTML=skTable(6);const d=await api('adminList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}ROWS=d.rows;COUNTS=d.counts;CFG.lineOn=d.lineEnabled;renderList()}
+let FLASH='';
+const ageOf=r=>{const t=toDate(r.upd||r.ts);return t?nowMs()-t:0};
+const isLate=r=>{if(r.status==='passed'||r.status==='revise')return false;const g=stg(r.status);return !!g.sla&&ageOf(r)>g.sla*864e5};
+const ageHtml=r=>r.status==='passed'?'<span class="meta">-</span>':`<span class="age ${isLate(r)?'late':''}"><i class="ph ph-timer"></i>${span(ageOf(r))}</span>`;
+function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim().toLowerCase(),late=ROWS.filter(isLate).length;
+ el.innerHTML=`<div class="kpis"><button class="kpi tone-teal ${FILTER?'':'on'}" data-f=""><span class="kpi-ico"><i class="ph-duotone ph-stack"></i></span><div><b>${ROWS.length}</b><span>ทั้งหมด</span></div></button>${CFG.stages.map(s=>`<button class="kpi tone-${tone(s.k)} ${FILTER===s.k?'on':''}" data-f="${s.k}"><span class="kpi-ico"><i class="ph-duotone ${SIC[s.k]||'ph-flag'}"></i></span><div><b>${COUNTS[s.k]||0}</b><span>${esc(s.t)}</span></div></button>`).join('')}${late?`<button class="kpi tone-rose ${FILTER==='__late'?'on':''}" data-f="__late"><span class="kpi-ico"><i class="ph-duotone ph-alarm"></i></span><div><b>${late}</b><span>ค้างนานกว่าปกติ</span></div></button>`:''}</div>
  ${CFG.lineOn?'':'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ระบบจะบันทึกสถานะตามปกติแต่ไม่ส่งแจ้งเตือน (ตั้งค่าที่แท็บ LINE)</div></div>'}
- <div class="row" style="margin-bottom:12px"><div class="grow"><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส" aria-label="ค้นหา" value="${esc(q)}"></div><button class="btn sec" id="a-rf"><i class="ph ph-arrows-clockwise"></i> รีเฟรช</button></div>
- <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ไฟล์ผลงาน</th><th>สถานะ</th><th>LINE</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
- const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();$('#tb').innerHTML=rowsHtml(ROWS.filter(r=>(!FILTER||r.status===FILTER)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq))));
-  $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n))};
+ <div class="row" style="margin-bottom:12px"><div class="grow ig"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส" aria-label="ค้นหา" value="${esc(q)}" style="padding-left:44px"></div><button class="btn sec" id="a-rf"><i class="ph-bold ph-arrows-clockwise"></i> รีเฟรช</button></div>
+ <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ไฟล์ผลงาน</th><th>สถานะ</th><th>ค้างอยู่</th><th>LINE</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>`;
+ const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();$('#tb').innerHTML=rowsHtml(ROWS.filter(r=>(!FILTER||(FILTER==='__late'?isLate(r):r.status===FILTER))&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq))));
+  $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n));
+  if(FLASH){const tr=$(`tr[data-id="${FLASH}"]`);if(tr){tr.classList.add('flash');tr.scrollIntoView({block:'nearest',behavior:'smooth'})}FLASH=''}};
  $$('[data-f]',el).forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;renderList()});$('#q').oninput=fill;
  $('#a-rf').onclick=async e=>{const b=e.currentTarget;busy(b,1,'กำลังโหลด...');await loadList()};fill()}
-const rowsHtml=rows=>rows.length?rows.map(r=>`<tr><td data-l="รหัส">${esc(r.id)}<div class="meta">${esc(thDT(r.ts))}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div></td><td data-l="กลุ่มงาน">${esc(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status)}</td><td data-l="LINE">${lnBadge(r)}</td><td><div class="row"><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm line" data-n="${esc(r.id)}"><i class="ph ph-chat-circle-text"></i> แจ้ง LINE</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">ไม่พบรายการ</td></tr>';
+const rowsHtml=rows=>rows.length?rows.map(r=>`<tr data-id="${esc(r.id)}"><td data-l="รหัส">${esc(r.id)}<div class="meta">${esc(thDT(r.ts))}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div></td><td data-l="กลุ่มงาน">${esc(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener">เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status)}</td><td data-l="ค้างอยู่">${ageHtml(r)}</td><td data-l="LINE">${lnBadge(r)}</td><td><div class="row"><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph ph-pencil-simple"></i> แก้ไข</button><button class="btn sm line" data-n="${esc(r.id)}"><i class="ph ph-chat-circle-text"></i> แจ้ง LINE</button></div></td></tr>`).join(''):'<tr><td colspan="8" class="empty">ไม่พบรายการ</td></tr>';
 /* ---- แก้ไขรายการ + แนบไฟล์ + ส่ง LINE อัตโนมัติ ---- */
 const FIELDS=[['prefix','คำนำหน้า'],['first','ชื่อ'],['last','นามสกุล'],['cid','เลขบัตรประชาชน'],['position','ตำแหน่ง'],['group','กลุ่มงาน'],['posNo','ตำแหน่งเลขที่'],['start','วันเริ่มงาน'],['edu','วุฒิการศึกษาสูงสุด'],['phone','เบอร์โทร'],['email','อีเมล'],['link','ลิงก์ไฟล์ผลงาน']];
 const FED=mkFile($('#d-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls','xlsx'],max:8,hint:'รูป (jpg, png) หรือไฟล์ (pdf, doc, docx, xls, xlsx) ไม่เกิน 8 MB — รูปใหญ่จะถูกย่อให้อัตโนมัติ'});
@@ -393,13 +665,13 @@ $('#d-save').onclick=async()=>{const b=$('#d-save'),m=$('#d-msg');msg(m,'');cons
  try{const a=await FED.pack();if(a)f.attach=a}catch(er){busy(b,0);return msg(m,er.message)}
  const d=await api('adminSave',[TOKEN,EDIT.id,f],{timeout:120000,write:true});busy(b,0);
  if(!d.ok)return msg(m,d.message);
- $('#dlg').close();
+ $('#dlg').close();FLASH=EDIT.id;
  if(!d.changed.length&&!d.file){toast('ไม่มีการเปลี่ยนแปลง','info')}
  else{const L=d.line;let t='บันทึกแล้ว',k='ok';
   if(L){if(L.sent>0)t+=' และส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':'');else if(L.skipped==='none'){t+=' แต่ผู้ยื่นยังไม่ได้เชื่อมต่อ LINE';k='warn'}else if(L.skipped==='disabled'){t+=' แต่ยังไม่ได้ตั้งค่า LINE';k='warn'}else{t+=' แต่ส่ง LINE ไม่สำเร็จ: '+((L.errors&&L.errors[0])||'ไม่ทราบสาเหตุ');k='err'}}
   toast(t,k,7000)}
  loadList()};
-$('#d-del').onclick=async()=>{if(!confirm('ลบรายการ '+EDIT.id+' ถาวร?'))return;const b=$('#d-del');busy(b,1,'กำลังลบ...');const d=await api('adminDelete',[TOKEN,EDIT.id],{write:true});busy(b,0);if(!d.ok)return msg($('#d-msg'),d.message);$('#dlg').close();toast('ลบรายการแล้ว');loadList()};
+$('#d-del').onclick=()=>confirmBox({title:'ลบรายการ '+EDIT.id+'?',text:'รายการและประวัติสถานะจะถูกลบถาวร ย้อนกลับไม่ได้',ok:'ลบรายการ',danger:true,icon:'ph-trash'},async()=>{const d=await api('adminDelete',[TOKEN,EDIT.id],{write:true});if(!d.ok)throw new Error(d.message)}).then(ok=>{if(ok){$('#dlg').close();toast('ลบรายการแล้ว');loadList()}});
 /* ---- แจ้งเตือน LINE รายรายการ (กดส่ง/ข้อความสำเร็จรูป/พิมพ์เอง + แนบไฟล์ + ประวัติ) ---- */
 const TPL=[
  ['ได้รับเอกสารแล้ว','กลุ่มงานทรัพยากรบุคคลได้รับเอกสารผลงานของท่านแล้ว กำลังดำเนินการตามขั้นตอน'],
@@ -413,7 +685,7 @@ const cnt=()=>$('#n-cnt').textContent=$('#n-text').value.length+' / 1000';$('#n-
 function setMode(m){NMODE=m;$$('#n-seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#n-tplbox').classList.toggle('hide',m!=='tpl');$('#n-textbox').classList.toggle('hide',m==='status');if(m==='typed'){$('#n-tpl').value=''}}
 $$('#n-seg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 async function openNotify(id){const r=ROWS.find(x=>x.id===id);if(!r)return;NID=id;NINFO=null;$('#n-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}`;
- $('#n-state').innerHTML='<div class="sk" style="width:70%"></div>';$('#n-hist').innerHTML=skel(3);$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear();msg($('#n-msg'),'');setMode('status');dlgOpen($('#dn'));
+ $('#n-state').innerHTML='<div class="skeleton sk-text" style="width:70%"></div>';$('#n-hist').innerHTML=skel(3);$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear();msg($('#n-msg'),'');setMode('status');dlgOpen($('#dn'));
  await refreshNotify()}
 async function refreshNotify(){const d=await api('lineInfo',[TOKEN,NID]);if(!d.ok){$('#n-state').innerHTML='';$('#n-hist').innerHTML='';return msg($('#n-msg'),d.message)}NINFO=d;
  $('#n-state').innerHTML=!d.enabled?'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ส่งแจ้งเตือนไม่ได้ (ผู้ดูแลระบบตั้งค่าที่แท็บ LINE) การกดส่งจะถูกบันทึกในประวัติ</div></div>'
@@ -434,7 +706,7 @@ $('#n-send').onclick=async()=>{const b=$('#n-send'),m=$('#n-msg');msg(m,'');cons
  await refreshNotify()};
 /* ---- แท็บ LINE (ผู้ดูแลระบบ): ตรวจการเชื่อมต่อ + ผู้ใช้ที่ผูก + ประวัติทั้งหมด ---- */
 let LNLOG=[];
-async function loadLine(){const el=$('#a-line');el.innerHTML=skel(5);const d=await api('lineAdmin',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}LNLOG=d.log;
+async function loadLine(){const el=$('#a-line');el.innerHTML=skTable(5);const d=await api('lineAdmin',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}LNLOG=d.log;
  el.innerHTML=`<div class="card"><div class="hd"><h2><i class="ph ph-plugs-connected"></i> การเชื่อมต่อ LINE Messaging API</h2><button class="btn sec sm" id="ln-chk"><i class="ph ph-stethoscope"></i> ตรวจสอบการเชื่อมต่อ</button></div><div id="ln-res" class="meta">กด "ตรวจสอบการเชื่อมต่อ" เพื่อทดสอบ Channel access token และดู Webhook URL</div></div>
  <div class="card"><h2><i class="ph ph-link"></i> บัญชี LINE ที่ผูกแล้ว (${d.users.filter(u=>u.active).length})</h2>
   <form id="ln-add" class="row" style="margin-bottom:12px"><div class="grow"><label for="la-c">เลขบัตรประชาชน</label><input id="la-c" inputmode="numeric" maxlength="17" required></div><div class="grow"><label for="la-u">LINE userId (U + 32 ตัว)</label><input id="la-u" required></div><div style="align-self:end"><button class="btn sm" id="la-go"><i class="ph ph-plus"></i> ผูกให้</button></div></form>
@@ -451,8 +723,8 @@ async function loadLine(){const el=$('#a-line');el.innerHTML=skel(5);const d=awa
   <li><span class="chip blue"><i class="ph ph-webhooks-logo"></i>Webhook URL</span><span class="t"><code>${esc(r.webhookUrl)}</code><br><button class="btn sm sec" id="ln-cp" style="margin-top:6px"><i class="ph ph-copy"></i> คัดลอก</button> <span class="meta">วางที่ LINE Developers → Messaging API → Webhook URL แล้วกด Verify และเปิด Use webhook</span></span></li></ul>`;
   $('#ln-cp').onclick=()=>copy(r.webhookUrl,'คัดลอก Webhook URL')};
  $('#ln-add').onsubmit=async e=>{e.preventDefault();const b=$('#la-go');busy(b,1,'กำลังผูก...');const r=await api('lineAdd',[TOKEN,$('#la-c').value,$('#la-u').value.trim()],{write:true});busy(b,0);if(!r.ok)return toast(r.message,'err');toast('ผูกบัญชี LINE แล้ว');loadLine()};
- $$('[data-ul]',el).forEach(b=>b.onclick=async()=>{if(!confirm('ยกเลิกการผูก LINE นี้?'))return;const[c,u]=b.dataset.ul.split('|');busy(b,1,'กำลังยกเลิก...');const r=await api('lineUnlink',[TOKEN,c,u],{write:true});if(!r.ok){busy(b,0);return toast(r.message,'err')}toast('ยกเลิกการผูกแล้ว');loadLine()})}
-async function loadUsers(){const el=$('#a-users');el.innerHTML=skel(4);const d=await api('usersList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
+ $$('[data-ul]',el).forEach(b=>b.onclick=()=>{const[c,u]=b.dataset.ul.split('|');confirmBox({title:'ยกเลิกการผูก LINE นี้?',text:'ผู้ยื่นจะไม่ได้รับแจ้งเตือนทาง LINE จนกว่าจะผูกใหม่',ok:'ยกเลิกการผูก',danger:true,icon:'ph-link-break'},async()=>{const r=await api('lineUnlink',[TOKEN,c,u],{write:true});if(!r.ok)throw new Error(r.message)}).then(ok=>{if(ok){toast('ยกเลิกการผูกแล้ว');loadLine()}})})}
+async function loadUsers(){const el=$('#a-users');el.innerHTML=skTable(4);const d=await api('usersList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
  const ROLE=r=>r==='admin'?'ผู้ดูแลระบบ':'เจ้าหน้าที่';
  el.innerHTML=`<form id="f-u" class="card"><h2>เพิ่มผู้ใช้จากทะเบียนบุคลากร (allstaff)</h2><p class="meta">ค้นหาจากชีท allstaff (อ่านอย่างเดียว) แล้วสร้างบัญชีในแท็บ Users แยกต่างหาก — การแก้ไขผู้ใช้จะไม่กระทบชีท allstaff</p>
  <label for="u-q">ค้นหาชื่อ / นามสกุล / เลขบัตร (อย่างน้อย 2 ตัวอักษร)</label><input id="u-q" autocomplete="off" placeholder="เช่น สมชาย หรือ 1234567890123"><div id="u-res" style="margin:8px 0" aria-live="polite"></div>
@@ -469,14 +741,18 @@ async function loadUsers(){const el=$('#a-users');el.innerHTML=skel(4);const d=a
   $('#du-b').innerHTML=`<form id="f-ue"><p class="meta">บัญชี: <b>${esc(u.username)}</b> (แก้ไขเฉพาะในแท็บ Users ไม่กระทบ allstaff)</p><label for="ue-n">ชื่อ-สกุลที่แสดง</label><input id="ue-n" value="${esc(u.name)}" required><label for="ue-r" style="margin-top:8px">สิทธิ์</label><select id="ue-r"><option value="officer"${u.role!=='admin'?' selected':''}>เจ้าหน้าที่</option><option value="admin"${u.role==='admin'?' selected':''}>ผู้ดูแลระบบ</option></select><label for="ue-p" style="margin-top:8px">รหัสผ่านใหม่ (เว้นว่าง = ไม่เปลี่ยน)</label><input id="ue-p" type="password" minlength="8" autocomplete="new-password"><div id="ue-m" aria-live="polite"></div><button class="btn" id="ue-go" style="margin-top:12px"><i class="ph ph-floppy-disk"></i> บันทึก</button></form>`;
   $('#f-ue').onsubmit=async ev=>{ev.preventDefault();const g=$('#ue-go');busy(g,1,'กำลังบันทึก...');const r=await api('userEdit',[TOKEN,u.username,{name:$('#ue-n').value,role:$('#ue-r').value,password:$('#ue-p').value}],{write:true});busy(g,0);if(!r.ok)return msg($('#ue-m'),r.message);$('#du').close();toast('บันทึกแล้ว');loadUsers()};
   dlgOpen($('#du'))})}
-async function loadLog(){const el=$('#a-log');el.innerHTML=skel(5);const d=await api('logList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
+async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=await api('logList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
  el.innerHTML=`<div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>เวลา</th><th>กิจกรรม</th><th>ผู้ใช้</th><th>ผลลัพธ์</th><th>รายละเอียด</th></tr></thead><tbody>${d.rows.map(r=>`<tr><td data-l="เวลา">${esc(thDT(r[0]))}</td><td data-l="กิจกรรม">${esc(r[1])}</td><td data-l="ผู้ใช้">${esc(r[2])}</td><td data-l="ผลลัพธ์">${esc(r[3])}</td><td data-l="รายละเอียด">${esc(r[4])}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">ยังไม่มีประวัติ</td></tr>'}</tbody></table></div>`}
 /* Boot */
-(async()=>{route();$('#t-guide').innerHTML=skel(3);const c=await api('config');
- if(c.ok){CFG=c;initQr();$('#ttl').textContent=c.title;$('#org').textContent=c.org;$('#t-guide').innerHTML=guideHtml();
-  if(c.recaptcha){const s=document.createElement('script');s.src='https://www.google.com/recaptcha/api.js?render=explicit&onload=rcReady';s.async=true;document.head.appendChild(s)}}
- else{$('#t-guide').innerHTML='';msg($('#t-out'),c.message+' (ตรวจสอบ GAS_URL ใน config.js)')}
- if(TOKEN){const v=await api('verify',[TOKEN]);if(v.ok)enter(v.user);else logout(true)}})();
+function offBoot(){const b=$('#boot');if(!b)return;b.classList.add('off');setTimeout(()=>b.remove(),450)}
+setTimeout(offBoot,15000);
+async function boot(){$('#t-guide').innerHTML=skel(3);const c=await api('config');
+ if(c.ok){CFG=c;initQr();$('#ttl').textContent=c.title;$('#org').textContent=c.org;$('#t-guide').innerHTML=guideHtml();$('#s-route').innerHTML=routeHtml()}
+ else{$('#t-guide').innerHTML='';$('#t-out').innerHTML=`<div class="card empty-s"><i class="ph-duotone ph-plugs"></i><h2>เชื่อมต่อระบบไม่ได้</h2><p class="meta">${esc(c.message||'')}</p><button class="btn" id="cfg-retry"><i class="ph-bold ph-arrows-clockwise"></i> ลองใหม่</button></div>`;
+  $('#cfg-retry').onclick=async e=>{busy(e.currentTarget,1,'กำลังเชื่อมต่อ...');await boot()}}
+ offBoot();
+ if(TOKEN&&!USER){const v=await api('verify',[TOKEN]);if(v.ok)enter(v.user);else logout(true)}}
+route();boot();
 </script>
 </body>
 </html>

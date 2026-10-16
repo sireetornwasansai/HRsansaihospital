@@ -257,10 +257,6 @@ function onEdit(e) {
 
 function fteDoGet_(e) {
   var tpl = HtmlService.createTemplateFromFile('Index');
-  /* ทบทวนเพิ่ม: ส่ง reCAPTCHA site key (ค่าสาธารณะ ไม่ใช่ความลับ) เข้าไปฝังในหน้าเว็บผ่าน template
-   * เพื่อให้ widget "ฉันไม่ใช่หุ่นยนต์" เรนเดอร์ได้ — secret key ไม่ส่งมาฝั่งนี้เด็ดขาด ใช้ตรวจสอบเฉพาะ
-   * ฝั่งเซิร์ฟเวอร์เท่านั้น (ดู verifyRecaptcha_) */
-  tpl.recaptchaSiteKey = getProp_('RECAPTCHA_SITE_KEY', '');
   var out = tpl.evaluate();
   out.setTitle(getProp_('HOSPITAL_NAME', DEFAULT_HOSPITAL_NAME) + ' | ระบบอัตรากำลัง (FTE)');
   out.addMetaTag('viewport', 'width=device-width, initial-scale=1');
@@ -1333,17 +1329,16 @@ function api_adminGetStaffingSummary(token) {
 /* ============================== AUTH ============================== */
 
 /**
- * ทบทวนแก้ไข (ตามคำขอผู้ใช้ — ขอแบบ "ไม่ใช่หุ่นยนต์" ของ Google จริงๆ ไม่ใช่โจทย์เลขคณิตทำเอง):
- * เข้าสู่ระบบแอดมิน/คณะกรรมการทรัพยากรบุคคล ต้องผ่าน Google reCAPTCHA v2 ("ฉันไม่ใช่หุ่นยนต์") ก่อนเสมอ
- * recaptchaToken มาจาก widget ฝั่งไคลเอนต์ ตรวจสอบความถูกต้องกับเซิร์ฟเวอร์ของ Google โดยตรงผ่าน
- * verifyRecaptcha_ (เซิร์ฟเวอร์นี้ยิง request ไปหา Google เอง ไม่ได้เชื่อคำตอบจากฝั่งไคลเอนต์เลย)
+ * เข้าสู่ระบบแอดมิน/คณะกรรมการทรัพยากรบุคคล ด้วยรหัสผ่านเท่านั้น (ถอดระบบยืนยันตัวตน reCAPTCHA ออกแล้ว)
+ * พารามิเตอร์ตัวที่ 2 ยังรับไว้แต่ไม่ใช้ เพื่อให้หน้าเว็บรุ่นเก่าที่ยังแคชอยู่เรียกได้ไม่พัง
+ * ป้องกันการเดารหัส: ผิดครบ 10 ครั้ง ล็อก 15 นาที (นับเฉพาะครั้งที่ผิด, สำเร็จแล้วรีเซ็ต)
  */
-function api_adminLogin(password, recaptchaToken) {
-  try {
-    verifyRecaptcha_(recaptchaToken);
-  } catch (err) {
-    logActivity_('admin_login', { result: 'fail_recaptcha', detail: err.message });
-    return { ok: false, message: err.message };
+function api_adminLogin(password, _unused) {
+  var cache = CacheService.getScriptCache();
+  var fails = parseInt(cache.get('fte_login_fail') || '0', 10);
+  if (fails >= 10) {
+    logActivity_('admin_login', { result: 'locked' });
+    return { ok: false, message: 'ใส่รหัสผ่านผิดหลายครั้งเกินไป กรุณารอ 15 นาทีแล้วลองใหม่' };
   }
   var stored = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD');
   if (!stored) {
@@ -1351,11 +1346,13 @@ function api_adminLogin(password, recaptchaToken) {
     return { ok: false, message: 'ยังไม่ได้ตั้งค่ารหัสผ่านผู้ดูแลระบบ (ADMIN_PASSWORD) ใน Script Properties' };
   }
   if (String(password) !== String(stored)) {
+    cache.put('fte_login_fail', String(fails + 1), 900);
     logActivity_('admin_login', { result: 'fail_password' });
     return { ok: false, message: 'รหัสผ่านไม่ถูกต้อง' };
   }
+  cache.remove('fte_login_fail');
   var token = Utilities.getUuid();
-  CacheService.getScriptCache().put('admin_' + token, '1', SESSION_TTL_SECONDS);
+  cache.put('admin_' + token, '1', SESSION_TTL_SECONDS);
   logActivity_('admin_login', { result: 'success' });
   return { ok: true, token: token };
 }
@@ -1387,62 +1384,18 @@ function verifyToken_(token) {
   cache.put('admin_' + token, '1', SESSION_TTL_SECONDS); // ต่ออายุเซสชันเมื่อมีการใช้งาน
 }
 
-/* ============================== ประตูทางเข้าเว็บ (Entry Gate) / reCAPTCHA / Activity Log ============
- * ทบทวนเพิ่ม (ตามคำขอผู้ใช้): ก่อนเข้าใช้งานเว็บ ผู้ใช้ต้องเลือกก่อนว่าตนเองเข้าในฐานะ "ผู้เยี่ยมชม"
- * (ระบุกลุ่มงานของตนเอง) หรือ "คณะกรรมการทรัพยากรบุคคล" (กรอกรหัสผ่าน) โดยทั้งสองทางต้องผ่าน Google
- * reCAPTCHA v2 ("ฉันไม่ใช่หุ่นยนต์") และกดยินยอมนโยบายคุกกี้/ประวัติการเข้าใช้งานก่อนเสมอ ทุกความพยายาม
- * เข้าใช้งาน (ทั้งสำเร็จและไม่สำเร็จ) รวมถึงการแก้ไขข้อมูลของแอดมิน จะถูกบันทึกไว้ในชีท ActivityLog
- * เพื่อการตรวจสอบย้อนหลัง (audit trail) ==================================================== */
+/* ============================== Activity Log ============================
+ * บันทึกการเข้าใช้งานและการแก้ไขข้อมูลของแอดมินลงชีท ActivityLog เพื่อการตรวจสอบย้อนหลัง (audit trail)
+ * ระบบประตูทางเข้า (เลือกบทบาท + reCAPTCHA + ยินยอมคุกกี้) ถูกถอดออกแล้ว ผู้เยี่ยมชมเข้าเว็บได้ทันที
+ * ===================================================== */
 
 /**
- * ตรวจสอบ token จาก Google reCAPTCHA v2 กับเซิร์ฟเวอร์ของ Google โดยตรง (server-to-server ผ่าน
- * UrlFetchApp) — ไม่เชื่อผลจากฝั่งไคลเอนต์เด็ดขาด เพราะ token ปลอมหรือแก้ไขค่าใน JS ฝั่งไคลเอนต์ตรวจจับ
- * ไม่ได้ถ้าไม่ยืนยันกับ Google อีกที ต้องตั้งค่า RECAPTCHA_SECRET_KEY ใน Script Properties ก่อน
- * (คู่กับ RECAPTCHA_SITE_KEY ที่ฝังไว้ในหน้าเว็บผ่าน doGet — ดู getProp_('RECAPTCHA_SITE_KEY', ''))
- * ขอคีย์ทั้งคู่ได้ฟรีที่ https://www.google.com/recaptcha/admin (เลือกประเภท reCAPTCHA v2 "ช่องทำเครื่องหมาย
- * ฉันไม่ใช่โปรแกรมอัตโนมัติ")
+ * บันทึกการเข้าชมของผู้เยี่ยมชม (ไม่มีการยืนยันตัวตน/ไม่ต้องกดยินยอม) — ใช้เพื่อสถิติเท่านั้น
+ * เรียกแบบเงียบๆ จากหน้าเว็บทุกครั้งที่เปิดเว็บ ไม่เคยปฏิเสธการเข้าใช้งาน
+ * สิทธิ์การเข้าถึงข้อมูลของผู้เยี่ยมชมไม่เปลี่ยน (เห็นเฉพาะข้อมูลสาธารณะ ไม่มีชื่อบุคคล)
  */
-function verifyRecaptcha_(recaptchaToken) {
-  if (!recaptchaToken) throw new Error('กรุณายืนยันตัวตน "ฉันไม่ใช่หุ่นยนต์" ก่อน');
-  var secret = PropertiesService.getScriptProperties().getProperty('RECAPTCHA_SECRET_KEY');
-  if (!secret) throw new Error('ยังไม่ได้ตั้งค่า RECAPTCHA_SECRET_KEY ใน Script Properties — กรุณาติดต่อผู้ดูแลระบบ');
-  var resp = UrlFetchApp.fetch('https://www.google.com/recaptcha/api/siteverify', {
-    method: 'post',
-    payload: { secret: secret, response: recaptchaToken },
-    muteHttpExceptions: true
-  });
-  var json;
-  try {
-    json = JSON.parse(resp.getContentText());
-  } catch (e) {
-    throw new Error('ไม่สามารถตรวจสอบกับ Google reCAPTCHA ได้ในขณะนี้ กรุณาลองใหม่');
-  }
-  if (!json || !json.success) {
-    throw new Error('ยืนยันตัวตน "ฉันไม่ใช่หุ่นยนต์" ไม่สำเร็จ กรุณาลองใหม่');
-  }
-}
-
-/**
- * ทางเข้าเว็บสำหรับ "ผู้เยี่ยมชม" — ไม่ต้องมีรหัสผ่าน แต่ต้องผ่าน reCAPTCHA, ระบุกลุ่มงานของตนเอง
- * และกดยินยอมนโยบายคุกกี้/ประวัติการเข้าใช้งานก่อนเสมอ ไม่ได้สร้าง token/สิทธิ์พิเศษใดๆ เพียงแค่บันทึก
- * กิจกรรมการเข้าใช้งานไว้เป็นหลักฐาน (audit trail) เท่านั้น สิทธิ์การเข้าถึงข้อมูลของผู้เยี่ยมชมยังคง
- * เหมือนเดิมทุกประการ (เห็นเฉพาะข้อมูลสาธารณะ ไม่มีชื่อบุคคล)
- */
-function api_visitorEnter(department, consent, recaptchaToken) {
-  try {
-    verifyRecaptcha_(recaptchaToken);
-  } catch (err) {
-    logActivity_('visitor_enter', { result: 'fail_recaptcha', detail: err.message, department: department });
-    return { ok: false, message: err.message };
-  }
-  if (!consent) {
-    return { ok: false, message: 'กรุณายินยอมนโยบายคุกกี้และประวัติการเข้าใช้งานก่อนเข้าสู่เว็บไซต์' };
-  }
-  var dep = String(department || '').trim();
-  if (!dep) {
-    return { ok: false, message: 'กรุณาระบุกลุ่มงานของท่าน' };
-  }
-  logActivity_('visitor_enter', { result: 'success', department: dep, consent: true });
+function api_visitorEnter(department, consent, _unused) {
+  logActivity_('visitor_enter', { result: 'success', department: String(department || '').trim() });
   return { ok: true };
 }
 

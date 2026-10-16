@@ -6,25 +6,26 @@
  *   ADMIN_PASSWORD              รหัสผ่านผู้ใช้ "admin" (ใช้ครั้งแรกเพื่อสร้างผู้ใช้อื่น)  *จำเป็น*
  *   SPREADSHEET_ID              รหัสชีท (ไม่ใส่ = ใช้ชีทที่สคริปต์ผูกอยู่)
  *   DRIVE_FOLDER_ID             โฟลเดอร์เก็บไฟล์ที่อัปโหลด (ไม่ใส่ = Drive หลัก)
- *   RECAPTCHA_SITE_KEY / RECAPTCHA_SECRET_KEY   (ไม่ใส่ = ปิด reCAPTCHA)
  *   --- LINE Messaging API ---
  *   LINE_CHANNEL_ACCESS_TOKEN   Channel access token (long-lived) จาก LINE Developers  *จำเป็นถ้าจะใช้ LINE*
  *   LINE_WEBHOOK_KEY            รหัสลับท้าย Webhook URL (?k=...) — รันฟังก์ชัน setupLine() เพื่อสร้างให้อัตโนมัติ
  *   LINE_OA_ID                  LINE Official Account ID เช่น @123abcde (ใช้สร้างลิงก์เพิ่มเพื่อน)
- *   SITE_URL                    ที่อยู่เว็บบน Vercel เช่น https://awc-sansai.vercel.app (ใช้ทำปุ่ม "ดูความคืบหน้า" ในข้อความ LINE)
+ *   SITE_URL                    ที่อยู่เว็บบน Vercel เช่น https://awc-sansai.vercel.app (ใช้ทำปุ่ม "ดูความคืบหน้า" และโลโก้ในข้อความ LINE)
+ *   (ระบบยืนยันตัวตน/reCAPTCHA ถูกถอดออกแล้ว — ไม่ต้องตั้ง RECAPTCHA_* อีก)
  *
  * แท็บที่ระบบสร้างให้อัตโนมัติ: ยื่นอวช, ประวัติสถานะ, Users, Notifications, ActivityLog, LineUsers, LineLog
  */
 var TZ = 'Asia/Bangkok', SESSION_TTL = 3600;
 var ORG = 'กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่';
 var TITLE = 'ระบบติดตามสถานะการประเมินผลงาน (อวช.)';
-/* ขั้นตอน: k=รหัส t=ชื่อ c=โทนสี (blue=ปกติ orange=ต้องแก้ไข green=สำเร็จ) h=คำอธิบายสั้นในข้อความแจ้งเตือน */
+/* ขั้นตอน: k=รหัส t=ชื่อ c=โทนสี (blue=ปกติ orange=ต้องแก้ไข green=สำเร็จ) h=คำอธิบายสั้นในข้อความแจ้งเตือน
+ * o=ผู้รับผิดชอบขั้นตอนนี้ (แสดงในหน้าติดตาม "ตอนนี้อยู่ที่")  sla=จำนวนวันที่ถือว่าปกติ ถ้าค้างเกินจะขึ้นป้าย "ค้างนานกว่าปกติ" (0 = ไม่นับ) */
 var STAGES = [
-  { k: 'submitted', t: 'ยื่นเอกสารแล้ว', c: 'blue', h: 'ระบบได้รับเอกสารผลงานของท่านแล้ว' },
-  { k: 'qualify', t: 'ตรวจคุณสมบัติ (HR)', c: 'blue', h: 'เจ้าหน้าที่ HR กำลังตรวจคุณสมบัติ' },
-  { k: 'review', t: 'อยู่ระหว่างกรรมการตรวจผลงาน', c: 'blue', h: 'ผลงานอยู่ระหว่างการตรวจของกรรมการ' },
-  { k: 'revise', t: 'ต้องแก้ไข', c: 'orange', h: 'กรุณาแก้ไขผลงานตามหมายเหตุด้านล่าง' },
-  { k: 'passed', t: 'ผ่านการประเมิน', c: 'green', h: 'ผลงานผ่านการประเมินแล้ว' }
+  { k: 'submitted', t: 'ยื่นเอกสารแล้ว', c: 'blue', h: 'ระบบได้รับเอกสารผลงานของท่านแล้ว', o: 'กลุ่มงานทรัพยากรบุคคล', sla: 2 },
+  { k: 'qualify', t: 'ตรวจคุณสมบัติ (HR)', c: 'blue', h: 'เจ้าหน้าที่ HR กำลังตรวจคุณสมบัติ', o: 'เจ้าหน้าที่ HR', sla: 5 },
+  { k: 'review', t: 'อยู่ระหว่างกรรมการตรวจผลงาน', c: 'blue', h: 'ผลงานอยู่ระหว่างการตรวจของกรรมการ', o: 'คณะกรรมการตรวจผลงาน', sla: 30 },
+  { k: 'revise', t: 'ต้องแก้ไข', c: 'orange', h: 'กรุณาแก้ไขผลงานตามหมายเหตุด้านล่าง', o: 'ผู้ยื่น (แก้ไขผลงาน)', sla: 0 },
+  { k: 'passed', t: 'ผ่านการประเมิน', c: 'green', h: 'ผลงานผ่านการประเมินแล้ว', o: 'เสร็จสิ้นการประเมิน', sla: 0 }
 ];
 var SH = { SUB: 'ยื่นอวช', HIS: 'ประวัติสถานะ', USR: 'Users', NOT: 'Notifications', LOG: 'ActivityLog', STAFF: 'allstaff', LNU: 'LineUsers', LNL: 'LineLog' };
 var HEAD = {
@@ -152,13 +153,6 @@ function notify_(item, msg) {
     if (item.email) MailApp.sendEmail(item.email, '[อวช.] ' + item.id, msg + '\n\nติดตามสถานะด้วยเลขบัตรประชาชนที่หน้าเว็บระบบ\n' + ORG);
   } catch (e) {}
 }
-function verifyRc_(tok) {
-  var secret = prop_('RECAPTCHA_SECRET_KEY');
-  if (!secret) return;
-  if (!tok) throw new Error('กรุณายืนยัน "ฉันไม่ใช่หุ่นยนต์" ก่อน');
-  var r = JSON.parse(UrlFetchApp.fetch('https://www.google.com/recaptcha/api/siteverify', { method: 'post', payload: { secret: secret, response: tok }, muteHttpExceptions: true }).getContentText());
-  if (!r.success) throw new Error('ยืนยัน reCAPTCHA ไม่สำเร็จ กรุณาลองใหม่');
-}
 function hash_(salt, pw) {
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, salt + pw, Utilities.Charset.UTF_8)
     .map(function (b) { return ('0' + (b & 255).toString(16)).slice(-2); }).join('');
@@ -233,13 +227,19 @@ function frow_(k, v) {
   return { type: 'box', layout: 'baseline', spacing: 'sm', margin: 'md', contents: [
     { type: 'text', text: k, color: '#51676f', size: 'sm', flex: 3 }, { type: 'text', text: tx_(v), wrap: true, size: 'sm', flex: 6 }] };
 }
+function logoUrl_() { var u = siteUrl_(); return u ? u.replace(/\/+$/, '') + '/assets/logo.png' : ''; }
 function ffoot_() {
   var u = siteUrl_();
   return u ? { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#0f766e', height: 'sm', action: { type: 'uri', label: 'ดูความคืบหน้า', uri: u + '#track' } }] } : null;
 }
 function fbubble_(headText, color, body) {
+  var logo = logoUrl_();
+  var title = { type: 'text', text: headText, color: '#ffffff', weight: 'bold', size: 'md', wrap: true, flex: 1, gravity: 'center' };
+  var head = logo
+    ? { type: 'box', layout: 'horizontal', spacing: 'md', alignItems: 'center', contents: [{ type: 'image', url: logo, size: '40px', aspectMode: 'cover', flex: 0 }, title] }
+    : { type: 'box', layout: 'vertical', contents: [title] };
   var b = { type: 'bubble', size: 'mega',
-    header: { type: 'box', layout: 'vertical', backgroundColor: color, paddingAll: '14px', contents: [{ type: 'text', text: headText, color: '#ffffff', weight: 'bold', size: 'md', wrap: true }] },
+    header: { type: 'box', layout: 'vertical', backgroundColor: color, paddingAll: '14px', contents: [head] },
     body: { type: 'box', layout: 'vertical', contents: body } };
   var f = ffoot_(); if (f) b.footer = f;
   return b;
@@ -401,13 +401,12 @@ function lineConsume_(ev, uid, code) {
  *  Public API
  * ====================================================================== */
 function apiConfig_() {
-  return { org: ORG, title: TITLE, stages: STAGES, recaptcha: prop_('RECAPTCHA_SITE_KEY'), line: { enabled: lineEnabled_(), oaLink: lineOaLink_(), oaId: prop_('LINE_OA_ID') } };
+  return { org: ORG, title: TITLE, stages: STAGES, line: { enabled: lineEnabled_(), oaLink: lineOaLink_(), oaId: prop_('LINE_OA_ID') } };
 }
 /* ติดตามสถานะ: เข้าได้ทุกคนที่มีเลขบัตรประชาชนอยู่ในระบบ (allstaff หรือเคยยื่นเอกสาร) */
-function apiTrack_(cidRaw, rc) {
+function apiTrack_(cidRaw) {
   var cid = digits_(cidRaw);
   if (cid.length !== 13) throw new Error('กรุณากรอกเลขบัตรประชาชน 13 หลัก');
-  verifyRc_(rc);
   var mine = subs_().filter(function (r) { return r.cid === cid; });
   var staff = staffByCid_(cid);
   if (!mine.length && !staff) { log_('track', '', 'not_found', ''); throw new Error('ไม่พบเลขบัตรประชาชนนี้ในระบบ'); }
@@ -435,9 +434,8 @@ function apiLookup_(cidRaw) {
   var s = staffByCid_(cid);
   return { found: !!s, staff: s };
 }
-function apiSubmit_(p, rc) {
+function apiSubmit_(p) {
   p = p || {};
-  verifyRc_(rc);
   var f = {};
   ['prefix', 'first', 'last', 'position', 'group', 'posNo', 'start', 'edu', 'link', 'phone', 'email'].forEach(function (k) { f[k] = str_(p[k]); }); f.title = '';
   f.cid = digits_(p.cid);
@@ -465,9 +463,8 @@ function apiSubmit_(p, rc) {
 }
 
 /* ---------- Auth ---------- */
-function apiLogin_(username, password, rc) {
+function apiLogin_(username, password) {
   var u = str_(username), pw = String(password || '');
-  try { verifyRc_(rc); } catch (e) { log_('login', u, 'fail_recaptcha', ''); throw e; }
   if (!rateOk_('lg_' + u.toLowerCase(), 10, 900)) throw new Error('พยายามเข้าสู่ระบบบ่อยเกินไป กรุณารอ 15 นาที');
   var sess = null, boot = prop_('ADMIN_PASSWORD');
   var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 6).getValues() : [];
