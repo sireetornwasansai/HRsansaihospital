@@ -353,7 +353,7 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
 @media(max-width:720px){.lw li{grid-template-columns:28px minmax(0,1fr) auto}.lw li .pbar{grid-column:2/4}.lw li .btn{grid-column:2/4}}
 .ab-pro{background:#ecfdf5;border-color:#34d399;color:#047857}.ab-pro:hover{background:#d1fae5}.ab-pro i{color:#059669}
 
-/* ===== v2: ตารางพอดีหน้าจอ / ตัดคำไทย / ตัวกรอง ก.พ. / สรุประยะเวลา / โหมดจำลอง ===== */
+/* ===== v2: ตารางพอดีหน้าจอ / ตัดคำไทย / ตัวกรองระดับตำแหน่ง / สรุประยะเวลา / โหมดจำลอง ===== */
 body.wide .wrap{max-width:1320px}
 .nb{white-space:nowrap}
 .lbl-sub{display:block;font-weight:500;font-size:.93em;opacity:.85;line-height:1.35}.lbl-sub.in{display:inline;white-space:nowrap}
@@ -379,7 +379,7 @@ body.wide .wrap{max-width:1320px}
  .rt.fit tbody tr.u-crit td:first-child,.rt.fit tbody tr.u-urg td:first-child,.rt.fit tbody tr.u-watch td:first-child{box-shadow:none}
 }
 @media(max-width:720px){.rt.fit tr{grid-template-columns:1fr}}
-/* ตัวกรองระดับ ก.พ. */
+/* ตัวกรองระดับตำแหน่ง */
 .trk{display:flex;flex-wrap:wrap;gap:8px 8px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:14px}
 .trk-l{font-weight:700;display:inline-flex;gap:6px;align-items:center;margin-right:2px}
 .trk-g{font-size:12px;color:var(--mut);margin-left:6px}
@@ -414,6 +414,99 @@ body.wide .wrap{max-width:1320px}
 #demo-pill button{border:0;background:#fff;color:#4338ca;border-radius:999px;min-height:32px;padding:0 12px;cursor:pointer;font-weight:700}
 #a-demo.on{background:#ede9fe;border-color:#7c3aed;color:#5b21b6;font-weight:700}
 .demo-tag{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;background:#ede9fe;color:#5b21b6}
+
+/* ===== v3: อัพเดทสถานะ / ป้ายรอ-ลงนามแล้ว / รอบแก้ไข / ไฟล์แนบเล่ม 2 / ระดับตำแหน่ง ===== */
+.sgb{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:700;padding:1px 9px;border-radius:999px;margin-top:4px;line-height:1.5}
+.sgb.wait{background:#fef3c7;color:#92400e}.sgb.ok{background:#d1fae5;color:#065f46}
+.dstage.sgw{box-shadow:inset 0 0 0 1.5px #f59e0b88}.dstage.sgd{box-shadow:inset 0 0 0 1.5px #10b98188}
+.nd.sg-wait.s-current .dflow-node{border:3px dashed #f59e0b;box-shadow:0 0 0 6px #fef3c7;color:#b45309;background:#fffbeb}
+.nd.sg-done.s-current .dflow-node,.nd.sg-done.s-done .dflow-node{background:#059669;border-color:#059669;color:#fff}
+.nd.sg-wait.s-current .dflow-label{color:#92400e}
+.sgl{display:grid;gap:7px}.sgr{display:grid;grid-template-columns:minmax(0,1.25fr) auto auto;gap:6px;align-items:center}
+.sgn{display:flex;gap:6px;align-items:center;font-weight:600;font-size:14px;min-width:0}.sgn i{font-size:18px;color:var(--pri)}
+.sgp{display:inline-flex;gap:5px;align-items:center;justify-content:center;min-height:34px;padding:0 10px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:13px;cursor:pointer;white-space:nowrap}
+.sgp b{border-radius:999px;padding:0 7px;font-size:12px;background:#f1f5f9}
+.sgp.wait{border-color:#fcd34d;color:#92400e}.sgp.wait b{background:#fef3c7}
+.sgp.ok{border-color:#6ee7b7;color:#065f46}.sgp.ok b{background:#d1fae5}
+.sgp:hover{filter:brightness(.97)}.sgp.on{background:var(--pri);border-color:var(--pri);color:#fff}.sgp.on b{background:#ffffff33;color:#fff}
+@media(max-width:460px){.sgr{grid-template-columns:1fr 1fr}.sgn{grid-column:1/-1}}
+/* ปุ่มในตารางจัดการ: อัพเดทสถานะ (หลัก) แยกจากแก้ไขข้อมูล */
+.ab-status{background:linear-gradient(135deg,#0f766e,#0b5a54);color:#fff;border-color:transparent;box-shadow:0 2px 8px #0f766e44}
+.ab-status:hover{background:linear-gradient(135deg,#0d9488,#0f766e)}.ab-status i{color:#fff}
+.rt.fit .act .ab-status{grid-column:1/-1}
+.ab-att i{color:#0891b2}.ab-att.has-q{background:#ecfeff;border-color:#22d3ee;color:#155e75}
+.fxb{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:600;margin-top:4px;padding:1px 9px;border-radius:999px;background:#fff7ed;color:#9a3412}
+.fxb.mid{background:#ffedd5;box-shadow:inset 0 0 0 1px #fdba74}.fxb.hi{background:#ffe4e6;color:#be123c;box-shadow:inset 0 0 0 1px #fda4af}
+/* กล่องโต้ตอบ: อัพเดทสถานะ */
+#ds{max-width:720px}
+.dsc{display:flex;justify-content:space-between;gap:8px 14px;align-items:center;flex-wrap:wrap;background:#f6fafa;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:12px}
+.dsc>div{display:grid;gap:4px;justify-items:start}
+.qk{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.qk button{display:inline-flex;gap:6px;align-items:center;min-height:38px;padding:0 12px;border:1.5px solid var(--line);background:#fff;border-radius:999px;cursor:pointer;font-size:14px;line-height:1.3;text-align:left}
+.qk button:hover{border-color:var(--tg,#14b8a6);background:var(--tb,#f0fdfa)}.qk button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.tmb{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;margin-top:14px;transition:background .15s,border-color .15s}
+.tmb.on{border-color:#f59e0b;background:#fffbeb}.tmb .tm-in{margin-top:10px;max-width:320px}
+.dspv{margin-top:14px;padding:10px 14px;border-radius:12px;background:#ecfdf5;color:#065f46;display:flex;gap:8px;align-items:flex-start;font-size:14.5px}
+.dspv.chg{background:#eff6ff;color:#1e40af}.dspv i{margin-top:3px;flex:none}
+.ds-sec{margin-top:14px;padding:14px;background:#f7fbfb;border:1px solid var(--line);border-radius:12px}
+.ds-sec h3{display:flex;gap:6px;align-items:center;font-size:15px}
+/* รอบการแก้ไข */
+.rds{margin-top:14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:14px}
+.rds-h{display:flex;gap:8px;align-items:center;font-weight:700;flex-wrap:wrap}.rds-h i{font-size:22px;color:#b45309}
+.rds-h .dbadge{margin-left:auto}
+.rds-l{list-style:none;margin:12px 0 0 6px;padding:0 0 0 18px;border-left:3px solid #fde68a;display:grid;gap:14px}
+.rd{position:relative}.rd::before{content:"";position:absolute;left:-28px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid #f59e0b}
+.rd.done::before{border-color:#10b981;background:#10b981}.rd.live::before{animation:ring 2.2s ease-in-out infinite;--tb:#fef3c7}
+.rd-t{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-weight:700}
+.rd-r{display:grid;gap:2px 14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:6px;font-size:14px}.rd-r span{display:block;color:var(--mut);font-size:12.5px}.rd-r b{font-weight:600}
+.rd-n{margin-top:6px;padding:8px 12px;border-radius:10px;background:#fffbeb;color:#78350f;font-size:14px}
+.rd-f{display:flex;gap:6px;align-items:center;margin-top:6px;font-size:13.5px;color:#065f46;flex-wrap:wrap}
+.rds-tip{margin-top:12px;font-size:13.5px}
+/* แนบไฟล์เล่ม 2 (ผู้ยื่น) */
+.attd{padding:0}.attd>summary{list-style:none;cursor:pointer;display:flex;gap:10px;align-items:center;min-height:56px;padding:12px 20px;font-weight:700}
+.attd>summary::-webkit-details-marker{display:none}.attd>summary .cv{margin-left:auto;transition:transform .15s}.attd[open]>summary .cv{transform:rotate(180deg)}
+.attd>summary .ico{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--tb,#e0f2fe);color:var(--t,#0369a1);font-size:19px}
+.attd .att-b{padding:0 20px 20px}
+.attl{list-style:none;margin:10px 0;padding:0;display:grid;gap:6px}
+.attl li{display:flex;gap:10px;align-items:flex-start;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfdfd;font-size:14px}
+.attl li>i{font-size:22px;color:var(--pri);margin-top:2px;flex:none}.attl .meta{display:block}
+.af{display:grid;gap:12px;margin-top:10px}
+.af-r{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+/* ตัวกรองระดับตำแหน่ง: แถบตัวกรองดูเป็นระเบียบขึ้น */
+.trk{box-shadow:var(--sh)}
+.trk-l{color:var(--pri-d)}
+
+/* ===== v3: คำถามที่พบบ่อย ===== */
+.fq-hero{background:linear-gradient(135deg,#0f766e,#4f46e5);color:#fff;border:0;position:relative;overflow:hidden}
+.fq-hero::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:#ffffff14}
+.fq-hero h1{color:#fff;margin:0 0 4px}.fq-hero p{margin:0 0 14px;color:#e0f2fe;max-width:640px}
+.fq-s{position:relative;max-width:640px}.fq-s i{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:20px;color:#64748b}
+.fq-s input{padding-left:44px;border-color:transparent;min-height:50px;font-size:16px;box-shadow:0 6px 20px #0f2a3033}
+.fq-cats{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 8px}
+.fq-c{display:inline-flex;gap:6px;align-items:center;min-height:38px;padding:0 14px;border:1.5px solid var(--line);background:#fff;border-radius:999px;cursor:pointer;font-size:14px}
+.fq-c b{background:#eef5f6;border-radius:999px;padding:0 8px;font-size:12.5px}.fq-c:hover{border-color:var(--pri)}
+.fq-c.on{background:var(--pri);border-color:var(--pri);color:#fff}.fq-c.on b{background:#ffffff33;color:#fff}
+.fq-info{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--mut);font-size:14px;margin:6px 2px 10px}
+.fq-l{display:grid;gap:10px}
+.fq{border:1.5px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--sh);transition:border-color .15s}
+.fq[open]{border-color:var(--pri)}.fq>summary{list-style:none;cursor:pointer;display:flex;gap:12px;align-items:flex-start;padding:14px 18px;font-weight:600;line-height:1.5;min-height:56px}
+.fq>summary::-webkit-details-marker{display:none}
+.fq-q{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:9px;background:#ccfbf1;color:#0f766e;font-size:17px;margin-top:-1px}
+.fq-t{flex:1;min-width:0}.fq-t small{display:block;font-weight:500;color:var(--mut);font-size:12.5px}
+.fq>summary .cv{margin-top:6px;color:var(--mut);transition:transform .15s;flex:none}.fq[open]>summary .cv{transform:rotate(180deg)}
+.fq-pin{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:700;padding:0 8px;border-radius:999px;background:#fef3c7;color:#92400e;margin-left:6px;vertical-align:1px}
+.fq-a{padding:0 18px 16px 60px;overflow-wrap:anywhere}.fq-a .tx{white-space:pre-line;line-height:1.75}
+.fq-a mark{background:#fde68a;border-radius:3px;padding:0 1px}
+.fq-f{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);font-size:13.5px;color:var(--mut)}
+.fq-v{display:inline-flex;gap:6px;align-items:center}.fq-v button{display:inline-flex;gap:5px;align-items:center;min-height:34px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:13.5px}
+.fq-v button:hover:not([disabled]){border-color:var(--pri);color:var(--pri-d)}.fq-v button[disabled]{opacity:.6;cursor:default}
+.fq-sim{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13.5px}
+.fq-sim a{display:inline-flex;gap:5px;align-items:center;padding:3px 11px;border-radius:999px;background:#eef2ff;color:#3730a3;text-decoration:none;font-weight:500}.fq-sim a:hover{background:#e0e7ff}
+.fq-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin-top:16px;background:#f0fdfa;border-color:#99f6e4}
+.fq-cta i{font-size:34px;color:var(--pri)}
+@media(max-width:600px){.fq-a{padding-left:18px}}
+.faq-tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pub-chip{display:inline-flex;gap:4px;align-items:center;font-size:12.5px;font-weight:700;padding:1px 10px;border-radius:999px}.pub-chip.y{background:#d1fae5;color:#065f46}.pub-chip.n{background:#f1f5f9;color:#475569}
 </style>
 <script defer src="https://sandtools.vercel.app/t.js" data-site="ppcwh43swb"></script>
 </head>
@@ -430,6 +523,7 @@ body.wide .wrap{max-width:1320px}
  <nav aria-label="เมนูหลัก">
   <a href="#track" data-v="track"><i class="ph-bold ph-path"></i> ติดตามสถานะ</a>
   <a href="#submit" data-v="submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a>
+  <a href="#faq" data-v="faq"><i class="ph-bold ph-question"></i> คำถามที่พบบ่อย</a>
   <a href="#admin" data-v="admin"><i class="ph-bold ph-shield-check"></i> เจ้าหน้าที่ HR</a>
   <a href="fte/" id="fte-link" class="out"><i class="ph-bold ph-users-three"></i> ระบบอัตรากำลัง FTE</a>
  </nav></div></header>
@@ -452,6 +546,12 @@ body.wide .wrap{max-width:1320px}
 </section>
 
 <!-- ===== ยื่นเอกสาร ===== -->
+<section id="v-faq" hidden>
+ <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>ระบบ อวช.</span><i class="ph-bold ph-caret-right"></i><span>คำถามที่พบบ่อย</span></nav>
+ <div class="card fq-hero"><h1><i class="ph-duotone ph-question"></i> คำถามที่พบบ่อย</h1><p>รวบรวมข้อสงสัยและปัญหาที่ผู้ยื่น อวช. พบบ่อย จัดทำโดยกลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย — ค้นหาก่อนสอบถาม อาจพบคำตอบได้ทันที</p>
+  <div class="fq-s"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="fq-q" type="search" autocomplete="off" placeholder="พิมพ์คำที่สงสัย เช่น 180 วัน, แก้ไข, ไฟล์เล่ม 2, LINE" aria-label="ค้นหาคำถามที่พบบ่อย"></div></div>
+ <div id="fq-body" aria-live="polite"></div>
+</section>
 <section id="v-submit" hidden>
  <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>ระบบ อวช.</span><i class="ph-bold ph-caret-right"></i><span>ยื่นเอกสาร</span></nav>
  <div class="page-head"><span class="ph-title-ico"><i class="ph-duotone ph-upload-simple"></i></span><div><h1>ยื่นเอกสารผลงาน (อวช.)</h1><p>กรอกข้อมูล 3 ส่วน แล้วระบบจะให้รหัสติดตามทันที</p></div></div>
@@ -467,7 +567,7 @@ body.wide .wrap{max-width:1320px}
    <div><label for="s-email">อีเมล (รับแจ้งเตือนเมื่อสถานะเปลี่ยน)</label><input id="s-email" type="email"></div>
   </div></div></div>
   <div class="card fsec"><div class="fsec-h"><span class="fsec-n">2</span><h2>ตำแหน่งและสังกัด</h2></div><div class="fsec-b"><div class="grid">
-   <div class="full"><label class="req" for="s-track">ระดับตำแหน่งที่ขอเลื่อน (ตามหลักเกณฑ์ ก.พ.)</label><select id="s-track" required><option value="">เลือก</option></select><div class="meta">เลือกให้ตรงกับตำแหน่งปัจจุบัน → ตำแหน่งที่ขอเลื่อน เพื่อให้เจ้าหน้าที่แยกประเภทและดำเนินการได้ถูกต้อง</div></div>
+   <div class="full"><label class="req" for="s-track">ระดับตำแหน่งที่ขอเลื่อน</label><select id="s-track" required><option value="">เลือก</option></select><div class="meta">เลือกให้ตรงกับตำแหน่งปัจจุบัน → ตำแหน่งที่ขอเลื่อน เพื่อให้เจ้าหน้าที่แยกประเภทและดำเนินการได้ถูกต้อง</div></div>
    <div><label class="req" for="s-position">ตำแหน่ง</label><input id="s-position" required></div>
    <div><label class="req" for="s-group">กลุ่มงาน</label><input id="s-group" required></div>
    <div><label for="s-posNo">ตำแหน่งเลขที่</label><input id="s-posNo"></div>
@@ -497,20 +597,50 @@ body.wide .wrap{max-width:1320px}
  <div id="a-panel" class="hide">
   <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>เจ้าหน้าที่ HR</span><i class="ph-bold ph-caret-right"></i><span>จัดการ อวช.</span></nav>
   <div class="page-head"><span class="ph-title-ico" style="padding:0;overflow:hidden;background:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px #cfe9e6"><img src="assets/logo.png" alt="" width="50" height="50" style="width:100%;height:100%;object-fit:cover"></span><div style="flex:1"><h1>แดชบอร์ด จัดการ อวช.</h1><p>ผู้ใช้: <b id="a-user"></b></p></div><div class="row" style="gap:8px"><button class="btn sec sm" id="a-demo" type="button" aria-pressed="false" title="แสดงข้อมูลตัวอย่างให้ทดลองกดทุกฟังก์ชัน โดยไม่กระทบข้อมูลจริง"><i class="ph-bold ph-flask"></i> โหมดจำลองข้อมูล</button><button class="btn sec sm" id="a-out"><i class="ph-bold ph-sign-out"></i> ออกจากระบบ</button></div></div>
-  <div class="tabs" role="tablist"><button data-t="list" class="on"><i class="ph ph-list-checks"></i> รายการผลงาน</button><button data-t="line" id="tb-line"><svg class="lico" viewBox="0 0 24 24" aria-hidden="true"><path class="b" d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.2 7.9.4.1.9.2 1 .6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5C22.3 12.8 22 11.5 22 10c0-4.4-4.5-8-10-8z"/><text class="t" x="12" y="11.6" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Arial,sans-serif">LINE</text></svg> LINE</button><button data-t="users" id="tb-users"><i class="ph ph-users"></i> ผู้ใช้</button><button data-t="log" id="tb-log"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการใช้งาน</button></div>
-  <div id="a-list"></div><div id="a-line" class="hide"></div><div id="a-users" class="hide"></div><div id="a-log" class="hide"></div>
+  <div class="tabs" role="tablist"><button data-t="list" class="on"><i class="ph ph-list-checks"></i> รายการผลงาน</button><button data-t="line" id="tb-line"><svg class="lico" viewBox="0 0 24 24" aria-hidden="true"><path class="b" d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.2 7.9.4.1.9.2 1 .6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5C22.3 12.8 22 11.5 22 10c0-4.4-4.5-8-10-8z"/><text class="t" x="12" y="11.6" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Arial,sans-serif">LINE</text></svg> LINE</button><button data-t="faq" id="tb-faq"><i class="ph ph-question"></i> คำถามที่พบบ่อย</button><button data-t="users" id="tb-users"><i class="ph ph-users"></i> ผู้ใช้</button><button data-t="log" id="tb-log"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการใช้งาน</button></div>
+  <div id="a-list"></div><div id="a-line" class="hide"></div><div id="a-faq" class="hide"></div><div id="a-users" class="hide"></div><div id="a-log" class="hide"></div>
  </div>
 </section>
 </main>
 <footer><div class="wrap foot"><img src="assets/logo.png" alt="" width="30" height="30" loading="lazy"><span>© กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่</span></div></footer>
-<!-- Dialog: แก้ไขรายการ -->
-<dialog id="dlg" aria-labelledby="d-ttl"><div class="hd"><h2 id="d-ttl">แก้ไขรายการ</h2><button class="btn sec sm" type="button" id="d-x">ปิด</button></div>
+<!-- Dialog: แก้ไขข้อมูลรายการ (ไม่เปลี่ยนสถานะ — การเปลี่ยนสถานะอยู่ที่ปุ่ม "อัพเดทสถานะ") -->
+<dialog id="dlg" aria-labelledby="d-ttl"><div class="hd"><h2 id="d-ttl">แก้ไขข้อมูล</h2><button class="btn sec sm" type="button" id="d-x">ปิด</button></div>
+ <div class="msg info" style="margin:12px 0 16px"><i class="ph ph-info"></i><div>หน้านี้แก้เฉพาะ<b>ข้อมูลผู้ยื่น</b> ไม่ส่งแจ้งเตือน LINE — หากต้องการเปลี่ยนสถานะ ใส่หมายเหตุ หรือลงเวลา ให้ใช้ปุ่ม <button type="button" class="btn sm" id="d-tostatus" style="min-height:32px"><i class="ph-bold ph-flag"></i> อัพเดทสถานะ</button></div></div>
  <div class="grid" id="d-grid"></div>
- <div class="card" style="margin:16px 0 0;padding:14px;background:#f7fbfb">
-  <h3><i class="ph ph-paperclip"></i> แนบรูปหรือไฟล์ส่งไปกับ LINE (ไม่บังคับ)</h3><div id="d-file"></div>
-  <label class="chk" style="margin-top:12px"><input type="checkbox" id="d-send" checked><span>ส่งแจ้งเตือน LINE ให้เจ้าของผลงานเมื่อบันทึก <span class="meta" id="d-lnst"></span></span></label></div>
  <div id="d-msg" aria-live="polite"></div>
- <div class="row" style="margin-top:16px"><button class="btn" id="d-save" type="button"><i class="ph ph-floppy-disk"></i> บันทึก</button><button class="btn bad hide" id="d-del" type="button"><i class="ph ph-trash"></i> ลบรายการ</button></div></dialog>
+ <div class="row" style="margin-top:16px"><button class="btn" id="d-save" type="button"><i class="ph ph-floppy-disk"></i> บันทึกข้อมูล</button><button class="btn bad hide" id="d-del" type="button"><i class="ph ph-trash"></i> ลบรายการ</button></div></dialog>
+
+<!-- Dialog: อัพเดทสถานะ -->
+<dialog id="ds" aria-labelledby="ds-ttl"><div class="hd"><div><h2 id="ds-ttl"><i class="ph-bold ph-flag"></i> อัพเดทสถานะ</h2><div class="meta" id="ds-sub"></div></div><button class="btn sec sm" type="button" id="ds-x">ปิด</button></div>
+ <div class="dsc" id="ds-cur"></div>
+ <div class="grid" style="margin-top:14px">
+  <div class="full"><label for="ds-status">สถานะใหม่</label><select id="ds-status"></select><div class="qk" id="ds-qk"></div></div>
+  <div class="full"><label for="ds-note">หมายเหตุถึงผู้ยื่น <span class="meta">(แสดงในหน้าติดตามและส่งทาง LINE/อีเมล)</span></label><textarea id="ds-note" rows="2" maxlength="500"></textarea></div>
+ </div>
+ <div class="tmb" id="ds-tmb"><label class="chk" style="margin:0"><input type="checkbox" id="ds-ct"><span><b>เลือกลงเวลาเอง</b><span class="meta" style="display:block">ไม่ติ๊ก = ใช้เวลาปัจจุบัน (<span id="ds-now"></span>) · ติ๊กเมื่อต้องการบันทึกย้อนหลังตามวันที่เกิดขึ้นจริง</span></span></label>
+  <div id="ds-tbox" class="tm-in hide"><label for="ds-when">วันที่และเวลาที่เกิดขึ้นจริง</label><input type="datetime-local" id="ds-when"><div class="meta" id="ds-tmin" style="margin-top:4px"></div></div></div>
+ <div class="ds-sec"><h3><i class="ph ph-paperclip"></i> แนบรูปหรือไฟล์ส่งไปกับ LINE (ไม่บังคับ)</h3><div id="ds-file"></div>
+  <label class="chk" style="margin-top:12px"><input type="checkbox" id="ds-send" checked><span>ส่งแจ้งเตือน LINE ให้เจ้าของผลงานเมื่อบันทึก <span class="meta" id="ds-lnst"></span></span></label></div>
+ <div id="ds-rd"></div>
+ <div class="dspv" id="ds-pv" role="status"></div>
+ <div id="ds-msg" aria-live="polite"></div>
+ <div class="row" style="margin-top:16px"><button class="btn" id="ds-save" type="button"><i class="ph-bold ph-check-circle"></i> บันทึกสถานะ</button><button class="btn sec" id="ds-cancel" type="button">ยกเลิก</button></div></dialog>
+
+<!-- Dialog: ไฟล์แนบจากผู้ยื่น (ไฟล์เล่ม 2 / ฉบับแก้ไข) -->
+<dialog id="da" aria-labelledby="da-ttl"><div class="hd"><div><h2 id="da-ttl"><i class="ph-bold ph-paperclip"></i> ไฟล์แนบจากผู้ยื่น</h2><div class="meta" id="da-sub"></div></div><button class="btn sec sm" type="button" id="da-x">ปิด</button></div>
+ <div id="da-b" style="margin-top:12px"></div></dialog>
+
+<!-- Dialog: เพิ่ม/แก้ไขคำถามที่พบบ่อย -->
+<dialog id="df" aria-labelledby="df-t"><div class="hd"><h2 id="df-t">เพิ่มคำถาม</h2><button class="btn sec sm" type="button" id="df-x">ปิด</button></div>
+ <div class="grid" style="margin-top:12px">
+  <div><label for="df-cat">หมวดหมู่</label><input id="df-cat" list="df-cats" maxlength="40" placeholder="เช่น ระยะเวลา" autocomplete="off"><datalist id="df-cats"></datalist></div>
+  <div><label for="df-ord">ลำดับแสดง <span class="meta">(น้อยก่อน)</span></label><input id="df-ord" type="number" step="1" placeholder="อัตโนมัติ"></div>
+  <div class="full"><label for="df-q" class="req">คำถาม</label><input id="df-q" maxlength="200" autocomplete="off" placeholder="เขียนเป็นประโยคคำถามที่ผู้ยื่นมักถาม"></div>
+  <div class="full"><label for="df-a" class="req">คำตอบ</label><textarea id="df-a" rows="8" maxlength="3000"></textarea><div class="meta"><span id="df-n">0</span> / 3000 · ขึ้นบรรทัดใหม่ได้ · พิมพ์ลิงก์ https://... ระบบทำเป็นลิงก์ให้เอง</div></div>
+  <label class="chk"><input type="checkbox" id="df-pub" checked><span><b>เผยแพร่</b> <span class="meta">(ไม่ติ๊ก = ฉบับร่าง ผู้เยี่ยมชมมองไม่เห็น)</span></span></label>
+  <label class="chk"><input type="checkbox" id="df-pin"><span><b>ปักหมุด “แนะนำ”</b> <span class="meta">(แสดงก่อนรายการอื่น)</span></span></label></div>
+ <div id="df-m" aria-live="polite"></div>
+ <div class="row" style="margin-top:16px"><button class="btn" id="df-save" type="button"><i class="ph ph-floppy-disk"></i> บันทึก</button><button class="btn bad hide" id="df-del" type="button"><i class="ph ph-trash"></i> ลบ</button></div></dialog>
 
 <!-- Dialog: แจ้งเตือน LINE -->
 <dialog id="dn" aria-labelledby="n-ttl"><div class="hd"><div><h2 id="n-ttl">แจ้งเตือนทาง LINE</h2><div class="meta" id="n-sub"></div></div><button class="btn sec sm" type="button" id="n-x">ปิด</button></div>
@@ -548,10 +678,10 @@ const tone=k=>stg(k).tn||'slate';
 const SIC=new Proxy({},{get:(_,k)=>stg(String(k)).ic||'ph-flag'});
 const LVS={hos:'รพ.สันทราย',pho:'สสจ.',gov:'ศาลากลาง',cmd:'รพ.สันทราย (คำสั่ง)'};
 /* แก้ไขครั้งที่ N: นับเมื่อเข้าสถานะแก้ไข (ไม่นับการแก้หมายเหตุซ้ำ) — ตรงกับ backend */
-function fixN(h){const c={};let prev='';return h.map(x=>{if(!stg(x.s).fix){prev=x.s;return 0}if(x.s!==prev)c[x.s]=(c[x.s]||0)+1;prev=x.s;return c[x.s]})}
+function fixN(h){const c={};let prev='';return h.map(x=>{const g=stg(x.s);if(!(g.fix||g.rep)){prev=x.s;return 0}if(x.s!==prev)c[x.s]=(c[x.s]||0)+1;prev=x.s;return c[x.s]})}
 const checkHtml=(t,l)=>`<div class="chkp" role="status"><span class="spin" style="margin-top:4px"></span><div><b>${esc(t)}</b><ul>${l.map(x=>`<li><i class="ph ph-dots-three"></i>${esc(x)}</li>`).join('')}</ul></div></div>`;
 const chkRes=(t,l)=>`<div class="chkp res"><i class="ph-fill ph-clipboard-text" style="font-size:22px;color:var(--pri)"></i><div><b>${esc(t)}</b><ul>${l.map(x=>`<li class="k-${x[0]}"><i class="ph-fill ${x[0]==='ok'?'ph-check-circle':x[0]==='warn'?'ph-warning':'ph-info'}"></i><span style="color:var(--ink)">${esc(x[1])}</span></li>`).join('')}</ul></div></div>`;
-const chip=(k,wr)=>{const s=stg(k);return `<span class="dstage ${wr?'wr ':''}tone-${tone(k)}"><i class="ph-bold ${SIC[k]||'ph-flag'}"></i>${wr?`<span>${fmtT(s.t)}</span>`:fmtT(s.t,true)}</span>`};
+const chip=(k,wr)=>{const s=stg(k);return `<span class="dstage ${wr?'wr ':''}${s.sg?'sg'+s.sg[0]+' ':''}tone-${tone(k)}"><i class="ph-bold ${SIC[k]||'ph-flag'}"></i>${wr?`<span>${fmtT(s.t)}</span>`:fmtT(s.t,true)}</span>`};
 const PRE=/^(นางสาว|นาย|นาง|เด็กชาย|เด็กหญิง|ดร\.|นพ\.|พญ\.|ทพ\.|ทพญ\.|ภก\.|ภญ\.|ผศ\.|รศ\.|ศ\.|คุณ)+/;
 const fc=s=>(String(s||'').replace(/^[เแโใไ]+/,'')[0]||'?');
 const shortName=n=>{n=String(n||'').trim();if(!n||/^\d{13}$/.test(n))return '';const t=n.replace(PRE,'').trim().split(/\s+/).filter(Boolean);return t.length>1?t[0]+' '+fc(t[t.length-1])+'.':(t[0]||'')};
@@ -628,7 +758,7 @@ const fmtCid=v=>{const d=v.replace(/\D/g,'').slice(0,13);return[d.slice(0,1),d.s
 const maskCid=c=>c?('x-xxxx-xxxxx-'+c.slice(-3,-1)+'-'+c.slice(-1)):'';
 const copy=async(t,label)=>{try{await navigator.clipboard.writeText(t);toast((label||'คัดลอก')+'แล้ว')}catch{toast('คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง','warn')}};
 const dlgOpen=d=>{if(!d.open)d.showModal()};
-['dlg','dn','dl','dc','dq'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
+['dlg','dn','dl','dc','dq','ds','da','df'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
 $('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();$('#q-x').onclick=()=>$('#dq').close();
 $('#dl').addEventListener('close',()=>{clearInterval(LP);LP=null});
 /* ===== ตัวเลือกไฟล์ (ตรวจชนิด/ขนาด + ตัวอย่างรูป + บีบอัดรูป) ===== */
@@ -652,12 +782,61 @@ function mkFile(el,{exts,max=8,hint}){
      const bl=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));if(bl&&bl.size<f.size)return{name:f.name.replace(/\.\w+$/,'')+'.jpg',mime:'image/jpeg',data:await b64(bl)}}catch(e){}}
    if(f.size>max*1048576)throw new Error('ไฟล์ใหญ่เกิน '+max+' MB');
    return{name:f.name,mime:f.type,data:await b64(f)}}}}
-const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',admin:'เจ้าหน้าที่ HR'};
-function route(){const v=(location.hash||'#track').slice(1);const id=['track','submit','admin'].includes(v)?v:'track';
+const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',faq:'คำถามที่พบบ่อย',admin:'เจ้าหน้าที่ HR'};
+function route(){const v=(location.hash||'#track').slice(1);const id=['track','submit','faq','admin'].includes(v)?v:'track';
  document.body.classList.toggle('wide',id==='admin'&&!!USER);
  $$('main>section').forEach(s=>{const on=s.id==='v-'+id;s.hidden=!on;if(on){s.classList.remove('vin');void s.offsetWidth;s.classList.add('vin')}});
- $$('header nav a[data-v]').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});document.title=TITLES[id]+' · อวช. รพ.สันทราย';scrollTo(0,0)}
+ $$('header nav a[data-v]').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});document.title=TITLES[id]+' · อวช. รพ.สันทราย';scrollTo(0,0);if(id==='faq')loadFaq()}
 addEventListener('hashchange',route);
+
+
+/* ===================== คำถามที่พบบ่อย (ผู้เยี่ยมชม) ===================== */
+let FAQ=[],FQC='',FQT=0,FQV={};try{FQV=JSON.parse(localStorage.getItem('awc_fv')||'{}')}catch(e){}
+const bgm=s=>{s=String(s||'').toLowerCase().replace(/\s+/g,'');const a=new Set();for(let i=0;i<s.length-1;i++)a.add(s.slice(i,i+2));return a};
+const jac=(a,b)=>{if(!a.size||!b.size)return 0;let n=0;a.forEach(x=>{if(b.has(x))n++});return n/(a.size+b.size-n)};
+function fqScore(f,q){const t=q.toLowerCase().trim();if(!t)return 1;const qq=f.q.toLowerCase(),hay=(f.cat+' '+f.q+' '+f.a).toLowerCase();let s=0;
+ t.split(/\s+/).forEach(w=>{if(!w)return;if(qq.includes(w))s+=3;else if(hay.includes(w))s+=1});if(s)return s;
+ const j=jac(bgm(t),bgm(f.q+' '+f.cat));return j>0.2?j:0}
+function fqSimilar(f){const b=bgm(f.q+' '+f.cat);return FAQ.filter(g=>g.id!==f.id).map(g=>({g,s:jac(b,bgm(g.q+' '+g.cat))+(g.cat===f.cat?.08:0)})).filter(x=>x.s>.12).sort((x,y)=>y.s-x.s).slice(0,3).map(x=>x.g)}
+const fqText=(s,q)=>{let h=esc(s).replace(/(https?:\/\/[^\s<]+)/g,u=>`<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+ q.toLowerCase().trim().split(/\s+/).filter(w=>w.length>1).forEach(w=>{const e=esc(w).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');h=h.replace(new RegExp('(?![^<]*>)('+e+')','gi'),'<mark>$1</mark>')});return h};
+async function loadFaq(force){const b=$('#fq-body');if(!FAQ.length)b.innerHTML=skel(4);
+ if(force||!FQT||Date.now()-FQT>60000){const d=await api('faqList');if(!d.ok){b.innerHTML='';return msg(b,d.message)}FAQ=d.rows;FQT=Date.now()}
+ drawFaq()}
+function drawFaq(){const b=$('#fq-body'),q=$('#fq-q').value.trim(),cats=[...new Set(FAQ.map(f=>f.cat))];
+ let L=FAQ.filter(f=>!FQC||f.cat===FQC).map(f=>({f,s:fqScore(f,q)})).filter(x=>x.s>0);if(q)L.sort((a,c)=>c.s-a.s);
+ const chips=`<div class="fq-cats" role="group" aria-label="หมวดหมู่"><button type="button" class="fq-c ${FQC?'':'on'}" data-c="">ทั้งหมด <b>${FAQ.length}</b></button>${cats.map(c=>`<button type="button" class="fq-c ${FQC===c?'on':''}" data-c="${esc(c)}">${esc(c)} <b>${FAQ.filter(f=>f.cat===c).length}</b></button>`).join('')}</div>`;
+ const item=({f})=>{const v=FQV[f.id],sim=fqSimilar(f);return `<details class="fq" id="fq-${esc(f.id)}" ${q&&L.length<=3?'open':''}><summary><span class="fq-q"><i class="ph-bold ph-question"></i></span><span class="fq-t">${fqText(f.q,q)}${f.pin?'<span class="fq-pin"><i class="ph-fill ph-star"></i>แนะนำ</span>':''}<small>${esc(f.cat)}</small></span><i class="ph-bold ph-caret-down cv"></i></summary>
+  <div class="fq-a"><div class="tx">${fqText(f.a,q)}</div>
+  <div class="fq-f"><span class="fq-v">คำตอบนี้เป็นประโยชน์ไหม? <button type="button" data-v="1" data-id="${esc(f.id)}" ${v?'disabled':''}><i class="ph-bold ph-thumbs-up"></i>เป็นประโยชน์</button><button type="button" data-v="0" data-id="${esc(f.id)}" ${v?'disabled':''}><i class="ph-bold ph-thumbs-down"></i>ยังไม่ตอบคำถาม</button>${v?'<span>ขอบคุณสำหรับความเห็น</span>':''}</span>${f.upd?`<span><i class="ph ph-clock"></i> ปรับปรุง ${esc(thDT(f.upd))}</span>`:''}</div>
+  ${sim.length?`<div class="fq-sim"><span class="meta">คำถามที่คล้ายกัน:</span>${sim.map(g=>`<a href="#faq" data-go="${esc(g.id)}"><i class="ph ph-arrow-bend-down-right"></i>${esc(g.q)}</a>`).join('')}</div>`:''}</div></details>`};
+ b.innerHTML=`${chips}<div class="fq-info"><span>${q?`พบ <b>${L.length}</b> รายการที่เกี่ยวข้องกับ “${esc(q)}”`:`ทั้งหมด <b>${L.length}</b> คำถาม`}</span>${FAQ.length?'':''}</div>
+ ${L.length?`<div class="fq-l">${L.map(item).join('')}</div>`:`<div class="card empty-s"><i class="ph-duotone ph-magnifying-glass"></i><h2>${FAQ.length?'ไม่พบคำถามที่ตรงกับคำค้น':'ยังไม่มีคำถามที่เผยแพร่'}</h2><p class="meta">ลองใช้คำสั้น ๆ หรือเลือกหมวด “ทั้งหมด” — หรือสอบถามเจ้าหน้าที่โดยตรง</p></div>`}
+ <div class="card fq-cta"><div class="row" style="align-items:center;flex-wrap:nowrap"><i class="ph-duotone ph-chats-circle"></i><div><b>ไม่พบคำตอบที่ต้องการ?</b><div class="meta">ส่งข้อความถึงเจ้าหน้าที่ได้ที่การ์ด “ถาม-ตอบกับเจ้าหน้าที่” ในหน้าติดตามสถานะ — คำถามที่ถามบ่อยอาจถูกนำมาเพิ่มในบอร์ดนี้</div></div></div><a class="btn" href="#track"><i class="ph-bold ph-path"></i> ไปหน้าติดตามสถานะ</a></div>`;
+ $$('.fq-c',b).forEach(x=>x.onclick=()=>{FQC=x.dataset.c;drawFaq()});
+ $$('[data-go]',b).forEach(a=>a.onclick=e=>{e.preventDefault();const n=$('#fq-'+CSS.escape(a.dataset.go));if(n){n.open=true;n.scrollIntoView({behavior:'smooth',block:'center'})}else{FQC='';$('#fq-q').value='';drawFaq();const m=$('#fq-'+CSS.escape(a.dataset.go));if(m){m.open=true;m.scrollIntoView({block:'center'})}}});
+ $$('.fq-v button',b).forEach(x=>x.onclick=async()=>{const id=x.dataset.id;FQV[id]=x.dataset.v;try{localStorage.setItem('awc_fv',JSON.stringify(FQV))}catch(e){}
+  const wrap=x.closest('.fq-v');$$('button',wrap).forEach(y=>y.disabled=true);wrap.insertAdjacentHTML('beforeend','<span>ขอบคุณสำหรับความเห็น</span>');api('faqVote',[id,x.dataset.v==='1']);
+  if(x.dataset.v==='0')toast('ขอบคุณ — หากยังไม่พบคำตอบ ส่งข้อความถึงเจ้าหน้าที่ได้ที่หน้าติดตามสถานะ','info')})}
+$('#fq-q').addEventListener('input',()=>{clearTimeout($('#fq-q')._t);$('#fq-q')._t=setTimeout(drawFaq,120)});
+/* ===================== คำถามที่พบบ่อย (เจ้าหน้าที่ HR จัดการ) ===================== */
+let FQA=[],FQE=null;
+async function loadFaqAdmin(){const el=$('#a-faq');el.innerHTML=skTable(5);const d=await api('faqAdminList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}FQA=d.rows;FQCATS=d.cats;
+ const pubN=FQA.filter(r=>r.pub).length;
+ el.innerHTML=`<div class="faq-tb"><div><h2 style="margin:0"><i class="ph-duotone ph-question"></i> บอร์ดคำถามที่พบบ่อย</h2><div class="meta">เผยแพร่ ${pubN} · ฉบับร่าง ${FQA.length-pubN} — ผู้เยี่ยมชมเห็นเฉพาะที่เผยแพร่ ที่แท็บ “คำถามที่พบบ่อย” (ไม่ต้องเข้าสู่ระบบ)</div></div><div class="row"><a class="btn sec sm" href="#faq" target="_blank"><i class="ph-bold ph-eye"></i> ดูหน้าที่ผู้ยื่นเห็น</a><button class="btn sm" id="fa-new"><i class="ph-bold ph-plus"></i> เพิ่มคำถาม</button></div></div>
+ <div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>ลำดับ</th><th>หมวด</th><th>คำถาม</th><th>สถานะ</th><th>ความเห็น</th><th>จัดการ</th></tr></thead><tbody>${FQA.length?FQA.map(r=>`<tr><td data-l="ลำดับ">${r.pin?'<i class="ph-fill ph-star" style="color:#d97706" title="ปักหมุด"></i> ':''}${esc(r.ord)}</td><td data-l="หมวด">${esc(r.cat)}</td><td data-l="คำถาม"><b>${esc(r.q)}</b><div class="meta">${esc(r.a.slice(0,90))}${r.a.length>90?'…':''}</div><div class="meta">ปรับปรุง ${esc(thShort(r.upd))} · ${esc(r.by)}</div></td><td data-l="สถานะ"><span class="pub-chip ${r.pub?'y':'n'}">${r.pub?'เผยแพร่':'ฉบับร่าง'}</span></td><td data-l="ความเห็น"><span class="nb"><i class="ph-bold ph-thumbs-up"></i> ${r.up}</span> · <span class="nb"><i class="ph-bold ph-thumbs-down"></i> ${r.down}</span></td><td><div class="row"><button class="btn sm sec" data-fe="${esc(r.id)}"><i class="ph-bold ph-note-pencil"></i> แก้ไข</button><button class="btn sm sec" data-ft="${esc(r.id)}">${r.pub?'<i class="ph-bold ph-eye-slash"></i> ซ่อน':'<i class="ph-bold ph-eye"></i> เผยแพร่'}</button></div></td></tr>`).join(''):'<tr><td colspan="6" class="empty">ยังไม่มีคำถาม — กด “เพิ่มคำถาม”</td></tr>'}</tbody></table></div>`;
+ $('#fa-new').onclick=()=>openFaq(null);$$('[data-fe]',el).forEach(b=>b.onclick=()=>openFaq(b.dataset.fe));
+ $$('[data-ft]',el).forEach(b=>b.onclick=async()=>{const r=FQA.find(x=>x.id===b.dataset.ft);busy(b,1,'...');const d=await api('faqSave',[TOKEN,{id:r.id,cat:r.cat,q:r.q,a:r.a,ord:r.ord,pin:r.pin,pub:!r.pub}],{write:true});if(!d.ok){busy(b,0);return toast(d.message,'err')}FQT=0;toast(r.pub?'ซ่อนคำถามแล้ว (เป็นฉบับร่าง)':'เผยแพร่แล้ว');loadFaqAdmin()})}
+let FQCATS=[];
+function openFaq(id){FQE=id?FQA.find(x=>x.id===id):null;msg($('#df-m'),'');$('#df-t').textContent=FQE?'แก้ไขคำถาม '+FQE.id:'เพิ่มคำถาม';
+ $('#df-cats').innerHTML=FQCATS.map(c=>`<option value="${esc(c)}">`).join('');
+ $('#df-cat').value=FQE?FQE.cat:'';$('#df-ord').value=FQE?FQE.ord:'';$('#df-q').value=FQE?FQE.q:'';$('#df-a').value=FQE?FQE.a:'';$('#df-pub').checked=FQE?FQE.pub:true;$('#df-pin').checked=FQE?FQE.pin:false;
+ $('#df-n').textContent=$('#df-a').value.length;$('#df-del').classList.toggle('hide',!FQE||USER.r!=='admin');dlgOpen($('#df'))}
+$('#df-a').oninput=()=>$('#df-n').textContent=$('#df-a').value.length;$('#df-x').onclick=()=>$('#df').close();
+$('#df-save').onclick=async()=>{const b=$('#df-save'),m=$('#df-m');msg(m,'');const p={id:FQE?FQE.id:'',cat:$('#df-cat').value,q:$('#df-q').value,a:$('#df-a').value,ord:$('#df-ord').value,pin:$('#df-pin').checked,pub:$('#df-pub').checked};
+ if(p.q.trim().length<5)return msg(m,'กรุณาพิมพ์คำถามอย่างน้อย 5 ตัวอักษร');if(p.a.trim().length<2)return msg(m,'กรุณาพิมพ์คำตอบ');
+ busy(b,1,'กำลังบันทึก...');const d=await api('faqSave',[TOKEN,p],{write:true});busy(b,0);if(!d.ok)return msg(m,d.message);$('#df').close();FQT=0;toast('บันทึกคำถามแล้ว'+(p.pub?'':' (ฉบับร่าง)'));loadFaqAdmin()};
+$('#df-del').onclick=()=>confirmBox({title:'ลบคำถาม '+FQE.id+'?',text:'ลบถาวร ย้อนกลับไม่ได้ — หากเพียงต้องการไม่ให้แสดง ให้ใช้ “ซ่อน” แทน',ok:'ลบคำถาม',danger:true,icon:'ph-trash'},async()=>{const d=await api('faqDelete',[TOKEN,FQE.id],{write:true});if(!d.ok)throw new Error(d.message)}).then(ok=>{if(ok){$('#df').close();FQT=0;toast('ลบคำถามแล้ว');loadFaqAdmin()}});
 
 /* ===================== ติดตามสถานะ ===================== */
 $('#t-cid').addEventListener('input',e=>e.target.value=fmtCid(e.target.value));
@@ -667,7 +846,9 @@ function guideHtml(){
   <div class="g"><i class="ph ph-flag-checkered"></i><div><h3>สถานะปัจจุบัน</h3><span class="meta">ดูว่าผลงานอยู่ขั้นตอนใด และระยะเวลาที่อยู่ในขั้นตอนนั้น</span></div></div>
   <div class="g"><i class="ph ph-path"></i><div><h3>ขั้นตอนทั้งหมด</h3><span class="meta">เห็นภาพรวมตั้งแต่ยื่นเอกสารจนถึงผลการประเมิน</span></div></div>
   <div class="g"><i class="ph ph-clock-counter-clockwise"></i><div><h3>ประวัติและหมายเหตุ</h3><span class="meta">วันเวลาที่สถานะเปลี่ยน และสิ่งที่ต้องแก้ไข (ถ้ามี)</span></div></div>
-  <div class="g"><i class="ph ph-chat-circle-text"></i><div><h3>แจ้งเตือนทาง LINE</h3><span class="meta">รับข้อความอัตโนมัติเมื่อสถานะเปลี่ยน พร้อมรูปหรือไฟล์ที่ HR ส่งเพิ่ม (เมื่อเชื่อมต่อ LINE)</span></div></div></div></div>
+  <div class="g"><i class="ph ph-chat-circle-text"></i><div><h3>แจ้งเตือนทาง LINE</h3><span class="meta">รับข้อความอัตโนมัติเมื่อสถานะเปลี่ยน พร้อมรูปหรือไฟล์ที่ HR ส่งเพิ่ม (เมื่อเชื่อมต่อ LINE)</span></div></div>
+  <div class="g"><i class="ph ph-signature"></i><div><h3>สถานะการลงนาม</h3><span class="meta">ทุกจุดที่ต้องลงนาม (ผอ. / นพ.สสจ. / ผู้ว่าราชการจังหวัด) แยกเป็น “รอลงนาม” และ “ลงนามแล้ว”</span></div></div>
+  <div class="g"><i class="ph ph-paperclip"></i><div><h3>แนบไฟล์เล่ม 2 เพิ่มเติม</h3><span class="meta">ส่งไฟล์เล่ม 2 หรือฉบับแก้ไขให้งานทรัพยากรบุคคลได้เองในหน้าผลการติดตาม</span></div></div></div></div>
   <div class="card"><h2>ความหมายของสถานะ</h2><ul class="legend">${st}</ul></div>`}
 $('#f-track').addEventListener('submit',async e=>{e.preventDefault();const b=$('#t-go'),o=$('#t-out'),inp=$('#t-cid');const cid=inp.value.replace(/\D/g,'');
  if(cid.length!==13){inp.setAttribute('aria-invalid','true');inp.focus();return msg(o,'กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก')}
@@ -716,18 +897,18 @@ function flowHtml(it){const now=nowMs(),st=it.status,cs=stg(st),h=it.history||[]
  const first={},last={},dw={},rn={};h.forEach((x,i)=>{if(!first[x.s])first[x.s]=x;last[x.s]=x;if(fn[i])rn[x.s]=fn[i]});
  h.forEach((x,i)=>{const a=toDate(x.t),n=h[i+1]&&toDate(h[i+1].t);if(a&&n)dw[x.s]=(dw[x.s]||0)+(n-a)});
  const lastEv=h.length?h[h.length-1]:null,lastT=lastEv?toDate(lastEv.t):null,subT=toDate(it.ts);
- const flat=CFG.stages.filter(s=>!s.fix),idx=flat.filter(s=>s.ord<cs.ord||s.k===st).length,PS=procStats(it);
+ const flat=CFG.stages.filter(s=>!s.fix&&!s.rep),idx=flat.filter(s=>s.ord<cs.ord||s.k===st).length,PS=procStats(it);
  const rows=CFG.books.map(b=>{const started=cs.book>=b.n,bDone=cs.book>b.n||(ended&&cs.book===b.n);
-  const lvs=b.lv.map(lv=>{const ns=CFG.stages.filter(s=>s.book===b.n&&s.lvl===lv&&(!s.fix||first[s.k]||s.k===st)).map(s=>{
-    const done=s.ord<cs.ord||(ended&&s.k===st),cur=!done&&s.k===st,warn=cur&&s.fix,ev=s.fix?last[s.k]:first[s.k];
+  const lvs=b.lv.map(lv=>{const ns=CFG.stages.filter(s=>s.book===b.n&&s.lvl===lv&&(!(s.fix||s.rep)||first[s.k]||s.k===st)).map(s=>{
+    const done=s.ord<cs.ord||(ended&&s.k===st),cur=!done&&s.k===st,warn=cur&&s.fix,ev=(s.fix||s.rep)?last[s.k]:first[s.k];
     const skipped=done&&!first[s.k]&&s.k!=='b1_submit'&&s.k!=='b2_submit';
     const cls=skipped?'s-skipped':done?'s-done':cur?'s-current':'s-pending';
     const ic=skipped?'ph-fill ph-minus':done?'ph-bold ph-check':'ph-fill '+(s.ic||'ph-flag');
-    const lab=s.t+(s.fix&&rn[s.k]?' ครั้งที่ '+rn[s.k]:'');
+    const lab=s.t+((s.fix||s.rep)&&rn[s.k]?' ครั้งที่ '+rn[s.k]:'');
     const time=skipped?'ข้าม':ev?thShort(ev.t):cur?'':started?'รอ':'';
     const who=ev&&!skipped?shortName(ev.by):'';
     const dwell=cur&&lastT?`<div class="dflow-dwell is-live"><i class="ph-bold ph-timer"></i>อยู่ในขั้นนี้ <span data-live="${esc(lastEv.t)}">${span(now-lastT)}</span></div>`:done&&!skipped&&dw[s.k]!=null?`<div class="dflow-dwell"><i class="ph-bold ph-timer"></i>${span(dw[s.k])}</div>`:'';
-    return `<li class="nd ${cls} tone-${warn?'amber':tone(s.k)}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${fmtT(lab)}</div><div class="dflow-time">${esc(time)}</div>${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}).join('');
+    return `<li class="nd ${cls} ${s.sg?'sg-'+s.sg:''} tone-${warn?'amber':tone(s.k)}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${fmtT(lab)}</div><div class="dflow-time">${esc(time)}</div>${sgBadge(s,cur,done,skipped)}${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}).join('');
    const pr=PS.find(x=>x.b===b.n&&x.l===lv);const pb=!pr||pr.skip?'':pr.end?`<span class="dbadge ok"><i class="ph-fill ph-seal-check"></i>เสร็จสิ้น · ใช้เวลา ${spanF(pr.ms)}</span>`:pr.live?`<span class="dbadge wait"><i class="ph-fill ph-hourglass-medium"></i>กำลังดำเนินการ · ${spanF(now-pr.start)}</span>`:'';
    return `<div class="lv"><div class="lv-h"><i class="ph-fill ph-buildings"></i>${esc(CFG.lv[lv]||lv)}${pb}</div><ol class="lv-ol">${ns}</ol></div>`}).join('');
   return `<div class="bk ${bDone?'bk-done':started?'bk-on':'bk-off'} tone-${started?tone(st):'slate'}"><div class="bk-h"><span class="bk-n">${b.n}</span><div><b>${esc(b.t)}</b><span class="meta">${bDone?'ดำเนินการครบแล้ว':started?'กำลังดำเนินการ':'ยังไม่ถึงขั้นตอนนี้'}</span></div>${bDone?'<span class="dbadge ok"><i class="ph-fill ph-check-circle"></i>เสร็จสิ้น</span>':''}</div>${b.n===2?'<div class="bk-180"><i class="ph-fill ph-calendar-check"></i><span>ส่งเล่ม 2 ภายใน 180 วัน นับจากผู้ว่าราชการจังหวัดอนุมัติเล่ม 1</span></div>':''}${lvs}</div>`}).join('');
@@ -742,7 +923,7 @@ function flowHtml(it){const now=nowMs(),st=it.status,cs=stg(st),h=it.history||[]
  const hd=holderOf(st),total=ended?(lastT&&subT?spanF(lastT-subT):'-'):(subT?`<span data-live="${esc(it.ts)}">${spanF(now-subT)}</span>`:'-');
  const nx=flat.find(s=>s.ord>cs.ord);
  const next=ended?'':cs.nx?`<i class="ph-fill ph-info"></i><span>${esc(cs.nx)}</span>`:cs.fix?'<i class="ph-fill ph-info"></i><span>เมื่อแก้ไขเสร็จ ให้แจ้งกลุ่มงานทรัพยากรบุคคล แล้วเรื่องจะดำเนินการต่อ</span>':nx?`<i class="ph-fill ph-arrow-bend-down-right"></i><span>ขั้นตอนถัดไป: <b>${fmtT(nx.t,true)}</b>${nx.book!==cs.book?' (เล่ม '+nx.book+')':''}</span>`:'';
- return `<div class="dflow tone-${tone(st)}"><div class="dflow-head"><div class="dflow-now">${hd.av}<div><div class="dflow-now-k">${ended?'<i class="ph-fill ph-seal-check"></i>ผลการประเมิน':'<span class="live-pulse"></span>ตอนนี้อยู่ที่'}</div><div class="dflow-now-v">${fmtT(hd.name)}</div><div class="dflow-now-s">${fmtT(cs.t+(cs.fix&&fixN(h).pop()?' ครั้งที่ '+fixN(h).pop():''))}</div></div></div>
+ return `<div class="dflow tone-${tone(st)}"><div class="dflow-head"><div class="dflow-now">${hd.av}<div><div class="dflow-now-k">${ended?'<i class="ph-fill ph-seal-check"></i>ผลการประเมิน':'<span class="live-pulse"></span>ตอนนี้อยู่ที่'}</div><div class="dflow-now-v">${fmtT(hd.name)}</div><div class="dflow-now-s">${fmtT(cs.t+((cs.fix||cs.rep)&&fixN(h).pop()?' ครั้งที่ '+fixN(h).pop():''))}</div></div></div>
   <div class="dflow-kpis"><div class="dflow-kpi"><span>ขั้นตอน</span><b>${idx} / ${flat.length}</b></div><div class="dflow-kpi"><span>${ended?'ใช้เวลารวม':'ยื่นมาแล้ว'}</span><b>${total}</b></div>${sla}</div></div>
   <div class="bks" aria-label="ขั้นตอนการประเมิน">${rows}</div>${sumHtml(it,PS,ended)}${next?`<div class="dflow-next">${next}</div>`:''}</div>`}
 function timelineHtml(it,notes){const fnn=fixN(it.history||[]),ev=(it.history||[]).map((x,i)=>({k:'s',t:x.t,s:x.s,n:x.n,by:x.by,rn:fnn[i]}));
@@ -757,16 +938,16 @@ function timelineHtml(it,notes){const fnn=fixN(it.history||[]),ev=(it.history||[
 function renderTrack(d){const o=$('#t-out');
  let h=`<div class="card who"><div class="who-l">${avatar(d.name)}<div><div class="meta">ผู้ยื่น</div><h2>${esc(d.name)}</h2><div class="meta">${esc([d.position,d.group].filter(Boolean).join(' · '))}</div></div></div><div style="text-align:right"><button class="btn sec sm" id="t-re"><i class="ph-bold ph-arrows-clockwise"></i> ตรวจสอบอีกครั้ง</button><div class="checked" style="justify-content:flex-end;margin-top:4px"><i class="ph ph-clock"></i>ตรวจเมื่อ ${esc(hm(bkk0()))} น.</div></div></div>`;
  if(!d.items.length)h+=`<div class="card empty-s"><i class="ph-duotone ph-folder-open"></i><h2>ยังไม่พบรายการยื่นผลงานของท่าน</h2><p class="meta">หากยังไม่เคยยื่น สามารถยื่นเอกสารได้ที่ปุ่มด้านล่าง</p><a class="btn" href="#submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a></div>`;
- h+=d.items.map(it=>{const rows=[['ph-briefcase','ตำแหน่ง',it.position],['ph-trend-up','ระดับที่ขอเลื่อน (ก.พ.)',it.track],['ph-buildings','กลุ่มงาน',it.group],['ph-hash','ตำแหน่งเลขที่',it.posNo],['ph-hourglass-medium','อายุงาน',it.tenure],['ph-graduation-cap','วุฒิการศึกษา',it.edu],['ph-paperclip','ไฟล์ผลงาน',it.hasFile?'แนบไฟล์/ลิงก์แล้ว':'ยังไม่ได้แนบ'],['ph-clock','อัปเดตล่าสุด',thDT(it.upd)]];
+ h+=d.items.map(it=>{const rows=[['ph-briefcase','ตำแหน่ง',it.position],['ph-trend-up','ระดับตำแหน่งที่ขอเลื่อน',it.track],['ph-buildings','กลุ่มงาน',it.group],['ph-hash','ตำแหน่งเลขที่',it.posNo],['ph-hourglass-medium','อายุงาน',it.tenure],['ph-graduation-cap','วุฒิการศึกษา',it.edu],['ph-paperclip','ไฟล์ผลงาน',it.hasFile?'แนบไฟล์/ลิงก์แล้ว':'ยังไม่ได้แนบ'],['ph-clock','อัปเดตล่าสุด',thDT(it.upd)]];
   return `<section class="titem"><article class="card"><div class="hd" style="margin-bottom:16px"><div><div class="dbadges">${chip(it.status)}${it.track?`<span class="dstage tone-violet"><i class="ph-bold ph-trend-up"></i>${esc(it.track)}</span>`:''}</div><h2 class="mono" style="font-size:20px;margin:8px 0 2px">${esc(it.id)}</h2><div class="meta"><i class="ph ph-calendar-blank"></i> ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div><button class="btn sec sm" data-copy="${esc(it.id)}"><i class="ph-bold ph-copy"></i> คัดลอกรหัส</button></div>
   ${stg(it.status).fix&&it.note?`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
-  ${flowHtml(it)}</article>
-  ${qaCard(it)}
+  ${flowHtml(it)}${roundsHtml(it)}</article>
+  ${attCard(it)}${qaCard(it)}
   <div class="dgrid"><div class="card tone-teal"><div class="card-t"><span class="ico"><i class="ph-duotone ph-identification-card"></i></span>ข้อมูลที่ยื่น</div><ul class="dl">${rows.map(r=>`<li><i class="ph-duotone ${r[0]}"></i><div><span>${r[1]}</span><b>${esc(r[2]||'-')}</b></div></li>`).join('')}</ul></div>
   <div class="card tone-violet"><div class="card-t"><span class="ico"><i class="ph-duotone ph-clock-counter-clockwise"></i></span>ความเคลื่อนไหว</div>${timelineHtml(it,d.notes||[])}</div></div></section>`}).join('');
  if(d.items.length)h+=lineCard(d);
  o.innerHTML=h;$('#t-guide').innerHTML=d.items.length?`<details class="card"><summary style="cursor:pointer;font-weight:600;min-height:44px">ความหมายของสถานะ</summary><ul class="legend" style="margin-top:12px">${CFG.stages.map(s=>`<li>${chip(s.k)}<span class="t">${esc(s.h||'')}</span></li>`).join('')}</ul></details>`:guideHtml();
- $('#t-re').onclick=()=>$('#t-go').click();$$('[data-copy]',o).forEach(b=>b.onclick=()=>copy(b.dataset.copy,'คัดลอกรหัส'));const lk=$('#t-link');if(lk)lk.onclick=openLink;bindQa();o.scrollIntoView({behavior:'smooth',block:'start'})}
+ $('#t-re').onclick=()=>$('#t-go').click();$$('[data-copy]',o).forEach(b=>b.onclick=()=>copy(b.dataset.copy,'คัดลอกรหัส'));const lk=$('#t-link');if(lk)lk.onclick=openLink;bindQa();bindAtt();o.scrollIntoView({behavior:'smooth',block:'start'})}
 function qaCard(it){const th=it.qa||[],ln=LASTDATA&&LASTDATA.line&&LASTDATA.line.linked;
  return `<div class="card tone-indigo" data-qa="${esc(it.id)}"><div class="card-t"><span class="ico"><i class="ph-duotone ph-chats-circle"></i></span>ถาม-ตอบกับเจ้าหน้าที่</div>
  <div class="qa" aria-live="polite">${th.length?th.map(m=>`<div class="qb ${m.from==='staff'?'s':'a'}">${esc(m.m)}<small>${m.from==='staff'?esc(m.by||'เจ้าหน้าที่ HR'):'ท่าน'} · ${esc(thShort(m.t))}</small></div>`).join(''):'<div class="empty" style="padding:12px">ยังไม่มีข้อความ — มีเรื่องสำคัญเกี่ยวกับผลงานนี้ที่ต้องแจ้งหรือสอบถาม พิมพ์ได้ที่นี่</div>'}</div>
@@ -865,10 +1046,10 @@ $('#f-login').addEventListener('submit',async e=>{e.preventDefault();const m=$('
 $('#l-eye').onclick=()=>{const i=$('#l-p'),on=i.type==='password';i.type=on?'text':'password';$('#l-eye').innerHTML=`<i class="ph ph-eye${on?'-slash':''}"></i>`;$('#l-eye').setAttribute('aria-label',on?'ซ่อนรหัสผ่าน':'แสดงรหัสผ่าน')};
 async function enter(u){USER=u;document.body.classList.toggle('wide',(location.hash||'').slice(1)==='admin');$('#a-login').classList.add('hide');$('#a-panel').classList.remove('hide');$('#a-user').textContent=`${u.n} (${u.r==='admin'?'ผู้ดูแลระบบ':'เจ้าหน้าที่'})`;
  ['tb-users','tb-log','tb-line'].forEach(i=>$('#'+i).classList.toggle('hide',u.r!=='admin'));loadList()}
-function logout(silent){if(TOKEN&&!silent)api('logout',[TOKEN]);TOKEN='';USER=null;document.body.classList.remove('wide');if(typeof DEMO!=='undefined'&&DEMO.on)setDemo(false,true);localStorage.removeItem('awc_tk');$('#a-panel').classList.add('hide');$('#a-login').classList.remove('hide');['dlg','dn'].forEach(i=>$('#'+i).open&&$('#'+i).close())}
+function logout(silent){if(TOKEN&&!silent)api('logout',[TOKEN]);TOKEN='';USER=null;document.body.classList.remove('wide');if(typeof DEMO!=='undefined'&&DEMO.on)setDemo(false,true);localStorage.removeItem('awc_tk');$('#a-panel').classList.add('hide');$('#a-login').classList.remove('hide');['dlg','dn','ds','da'].forEach(i=>$('#'+i).open&&$('#'+i).close())}
 $('#a-out').onclick=()=>logout();
-$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));['list','line','users','log'].forEach(t=>$('#a-'+t).classList.toggle('hide',t!==b.dataset.t));
- ({list:loadList,line:loadLine,users:loadUsers,log:loadLog})[b.dataset.t]()});
+$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));['list','line','faq','users','log'].forEach(t=>$('#a-'+t).classList.toggle('hide',t!==b.dataset.t));
+ ({list:loadList,line:loadLine,faq:loadFaqAdmin,users:loadUsers,log:loadLog})[b.dataset.t]()});
 const lnBadge=r=>r.lk?'<span class="dbadge ok" style="font-size:12px" title="ผูก LINE แล้ว"><i class="ph-fill ph-check-circle"></i>ผูกแล้ว</span>':'<span class="chip gray" style="font-size:12px" title="ยังไม่ผูก LINE"><i class="ph ph-minus-circle"></i>ยังไม่ผูก</span>';
 async function loadList(){const el=$('#a-list');if(!ROWS.length)el.innerHTML=skTable(6);const d=await api('adminList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}ROWS=d.rows;COUNTS=d.counts;CFG.lineOn=d.lineEnabled;if(d.nowMs)SKEW=d.nowMs-Date.now();renderList()}
 let FLASH='';
@@ -876,7 +1057,7 @@ const ageOf=r=>{const t=toDate(r.since||r.upd||r.ts);return t?Math.max(0,nowMs()
 const ageClk=r=>{const g=stg(r.status),t=g.clk&&r.ck?toDate(r.ck):null;return t?Math.max(0,nowMs()-t):ageOf(r)};
 const isLate=r=>{const g=stg(r.status);if(g.end||g.fix)return false;return !!g.sla&&ageClk(r)>g.sla*864e5};
 const inG=(r,k)=>{const s=stg(r.status);return 'g:'+s.book+':'+s.lvl===k};
-const matchF=r=>!FILTER||(FILTER==='__late'?isLate(r):FILTER==='__urg'?prio(r).s>=45:FILTER==='__nolk'?(!r.lk&&!stg(r.status).end):FILTER==='__180'?(d=>d!=null&&d<=30)(dl180(r)):FILTER==='__qa'?r.qa>0:inG(r,FILTER));
+const matchF=r=>!FILTER||(FILTER==='__late'?isLate(r):FILTER==='__urg'?prio(r).s>=45:FILTER==='__nolk'?(!r.lk&&!stg(r.status).end):FILTER==='__180'?(d=>d!=null&&d<=30)(dl180(r)):FILTER==='__qa'?r.qa>0:FILTER==='__att'?r.attNew>0:FILTER==='__sgw'?stg(r.status).sg==='wait':/^sg:/.test(FILTER)?sgOf(r,FILTER):inG(r,FILTER));
 const GRP=()=>{const g=[];CFG.stages.forEach(s=>{const k='g:'+s.book+':'+s.lvl;if(!g.some(x=>x.k===k))g.push({k,book:s.book,lvl:s.lvl,tn:s.tn,ic:s.ic})});return g};
 const grpHtml=()=>GRP().map(g=>`<button class="kpi tone-${g.tn||'slate'} ${FILTER===g.k?'on':''}" data-f="${g.k}"><span class="kpi-ico"><i class="ph-duotone ${g.ic||'ph-flag'}"></i></span><div><b>${ROWS.filter(r=>inG(r,g.k)).length}</b><span>เล่ม ${g.book} · ${LVS[g.lvl]}</span></div></button>`).join('');
 const qaK=()=>{const n=ROWS.filter(r=>r.qa>0).length;return n?`<button class="kpi tone-indigo ${FILTER==='__qa'?'on':''}" data-f="__qa"><span class="kpi-ico"><i class="ph-duotone ph-chats-circle"></i></span><div><b>${n}</b><span>รอเจ้าหน้าที่ตอบ</span></div></button>`:''};
@@ -890,6 +1071,9 @@ function prio(r){const g=stg(r.status);if(g.end)return{s:0,lv:'done',t:'เส�
  if(base){s+=Math.min(40,Math.round(w/base*30));if(w>base)why.push('รอเกินเกณฑ์ '+Math.floor(w-base)+' วัน')}
  const rem=dl180(r);if(rem!=null){s+=rem<=0?50:rem<=7?45:rem<=30?35:rem<=60?20:rem<=90?10:0;if(rem<=90)why.push(rem<=0?'เกินกำหนดส่งเล่ม 2 (180 วัน)':'เหลือ '+rem+' วัน ครบกำหนดส่งเล่ม 2')}
  if(r.qa>0){s+=15;why.push('มีคำถามรอเจ้าหน้าที่ตอบ')}
+ if(g.fix&&r.attRev&&r.attRev>(r.since||''))  {s+=15;why.push('ผู้ยื่นส่งไฟล์ฉบับแก้ไขแล้ว รอ HR ตรวจ/ส่งต่อ')}
+ else if(r.attNew>0){s+=8;why.push('มีไฟล์เล่ม 2 ใหม่จากผู้ยื่น')}
+ if(r.fx>=2){s+=r.fx>=3?12:8;why.push('แก้ไขซ้ำครั้งที่ '+r.fx+' — ควรประสานกรรมการ สสจ.')}
  if(g.fix){s=Math.max(0,s-10);why.push('รอผู้ยื่นแก้ไข')}else if(isHR(g)){s+=10;why.push('HR ต้องดำเนินการ')}
  s=Math.min(100,s);const lv=s>=70?['crit','วิกฤต']:s>=45?['urg','เร่งด่วน']:s>=20?['watch','ติดตาม']:['norm','ปกติ'];return{s,lv:lv[0],t:lv[1],why}}
 const prHtml=(r,rank)=>{const p=prio(r);return `<span class="pr pr-${p.lv}">${p.t}</span>${p.lv==='done'?'':`<span class="pr-rank">${rank?'ลำดับที่ '+rank+' · ':''}คะแนน ${p.s}</span>`}${p.why.length?`<ul class="pr-why">${p.why.slice(0,3).map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}`};
@@ -899,26 +1083,27 @@ const ageHtml=r=>{const g=stg(r.status),a=toDate(r.ts),sn=toDate(r.since||r.upd|
  return `<span class="age ${late?'late':''}"><i class="ph ph-timer"></i>${g.fix?'รอผู้ยื่นแก้ไข ':'รอ '}${spanF(ms)}</span>${base?`<div class="pbar ${late?'late':w/base>.75?'near':''}"><i style="width:${pct}%"></i></div>`:''}${g.rng&&!g.fix?`<div class="meta">เกณฑ์ ${esc(g.rng)}</div>`:''}${rem!=null?`<div class="dd ${rem<=30?'hot':''}"><i class="ph-bold ph-calendar-check"></i>ส่งเล่ม 2 ภายใน 180 วัน · ${rem>=0?'เหลือ '+rem+' วัน':'เกิน '+(-rem)+' วัน'}</div>`:''}<div class="meta">เข้าขั้นตอนนี้ ${esc(thShort(r.since||r.upd||r.ts))}</div><div class="meta">ยื่นมาแล้ว ${a?spanF(sub):'-'}</div>`};
 let SORTM='p';
 const LICO_=`<svg class="lico" viewBox="0 0 24 24" aria-hidden="true"><path class="b" d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.2 7.9.4.1.9.2 1 .6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5C22.3 12.8 22 11.5 22 10c0-4.4-4.5-8-10-8z"/><text class="t" x="12" y="11.6" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Arial,sans-serif">LINE</text></svg>`;
-function promote(id){confirmBox({title:'ปิดเคส '+id+'?',text:'บันทึกสถานะ "ได้รับการเลื่อนระดับแล้ว" ถือว่ากระบวนการเสร็จสิ้น (สำเร็จราย) และระบบจะส่งแจ้งเตือน LINE ให้ผู้ยื่นหากผูกไว้',ok:'ยืนยันปิดเคส',icon:'ph-medal'},async()=>{const d=await api('adminSave',[TOKEN,id,{status:'promoted'}],{timeout:120000,write:true});if(!d.ok)throw new Error(d.message)}).then(ok=>{if(ok){toast('ปิดเคส '+id+' แล้ว: ได้รับการเลื่อนระดับ');FLASH=id;loadList()}})}
+function promote(id){confirmBox({title:'ปิดเคส '+id+'?',text:'บันทึกสถานะ "ได้รับการเลื่อนระดับแล้ว" ถือว่ากระบวนการเสร็จสิ้น (สำเร็จราย) และระบบจะส่งแจ้งเตือน LINE ให้ผู้ยื่นหากผูกไว้',ok:'ยืนยันปิดเคส',icon:'ph-medal'},async()=>{const d=await api('adminStatus',[TOKEN,id,{status:'promoted'}],{timeout:120000,write:true});if(!d.ok)throw new Error(d.message)}).then(ok=>{if(ok){toast('ปิดเคส '+id+' แล้ว: ได้รับการเลื่อนระดับ');FLASH=id;loadList()}})}
 
-const TRKS=()=>CFG.tracks||[];
+const TRK_DEF=[{t:'ปฏิบัติงาน → ชำนาญงาน',g:'ประเภททั่วไป',tn:'sky'},{t:'ชำนาญงาน → อาวุโส',g:'ประเภททั่วไป',tn:'cyan'},{t:'ปฏิบัติการ → ชำนาญการ',g:'ประเภทวิชาการ',tn:'violet'},{t:'ชำนาญการ → ชำนาญการพิเศษ',g:'ประเภทวิชาการ',tn:'indigo'},{t:'ชำนาญการพิเศษ → เชี่ยวชาญ',g:'ประเภทวิชาการ',tn:'fuchsia'}];
+const TRKS=()=>(CFG.tracks&&CFG.tracks.length)?CFG.tracks:TRK_DEF;
 const view=()=>!TRK?ROWS:ROWS.filter(r=>TRK==='__none'?!r.track:r.track===TRK);
 const trkCnt=k=>ROWS.filter(r=>k==='__none'?!r.track:k===''?true:r.track===k).length;
 function trkBar(){const T=TRKS();if(!T.length)return '';const gs=[...new Set(T.map(x=>x.g))],none=trkCnt('__none');
  const b=(k,label,tn)=>`<button type="button" class="trk-b tone-${tn||'slate'} ${TRK===k?'on':''}" data-trk="${esc(k)}" aria-pressed="${TRK===k}">${esc(label)} <b>${trkCnt(k)}</b></button>`;
- return `<div class="trk" role="group" aria-label="กรองตามระดับตำแหน่ง ก.พ."><span class="trk-l"><i class="ph-bold ph-funnel"></i>ระดับ ก.พ.</span>${b('','ทั้งหมด')}${gs.map(g=>`<span class="trk-g">${esc(g)}</span>${T.filter(x=>x.g===g).map(x=>b(x.t,x.t,x.tn)).join('')}`).join('')}${none?b('__none','ยังไม่ระบุ'):''}${TRK?`<span class="trk-s">กำลังแสดงเฉพาะ: <b>${esc(TRK==='__none'?'ยังไม่ระบุระดับ':TRK)}</b> — ตัวเลขในแดชบอร์ดและรายการด้านล่างนับเฉพาะกลุ่มนี้</span>`:''}</div>`}
-const trkBars=()=>{const T=TRKS();if(!T.length)return '';const mx=Math.max(1,ROWS.length);return `<div class="sbh">แยกตามระดับ ก.พ.</div>${T.map(x=>{const n=trkCnt(x.t);return `<button type="button" class="sb tone-${x.tn||'slate'} ${TRK===x.t?'on':''}" data-trk="${esc(x.t)}"><div class="sb-h"><span>${esc(x.t)}</span><b>${n}</b></div><div class="sb-t"><i style="width:${n/mx*100}%"></i></div></button>`}).join('')}`};
+ return `<div class="trk" role="group" aria-label="กรองตามระดับตำแหน่ง"><span class="trk-l"><i class="ph-bold ph-funnel"></i>ระดับตำแหน่ง</span>${b('','ทั้งหมด')}${gs.map(g=>`<span class="trk-g">${esc(g)}</span>${T.filter(x=>x.g===g).map(x=>b(x.t,x.t,x.tn)).join('')}`).join('')}${none?b('__none','ยังไม่ระบุ'):''}${TRK?`<span class="trk-s">กำลังแสดงเฉพาะ: <b>${esc(TRK==='__none'?'ยังไม่ระบุระดับ':TRK)}</b> — ตัวเลขในแดชบอร์ดและรายการด้านล่างนับเฉพาะกลุ่มนี้</span>`:''}</div>`}
+const trkBars=()=>{const T=TRKS();if(!T.length)return '';const mx=Math.max(1,ROWS.length);return `<div class="sbh">แยกตามระดับตำแหน่ง</div>${T.map(x=>{const n=trkCnt(x.t);return `<button type="button" class="sb tone-${x.tn||'slate'} ${TRK===x.t?'on':''}" data-trk="${esc(x.t)}"><div class="sb-h"><span>${esc(x.t)}</span><b>${n}</b></div><div class="sb-t"><i style="width:${n/mx*100}%"></i></div></button>`}).join('')}`};
 function dash(){
- const V=view(),urg=V.filter(r=>prio(r).s>=45).length,late=V.filter(isLate).length,n180=V.filter(r=>{const d=dl180(r);return d!=null&&d<=30}).length,qa=V.filter(r=>r.qa>0).length,nolk=V.filter(r=>!r.lk&&!stg(r.status).end).length;
+ const V=view(),sgw=V.filter(r=>stg(r.status).sg==='wait').length,attn=V.filter(r=>r.attNew>0).length,urg=V.filter(r=>prio(r).s>=45).length,late=V.filter(isLate).length,n180=V.filter(r=>{const d=dl180(r);return d!=null&&d<=30}).length,qa=V.filter(r=>r.qa>0).length,nolk=V.filter(r=>!r.lk&&!stg(r.status).end).length;
  const card=(f,ic,c,c2,n,l,s,al)=>`<button class="sc ${n?(al?'hot':''):(f===''?'':'zero')} ${FILTER===f?'on':''}" data-f="${f}" aria-pressed="${FILTER===f}" style="--c:${c};--c2:${c2}"><span class="sc-i"><i class="ph-bold ${ic}"></i></span><span class="sc-t"><b>${n}</b><span class="l">${l}</span><span class="s">${s}</span></span></button>`;
  const act=V.filter(r=>!stg(r.status).end).map(r=>({r,d:Math.floor(ageClk(r)/DAY)})).sort((x,y)=>y.d-x.d).slice(0,10),maxD=act.length?Math.max(1,act[0].d):1;
  const top=V.map(r=>({r,p:prio(r)})).filter(x=>x.p.s>0).sort((a,b)=>b.p.s-a.p.s||ageClk(b.r)-ageClk(a.r)).slice(0,5);
  const mx=Math.max(1,V.length);
  const bars=GRP().map(g=>{const n=V.filter(r=>inG(r,g.k)).length;return `<button class="sb tone-${g.tn||'slate'} ${FILTER===g.k?'on':''}" data-f="${g.k}"><div class="sb-h"><span>เล่ม ${g.book} · ${esc(LVS[g.lvl])}</span><b>${n}</b></div><div class="sb-t"><i style="width:${n/mx*100}%"></i></div></button>`}).join('');
- return `<div class="scs">${card('','ph-files','#0f766e','#2dd4bf',V.length,TRK?'รายการในระดับนี้':'รายการทั้งหมด',TRK?'ตามตัวกรอง ก.พ. ที่เลือก':'ผลงานที่อยู่ในระบบ',0)}${card('__urg','ph-lightning','#e11d48','#fb7185',urg,'ต้องเร่งดำเนินการ','คะแนนความสำคัญ 45 ขึ้นไป',1)}${card('__late','ph-hourglass-high','#d97706','#fbbf24',late,'ค้างนานกว่าปกติ','เกินเกณฑ์ระยะเวลาของขั้นตอน',1)}${card('__180','ph-calendar-check','#ea580c','#fb923c',n180,'ใกล้ครบกำหนดเล่ม 2','เหลือไม่เกิน 30 วัน',1)}${card('__qa','ph-chat-circle-dots','#4f46e5','#818cf8',qa,'รอเจ้าหน้าที่ตอบ','มีข้อความจากผู้ยื่น',1)}${card('__nolk','ph-link-break','#475569','#94a3b8',nolk,'ยังไม่ผูก LINE','ไม่ได้รับแจ้งเตือนอัตโนมัติ',1)}</div>
- <div class="dash"><section class="card dp"><h3><i class="ph-duotone ph-ranking"></i>งานที่ต้องทำก่อน</h3>${top.length?`<ol class="tq">${top.map(({r,p},i)=>`<li><span class="tq-n">${i+1}</span><div class="tq-m"><b>${esc(r.prefix+r.first+' '+r.last)}</b><span class="meta">${esc(r.id)} · ${fmtT(stg(r.status).t,true)}</span>${p.why.length?`<span class="meta">${esc(p.why.slice(0,2).join(' · '))}</span>`:''}</div><span class="pr pr-${p.lv}">${p.t}</span><button class="btn sm sec" data-e="${esc(r.id)}"><i class="ph-bold ph-note-pencil"></i> เปิด</button></li>`).join('')}</ol>`:'<div class="empty">ไม่มีงานค้างในขณะนี้</div>'}</section>
- <section class="card dp"><h3><i class="ph-duotone ph-chart-bar-horizontal"></i>งานแยกตามขั้นตอน</h3>${bars}${trkBars()}</section>
- <section class="card dp dwide"><h3><i class="ph-duotone ph-hourglass-high"></i>ค้างนานที่สุด 10 อันดับ${act.length?`<span class="pr pr-crit">นานสุด ${act[0].d} วัน</span>`:''}</h3>${act.length?`<ol class="lw">${act.map((x,i)=>{const g=stg(x.r.status),lt=isLate(x.r);return `<li><span class="tq-n">${i+1}</span><div class="tq-m"><b>${esc(x.r.prefix+x.r.first+' '+x.r.last)}</b><span class="meta">${esc(x.r.id)} · ${fmtT(g.t,true)}</span></div><div class="pbar ${lt?'late':x.d/maxD>.6?'near':''}"><i style="width:${Math.max(4,x.d/maxD*100)}%"></i></div><div class="lw-d">${x.d}<small>วัน</small></div><button class="btn sm sec" data-e="${esc(x.r.id)}"><i class="ph-bold ph-note-pencil"></i> เปิด</button></li>`}).join('')}</ol>`:'<div class="empty">ไม่มีงานค้างในขณะนี้</div>'}</section></div>`}
+ return `<div class="scs">${card('','ph-files','#0f766e','#2dd4bf',V.length,TRK?'รายการในระดับนี้':'รายการทั้งหมด',TRK?'ตามตัวกรองระดับตำแหน่งที่เลือก':'ผลงานที่อยู่ในระบบ',0)}${card('__urg','ph-lightning','#e11d48','#fb7185',urg,'ต้องเร่งดำเนินการ','คะแนนความสำคัญ 45 ขึ้นไป',1)}${card('__late','ph-hourglass-high','#d97706','#fbbf24',late,'ค้างนานกว่าปกติ','เกินเกณฑ์ระยะเวลาของขั้นตอน',1)}${card('__180','ph-calendar-check','#ea580c','#fb923c',n180,'ใกล้ครบกำหนดเล่ม 2','เหลือไม่เกิน 30 วัน',1)}${card('__qa','ph-chat-circle-dots','#4f46e5','#818cf8',qa,'รอเจ้าหน้าที่ตอบ','มีข้อความจากผู้ยื่น',1)}${card('__sgw','ph-hourglass-medium','#7c3aed','#a78bfa',sgw,'รอลงนาม','ผอ. / นพ.สสจ. / ผู้ว่าฯ',1)}${card('__att','ph-paperclip','#0891b2','#22d3ee',attn,'ไฟล์แนบใหม่','ไฟล์เล่ม 2 / ฉบับแก้ไข',1)}${card('__nolk','ph-link-break','#475569','#94a3b8',nolk,'ยังไม่ผูก LINE','ไม่ได้รับแจ้งเตือนอัตโนมัติ',1)}</div>
+ <div class="dash"><section class="card dp"><h3><i class="ph-duotone ph-ranking"></i>งานที่ต้องทำก่อน</h3>${top.length?`<ol class="tq">${top.map(({r,p},i)=>`<li><span class="tq-n">${i+1}</span><div class="tq-m"><b>${esc(r.prefix+r.first+' '+r.last)}</b><span class="meta">${esc(r.id)} · ${fmtT(stg(r.status).t,true)}</span>${p.why.length?`<span class="meta">${esc(p.why.slice(0,2).join(' · '))}</span>`:''}</div><span class="pr pr-${p.lv}">${p.t}</span><button class="btn sm" data-s="${esc(r.id)}"><i class="ph-bold ph-flag"></i> อัพเดท</button></li>`).join('')}</ol>`:'<div class="empty">ไม่มีงานค้างในขณะนี้</div>'}</section>
+ <section class="card dp"><h3><i class="ph-duotone ph-chart-bar-horizontal"></i>งานแยกตามขั้นตอน</h3>${sgBars(V)}<div class="sbh">แยกตามหน่วยงาน/เล่ม</div>${bars}${trkBars()}</section>
+ <section class="card dp dwide"><h3><i class="ph-duotone ph-hourglass-high"></i>ค้างนานที่สุด 10 อันดับ${act.length?`<span class="pr pr-crit">นานสุด ${act[0].d} วัน</span>`:''}</h3>${act.length?`<ol class="lw">${act.map((x,i)=>{const g=stg(x.r.status),lt=isLate(x.r);return `<li><span class="tq-n">${i+1}</span><div class="tq-m"><b>${esc(x.r.prefix+x.r.first+' '+x.r.last)}</b><span class="meta">${esc(x.r.id)} · ${fmtT(g.t,true)}</span></div><div class="pbar ${lt?'late':x.d/maxD>.6?'near':''}"><i style="width:${Math.max(4,x.d/maxD*100)}%"></i></div><div class="lw-d">${x.d}<small>วัน</small></div><button class="btn sm" data-s="${esc(x.r.id)}"><i class="ph-bold ph-flag"></i> อัพเดท</button></li>`}).join('')}</ol>`:'<div class="empty">ไม่มีงานค้างในขณะนี้</div>'}</section></div>`}
 function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim().toLowerCase(),late=ROWS.filter(isLate).length,urg=ROWS.filter(r=>prio(r).s>=45).length,n180=ROWS.filter(r=>{const d=dl180(r);return d!=null&&d<=30}).length;
  el.innerHTML=`${trkBar()}${dash()}
  ${CFG.lineOn?'':'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ระบบจะบันทึกสถานะตามปกติแต่ไม่ส่งแจ้งเตือน (ตั้งค่าที่แท็บ LINE)</div></div>'}
@@ -927,31 +1112,122 @@ function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim(
  const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();let L=view().filter(r=>matchF(r)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq)));
   L=L.map(r=>({r,p:prio(r)}));L.sort(SORTM==='w'?(a,b)=>ageClk(b.r)-ageClk(a.r):SORTM==='n'?(a,b)=>(b.r.ts>a.r.ts?1:-1):(a,b)=>b.p.s-a.p.s||ageClk(b.r)-ageClk(a.r));
   $('#tb').innerHTML=rowsHtml(L.map(x=>x.r),SORTM==='p');
-  $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n));$$('[data-q]').forEach(b=>b.onclick=()=>openQa(b.dataset.q));$$('[data-p]').forEach(b=>b.onclick=()=>promote(b.dataset.p));
+  $$('[data-e]').forEach(b=>b.onclick=()=>openEdit(b.dataset.e));$$('[data-n]').forEach(b=>b.onclick=()=>openNotify(b.dataset.n));$$('[data-q]').forEach(b=>b.onclick=()=>openQa(b.dataset.q));$$('[data-p]').forEach(b=>b.onclick=()=>promote(b.dataset.p));$$('[data-s]').forEach(b=>b.onclick=()=>openStatus(b.dataset.s));$$('[data-a]').forEach(b=>b.onclick=()=>openAtt(b.dataset.a));
   if(FLASH){const tr=$(`tr[data-id="${FLASH}"]`);if(tr){tr.classList.add('flash');tr.scrollIntoView({block:'nearest',behavior:'smooth'})}FLASH=''}};
  $$('[data-f]',el).forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;renderList()});$$('[data-trk]',el).forEach(b=>b.onclick=()=>{TRK=(TRK===b.dataset.trk&&b.dataset.trk!=='')?'':b.dataset.trk;renderList()});$('#q').oninput=fill;$('#srt').onchange=e=>{SORTM=e.target.value;fill()};
  $('#a-rf').onclick=async e=>{const b=e.currentTarget;busy(b,1,'กำลังโหลด...');await loadList()};fill()}
-const rowsHtml=(rows,rk)=>rows.length?rows.map((r,i)=>`<tr data-id="${esc(r.id)}" class="u-${prio(r).lv}"><td data-l="ความสำคัญ">${prHtml(r,rk&&prio(r).lv!=='done'?i+1:0)}</td><td data-l="รหัส"><span class="nb">${esc(r.id)}</span><div class="meta">${esc(thDT(r.ts)).replace(/(\d{1,2}:\d{2}\s?น\.)/,'<span class="nb">$1</span>')}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div>${r.track?`<div class="trkb"><i class="ph-bold ph-trend-up"></i>${esc(r.track)}</div>`:''}</td><td data-l="กลุ่มงาน">${thHtml(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener"><i class="ph ph-file-text"></i> เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status,1)}</td><td data-l="ระยะเวลารอ">${ageHtml(r)}</td><td data-l="LINE">${lnBadge(r)}</td><td class="act"><div class="row"><button class="btn sm sec ab ab-edit" data-e="${esc(r.id)}"><i class="ph-bold ph-note-pencil"></i> แก้ไข</button><button class="btn sm sec ab ab-qa ${r.qa?'has-q':''}" data-q="${esc(r.id)}" title="${r.qa?'มีคำถามรอตอบ '+r.qa+' ข้อความ':'ถาม-ตอบ'}"><i class="ph-bold ${r.qa?'ph-chat-circle-dots':'ph-chat-teardrop-text'}"></i> ถาม-ตอบ${r.qa?`<span class="qbadge" aria-label="รอตอบ ${r.qa} ข้อความ">${r.qa}</span>`:''}</button><button class="btn sm line ab" data-n="${esc(r.id)}">${LICO_} แจ้ง LINE</button>${stg(r.status).end&&r.status==='promoted'?'':`<button class="btn sm sec ab ab-pro" data-p="${esc(r.id)}" title="ปิดเคส: ได้รับการเลื่อนระดับแล้ว"><i class="ph-bold ph-medal"></i> เลื่อนระดับแล้ว</button>`}</div></td></tr>`).join(''):`<tr><td colspan="9" class="empty">ไม่พบรายการ${TRK?' ในระดับ ก.พ. ที่เลือก':''}</td></tr>`;
+const rowsHtml=(rows,rk)=>rows.length?rows.map((r,i)=>`<tr data-id="${esc(r.id)}" class="u-${prio(r).lv}"><td data-l="ความสำคัญ">${prHtml(r,rk&&prio(r).lv!=='done'?i+1:0)}</td><td data-l="รหัส"><span class="nb">${esc(r.id)}</span><div class="meta">${esc(thDT(r.ts)).replace(/(\d{1,2}:\d{2}\s?น\.)/,'<span class="nb">$1</span>')}</div></td><td data-l="ผู้ยื่น">${esc(r.prefix+r.first+' '+r.last)}<div class="meta">${esc(r.cid)}</div>${r.track?`<div class="trkb"><i class="ph-bold ph-trend-up"></i>${esc(r.track)}</div>`:''}</td><td data-l="กลุ่มงาน">${thHtml(r.group)}</td><td data-l="ไฟล์ผลงาน">${r.link?`<a href="${esc(r.link)}" target="_blank" rel="noopener"><i class="ph ph-file-text"></i> เปิดไฟล์</a>`:'-'}</td><td data-l="สถานะ">${chip(r.status,1)}${fxBadge(r)}</td><td data-l="ระยะเวลารอ">${ageHtml(r)}</td><td data-l="LINE">${lnBadge(r)}</td><td class="act"><div class="row"><button class="btn sm ab ab-status" data-s="${esc(r.id)}" title="เปลี่ยนสถานะ / ใส่หมายเหตุ / ลงเวลา"><i class="ph-bold ph-flag"></i> อัพเดทสถานะ</button><button class="btn sm sec ab ab-edit" data-e="${esc(r.id)}" title="แก้ไขข้อมูลผู้ยื่น (ไม่เปลี่ยนสถานะ)"><i class="ph-bold ph-note-pencil"></i> แก้ไขข้อมูล</button><button class="btn sm sec ab ab-qa ${r.qa?'has-q':''}" data-q="${esc(r.id)}" title="${r.qa?'มีคำถามรอตอบ '+r.qa+' ข้อความ':'ถาม-ตอบ'}"><i class="ph-bold ${r.qa?'ph-chat-circle-dots':'ph-chat-teardrop-text'}"></i> ถาม-ตอบ${r.qa?`<span class="qbadge" aria-label="รอตอบ ${r.qa} ข้อความ">${r.qa}</span>`:''}</button><button class="btn sm line ab" data-n="${esc(r.id)}">${LICO_} แจ้ง LINE</button>${attBtn(r)}${stg(r.status).end&&r.status==='promoted'?'':`<button class="btn sm sec ab ab-pro" data-p="${esc(r.id)}" title="ปิดเคส: ได้รับการเลื่อนระดับแล้ว"><i class="ph-bold ph-medal"></i> เลื่อนระดับแล้ว</button>`}</div></td></tr>`).join(''):`<tr><td colspan="9" class="empty">ไม่พบรายการ${TRK?' ในระดับตำแหน่งที่เลือก':''}</td></tr>`;
 /* ---- แก้ไขรายการ + แนบไฟล์ + ส่ง LINE อัตโนมัติ ---- */
 const FIELDS=[['prefix','คำนำหน้า'],['first','ชื่อ'],['last','นามสกุล'],['cid','เลขบัตรประชาชน'],['position','ตำแหน่ง'],['group','กลุ่มงาน'],['posNo','ตำแหน่งเลขที่'],['start','วันเริ่มงาน'],['edu','วุฒิการศึกษาสูงสุด'],['phone','เบอร์โทร'],['email','อีเมล'],['link','ลิงก์ไฟล์ผลงาน']];
-const FED=mkFile($('#d-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls','xlsx'],max:8,hint:'รูป (jpg, png) หรือไฟล์ (pdf, doc, docx, xls, xlsx) ไม่เกิน 8 MB — รูปใหญ่จะถูกย่อให้อัตโนมัติ'});
-function openEdit(id){EDIT=ROWS.find(r=>r.id===id);if(!EDIT)return;$('#d-ttl').textContent='แก้ไข '+id;msg($('#d-msg'),'');FED.clear();
- $('#d-grid').innerHTML=`<div><label for="e-status">สถานะ</label><select id="e-status">${statusOpts(EDIT.status)}</select></div>
-  <div><label for="e-track">ระดับตำแหน่งที่ขอเลื่อน (ก.พ.)</label><select id="e-track">${trkOpts(EDIT.track,true)}</select></div>
- <div class="full"><label for="e-note">หมายเหตุถึงผู้ยื่น (แสดงในหน้าติดตามและส่งใน LINE/อีเมล)</label><textarea id="e-note" rows="2">${esc(EDIT.note)}</textarea></div>`+FIELDS.map(([k,l])=>`<div class="${k==='title'?'full':''}"><label for="e-${k}">${l}</label><input id="e-${k}" ${k==='start'?'type="date"':''} value="${esc(k==='start'?(EDIT[k]||'').slice(0,10):EDIT[k])}"></div>`).join('');
- const lk=EDIT.lk;$('#d-lnst').textContent=!CFG.lineOn?'(ยังไม่ได้ตั้งค่า LINE)':lk?'(ผู้ยื่นผูก LINE แล้ว)':'(ผู้ยื่นยังไม่ผูก LINE — ระบบจะบันทึกแต่ส่งไม่ได้)';
- $('#d-send').checked=true;$('#d-del').classList.toggle('hide',USER.r!=='admin');dlgOpen($('#dlg'))}
-$('#d-save').onclick=async()=>{const b=$('#d-save'),m=$('#d-msg');msg(m,'');const f={status:$('#e-status').value,track:$('#e-track').value,note:$('#e-note').value,sendLine:$('#d-send').checked};FIELDS.forEach(([k])=>f[k]=$('#e-'+k).value);
- busy(b,1,FED.get()?'กำลังอัปโหลดและบันทึก...':'กำลังบันทึก...');
- try{const a=await FED.pack();if(a)f.attach=a}catch(er){busy(b,0);return msg(m,er.message)}
- const d=await api('adminSave',[TOKEN,EDIT.id,f],{timeout:120000,write:true});busy(b,0);
+const FDS=mkFile($('#ds-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls','xlsx'],max:8,hint:'รูป (jpg, png) หรือไฟล์ (pdf, doc, docx, xls, xlsx) ไม่เกิน 8 MB — รูปใหญ่จะถูกย่อให้อัตโนมัติ'});
+function openEdit(id){EDIT=ROWS.find(r=>r.id===id);if(!EDIT)return;$('#d-ttl').textContent='แก้ไขข้อมูล '+id;msg($('#d-msg'),'');
+ $('#d-grid').innerHTML=`<div class="full"><label for="e-track">ระดับตำแหน่งที่ขอเลื่อน</label><select id="e-track">${trkOpts(EDIT.track,true)}</select></div>`+FIELDS.map(([k,l])=>`<div><label for="e-${k}">${l}</label><input id="e-${k}" ${k==='start'?'type="date"':''} value="${esc(k==='start'?(EDIT[k]||'').slice(0,10):EDIT[k])}"></div>`).join('');
+ $('#d-del').classList.toggle('hide',USER.r!=='admin');dlgOpen($('#dlg'))}
+$('#d-save').onclick=async()=>{const b=$('#d-save'),m=$('#d-msg');msg(m,'');const f={track:$('#e-track').value};FIELDS.forEach(([k])=>f[k]=$('#e-'+k).value);
+ busy(b,1,'กำลังบันทึก...');const d=await api('adminSave',[TOKEN,EDIT.id,f],{timeout:60000,write:true});busy(b,0);
  if(!d.ok)return msg(m,d.message);
- $('#dlg').close();FLASH=EDIT.id;
+ $('#dlg').close();FLASH=EDIT.id;toast(d.changed.length?'บันทึกข้อมูลแล้ว':'ไม่มีการเปลี่ยนแปลง',d.changed.length?'ok':'info');loadList()};
+$('#d-tostatus').onclick=()=>{const id=EDIT&&EDIT.id;$('#dlg').close();if(id)openStatus(id)};
+/* ---- ป้ายสถานะการลงนาม / สรุปรอบแก้ไข / ปุ่มไฟล์แนบ ---- */
+const SGW={dir:['ผอ.โรงพยาบาล','ph-user-circle'],pho:['นพ.สสจ.','ph-stethoscope'],gov:['ผู้ว่าราชการจังหวัด','ph-bank']};
+const sgOf=(r,f)=>{const [,w,s]=f.split(':'),g=stg(r.status);return g.who===w&&g.sg===s};
+function sgBadge(s,cur,done,skipped){if(!s.sg||skipped)return '';
+ if(s.sg==='wait'&&cur)return '<span class="sgb wait"><i class="ph-fill ph-hourglass-medium"></i>รอลงนาม</span>';
+ if(s.sg==='done'&&(done||cur))return '<span class="sgb ok"><i class="ph-fill ph-check-circle"></i>ลงนามแล้ว</span>';return ''}
+function sgBars(V){const cnt=(w,s)=>V.filter(r=>{const g=stg(r.status);return g.who===w&&g.sg===s}).length;
+ const pill=(w,s,n,ic,lb)=>{const f='sg:'+w+':'+s;return `<button type="button" class="sgp ${s==='wait'?'wait':'ok'} ${FILTER===f?'on':''}" data-f="${f}" aria-pressed="${FILTER===f}"><i class="ph-fill ${ic}"></i>${lb} <b>${n}</b></button>`};
+ return `<div class="sbh">สถานะการลงนาม</div><div class="sgl">${Object.entries(SGW).map(([w,[n,ic]])=>`<div class="sgr"><span class="sgn"><i class="ph-bold ${ic}"></i>${esc(n)}</span>${pill(w,'wait',cnt(w,'wait'),'ph-hourglass-medium','รอลงนาม')}${pill(w,'done',cnt(w,'done'),'ph-check-circle','ลงนามแล้ว')}</div>`).join('')}</div>`}
+const fxBadge=r=>r.fx>0?`<div class="fxb ${r.fx>=3?'hi':r.fx>=2?'mid':''}" title="จำนวนครั้งที่กรรมการให้แก้ไขผลงาน"><i class="ph-bold ph-arrows-clockwise"></i>แก้ไขแล้ว ${r.fx} ครั้ง${r.fx>=2?' · แก้ไขซ้ำ':''}</div>`:'';
+const attBtn=r=>r.attN?`<button class="btn sm sec ab ab-att ${r.attNew?'has-q':''}" data-a="${esc(r.id)}" title="ไฟล์เล่ม 2 / ฉบับแก้ไขที่ผู้ยื่นแนบ"><i class="ph-bold ph-paperclip"></i> ไฟล์แนบ${r.attNew?`<span class="qbadge" aria-label="ไฟล์ใหม่ ${r.attNew} รายการ">${r.attNew}</span>`:` (${r.attN})`}</button>`:'';
+/* รอบการแก้ไขตามข้อเสนอแนะกรรมการ: เริ่มเมื่อเข้าสถานะ "แก้ไข" → ส่งฉบับแก้ไข (กรรมการอ่านซ้ำ) → ผ่าน หรือให้แก้ไขเพิ่ม (เริ่มรอบถัดไป) */
+function roundsOf(h){const hs=(h||[]).slice().sort((a,b)=>String(a.t).localeCompare(String(b.t))),R=[];let cur=null,prev='';
+ hs.forEach(x=>{const g=stg(x.s);
+  if(g.fix){if(x.s!==prev){if(cur&&!cur.e)cur.e=x.t;cur={n:R.length+1,s:x.t,note:x.n||'',rs:null,e:null};R.push(cur)}else if(cur&&x.n)cur.note=x.n}
+  else if(cur&&!cur.e){if(g.rep){if(!cur.rs)cur.rs=x.t}else cur.e=x.t}
+  prev=x.s});return R}
+function roundsHtml(it,adm){const R=roundsOf(it.history);if(!R.length)return '';const now=nowMs(),att=it.att||[];
+ const dur=(a,b)=>{const x=toDate(a),y=b?toDate(b):new Date(now);return x&&y?spanF(Math.max(0,y-x)):'-'};
+ const li=R.map((r,i)=>{const live=!r.e,nxt=R[i+1],att_=att.filter(a=>a.kind==='revision'&&String(a.round)===String(r.n));
+  const stt=live?(r.rs?'กรรมการกำลังอ่านซ้ำ':'อยู่ระหว่างแก้ไข'):(nxt?'กรรมการให้แก้ไขเพิ่ม':'ผ่านการตรวจของกรรมการ');
+  return `<li class="rd ${live?'live':'done'}"><div class="rd-t">แก้ไข ครั้งที่ ${r.n}<span class="dbadge ${live?'wait':nxt?'late':'ok'}"><i class="ph-fill ${live?'ph-hourglass-medium':nxt?'ph-arrow-u-up-left':'ph-seal-check'}"></i>${stt}</span></div>
+  <div class="rd-r"><div><span>กรรมการให้แก้ไข</span><b>${esc(thShort(r.s))}</b></div><div><span>ส่งฉบับแก้ไข</span><b>${r.rs?esc(thShort(r.rs)):'ยังไม่ได้ส่ง'}</b></div><div><span>ใช้เวลาแก้ไข</span><b>${dur(r.s,r.rs||r.e)}${!r.rs&&live?' (ปัจจุบัน)':''}</b></div>${r.rs?`<div><span>กรรมการอ่านซ้ำ</span><b>${dur(r.rs,r.e)}${live?' (ปัจจุบัน)':''}</b></div>`:''}</div>
+  ${r.note?`<div class="rd-n"><b>ข้อเสนอแนะ:</b> ${esc(r.note)}</div>`:''}
+  ${att_.map(a=>`<div class="rd-f"><i class="ph-fill ph-paperclip"></i>แนบฉบับแก้ไข: ${esc(a.name)} · ${esc(thShort(a.t))}</div>`).join('')}</li>`}).join('');
+ const n=R.length,sum=R.reduce((s,r)=>{const a=toDate(r.s),b=r.e?toDate(r.e):new Date(now);return s+(a&&b?Math.max(0,b-a):0)},0);
+ return `<div class="rds"><div class="rds-h"><i class="ph-duotone ph-arrows-clockwise"></i>ประวัติการแก้ไขตามข้อเสนอแนะกรรมการ<span class="dbadge ${n>=3?'late':n>=2?'wait':'ok'}">แก้ไขแล้ว ${n} ครั้ง</span></div><ol class="rds-l">${li}</ol>
+ <div class="meta rds-tip"><i class="ph ph-timer"></i> รวมระยะเวลาตั้งแต่กรรมการให้แก้ไขครั้งแรกถึง${R[n-1].e?'ผ่านการตรวจ':'ปัจจุบัน'}: <b>${spanF(sum)}</b> — ระยะเวลาอ่านของกรรมการนับต่อเนื่องจากวันที่ส่งถึง สสจ. ไม่เริ่มนับใหม่ทุกครั้งที่แก้ไข</div>
+ ${n>=2?(adm?`<div class="msg warn" style="margin:10px 0 0"><i class="ph-fill ph-warning"></i><div><b>แก้ไขซ้ำ ${n} ครั้งแล้ว</b> — แนะนำให้ประสานคณะกรรมการ สสจ. เพื่อสรุปประเด็นที่ต้องแก้ไขให้ครบในครั้งเดียว และแจ้งผู้ยื่นพร้อมกำหนดวันส่งฉบับแก้ไข</div></div>`:`<div class="msg info" style="margin:10px 0 0"><i class="ph-fill ph-info"></i><div>ทุกครั้งที่กรรมการให้แก้ไขเพิ่ม ระบบจะนับเป็นครั้งถัดไปโดยอัตโนมัติ แนะนำให้แนบไฟล์ฉบับแก้ไขทุกครั้งที่ช่อง “แนบไฟล์เล่ม 2 เพิ่มเติม” เพื่อให้งานทรัพยากรบุคคลส่งต่อกรรมการได้ทันที</div></div>`):''}</div>`}
+/* ---- อัพเดทสถานะ (แยกจากแก้ไขข้อมูล): เลือกสถานะ + หมายเหตุ + (ติ๊ก) ลงเวลาเอง ---- */
+let SST=null;
+const qkNext=r=>{const g=stg(r.status),L=[],nx=CFG.stages.slice().sort((a,b)=>a.ord-b.ord).find(s=>s.ord>g.ord&&!s.fix&&!s.rep);
+ if(g.k==='b2_fix')L.push('b2_resub');if(g.k==='b2_read'||g.k==='b2_resub')L.push('b2_fix');if(nx)L.push(nx.k);
+ return [...new Set(L)].filter(k=>k!==r.status&&CFG.stages.some(s=>s.k===k))};
+const qkLbl=(r,k)=>{const s=stg(k);let t=s.t;if(k==='b2_fix')t+=' ครั้งที่ '+((r.fx||0)+(r.status==='b2_fix'?0:1));if(k==='b2_resub')t+=' ครั้งที่ '+Math.max(1,r.fx||1);return t};
+function dsPreview(){const r=SST;if(!r)return;const st=$('#ds-status').value,ch=st!==r.status,nt=$('#ds-note').value!==(r.note||''),ct=$('#ds-ct').checked;
+ const when=ct&&$('#ds-when').value?thDT($('#ds-when').value.replace('T',' ')+':00'):'เวลาปัจจุบัน (ตอนกดบันทึก)';
+ const pv=$('#ds-pv');pv.className='dspv '+(ch||nt?'chg':'');
+ pv.innerHTML=ch||nt||FDS.get()?`<i class="ph-fill ph-info"></i><div>จะบันทึก ${ch?`สถานะ <b>${fmtT(qkLbl(r,st),true)}</b>`:'หมายเหตุ'} · เวลา <b>${esc(when)}</b>${$('#ds-send').checked?' · ส่งแจ้ง LINE':' · ไม่ส่ง LINE'}</div>`:`<i class="ph-fill ph-info"></i><div>ยังไม่ได้เปลี่ยนสถานะหรือหมายเหตุ</div>`;
+ $$('#ds-qk button').forEach(b=>b.classList.toggle('on',b.dataset.k===st))}
+function openStatus(id){const r=ROWS.find(x=>x.id===id);if(!r)return;SST=r;
+ $('#ds-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}`;msg($('#ds-msg'),'');FDS.clear();$('#ds-rd').innerHTML='';
+ $('#ds-cur').innerHTML=`<div><span class="meta">สถานะปัจจุบัน</span>${chip(r.status,1)}${fxBadge(r)}</div><div class="meta" style="text-align:right">เข้าขั้นตอนนี้<br><b>${esc(thShort(r.since||r.upd||r.ts))}</b></div>`;
+ $('#ds-status').innerHTML=statusOpts(r.status);
+ const q=qkNext(r);$('#ds-qk').innerHTML=q.length?'<span class="meta">ขั้นตอนถัดไป:</span>'+q.map(k=>`<button type="button" class="tone-${tone(k)}" data-k="${esc(k)}"><i class="ph-bold ${stg(k).ic||'ph-flag'}"></i>${fmtT(qkLbl(r,k),true)}</button>`).join(''):'';
+ $$('#ds-qk button').forEach(b=>b.onclick=()=>{$('#ds-status').value=b.dataset.k;dsPreview()});
+ $('#ds-note').value=r.note||'';
+ const nowL=bkk0().slice(0,16).replace(' ','T'),mn=(r.upd||r.ts||'').slice(0,16).replace(' ','T');
+ $('#ds-ct').checked=false;$('#ds-tbox').classList.add('hide');$('#ds-tmb').classList.remove('on');
+ $('#ds-when').max=nowL;$('#ds-when').min=mn;$('#ds-when').value=nowL;$('#ds-now').textContent=thDT(bkk0());$('#ds-tmin').textContent='ต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+thDT(r.upd||r.ts)+') และไม่เกินเวลาปัจจุบัน';
+ $('#ds-send').checked=true;$('#ds-lnst').textContent=!CFG.lineOn?'(ยังไม่ได้ตั้งค่า LINE)':r.lk?'(ผู้ยื่นผูก LINE แล้ว)':'(ผู้ยื่นยังไม่ผูก LINE — ระบบจะบันทึกแต่ส่งไม่ได้)';
+ dsPreview();dlgOpen($('#ds'));
+ if(r.fx>0||stg(r.status).fix||stg(r.status).rep){$('#ds-rd').innerHTML='<div class="meta" style="margin-top:14px"><span class="spin"></span> กำลังโหลดประวัติรอบแก้ไข...</div>';
+  api('histGet',[TOKEN,r.id]).then(d=>{if(SST!==r)return;$('#ds-rd').innerHTML=d.ok?roundsHtml({history:d.history,att:d.att},true):''})}}
+$('#ds-ct').onchange=e=>{const on=e.target.checked;$('#ds-tbox').classList.toggle('hide',!on);$('#ds-tmb').classList.toggle('on',on);if(on){$('#ds-send').checked=false;setTimeout(()=>$('#ds-when').focus(),30)}else $('#ds-send').checked=true;dsPreview()};
+['ds-status','ds-note','ds-when','ds-send'].forEach(i=>{$('#'+i).addEventListener('input',dsPreview);$('#'+i).addEventListener('change',dsPreview)});
+$('#ds-file').addEventListener('change',dsPreview);
+$('#ds-x').onclick=$('#ds-cancel').onclick=()=>$('#ds').close();
+$('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r)return;msg(m,'');
+ const ct=$('#ds-ct').checked,p={status:$('#ds-status').value,note:$('#ds-note').value,sendLine:$('#ds-send').checked,customTime:ct,when:ct?$('#ds-when').value:''};
+ if(ct&&!p.when)return msg(m,'กรุณาเลือกวันที่และเวลา หรือเอาเครื่องหมายติ๊ก “เลือกลงเวลาเอง” ออกเพื่อใช้เวลาปัจจุบัน');
+ if(p.status===r.status&&p.note===(r.note||'')&&!FDS.get())return msg(m,'ยังไม่ได้เปลี่ยนสถานะหรือหมายเหตุ','info');
+ busy(b,1,FDS.get()?'กำลังอัปโหลดและบันทึก...':'กำลังบันทึก...');
+ try{const a=await FDS.pack();if(a)p.attach=a}catch(er){busy(b,0);return msg(m,er.message)}
+ const d=await api('adminStatus',[TOKEN,r.id,p],{timeout:120000,write:true});busy(b,0);
+ if(!d.ok)return msg(m,d.message);
+ $('#ds').close();FLASH=r.id;
  if(!d.changed.length&&!d.file){toast('ไม่มีการเปลี่ยนแปลง','info')}
- else{const L=d.line;let t='บันทึกแล้ว',k='ok';
+ else{const L=d.line;let t='อัพเดทสถานะแล้ว',k='ok';if(ct)t+=' (ลงเวลา '+thDT(d.at)+')';
   if(L){if(L.sent>0)t+=' และส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':'');else if(L.skipped==='none'){t+=' แต่ผู้ยื่นยังไม่ได้เชื่อมต่อ LINE';k='warn'}else if(L.skipped==='disabled'){t+=' แต่ยังไม่ได้ตั้งค่า LINE';k='warn'}else{t+=' แต่ส่ง LINE ไม่สำเร็จ: '+((L.errors&&L.errors[0])||'ไม่ทราบสาเหตุ');k='err'}}
   toast(t,k,7000)}
  loadList()};
+/* ---- ไฟล์แนบจากผู้ยื่น (เจ้าหน้าที่ดู) ---- */
+const ATK={book2:'ไฟล์เล่ม 2',revision:'ฉบับแก้ไขตามข้อเสนอแนะกรรมการ'};
+async function openAtt(id){const r=ROWS.find(x=>x.id===id);if(!r)return;$('#da-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}`;$('#da-b').innerHTML=skel(2);dlgOpen($('#da'));
+ const d=await api('attList',[TOKEN,id]);if(!d.ok){$('#da-b').innerHTML='';return msg($('#da-b'),d.message)}
+ r.attNew=0;r.attN=d.rows.length;
+ $('#da-b').innerHTML=d.rows.length?`<ul class="attl">${d.rows.map(a=>`<li><i class="ph-fill ph-file-text"></i><div><a href="${esc(a.url)}" target="_blank" rel="noopener"><b>${esc(a.name)}</b></a>${a.isNew?' <span class="dbadge wait" style="font-size:12px">ใหม่</span>':''}<span class="meta">${esc(ATK[a.kind]||a.kind)}${a.round?' ครั้งที่ '+esc(a.round):''} · ${esc(thDT(a.t))} · โดย ${esc(a.by||'ผู้ยื่น')}</span>${a.note?`<span class="meta">หมายเหตุ: ${esc(a.note)}</span>`:''}</div></li>`).join('')}</ul>`:'<div class="empty">ยังไม่มีไฟล์แนบ</div>';
+ renderList()}
+$('#da-x').onclick=()=>$('#da').close();
+/* ---- ผู้ยื่น: แนบไฟล์เล่ม 2 เพิ่มเติม (ไม่เปลี่ยนสถานะ — เป็นข้อมูลให้งานทรัพยากรบุคคล) ---- */
+const AFM={};
+function attCard(it){const g=stg(it.status),ended=!!g.end,L=it.att||[],fx=it.fx||0,openIt=!ended&&(g.fix||g.rep||g.k==='b1_signed'||g.k==='b2_submit'||L.length>0);
+ const list=L.length?`<ul class="attl">${L.slice().reverse().map(a=>`<li><i class="ph-fill ph-file-text"></i><div><b>${esc(a.name)}</b><span class="meta">${esc(ATK[a.kind]||a.kind)}${a.round?' ครั้งที่ '+esc(a.round):''} · ${esc(thDT(a.t))}</span>${a.note?`<span class="meta">${esc(a.note)}</span>`:''}</div></li>`).join('')}</ul>`:'';
+ const form=ended?'<div class="msg info" style="margin:8px 0 0"><i class="ph ph-info"></i><div>รายการนี้เสร็จสิ้นแล้ว ไม่สามารถแนบไฟล์เพิ่มได้</div></div>':`<form class="af" novalidate>
+  <div class="af-r"><div><label>ประเภทไฟล์</label><select name="kind"><option value="book2">ไฟล์เล่ม 2 (ฉบับสมบูรณ์ / เอกสารประกอบ)</option><option value="revision" ${g.fix?'selected':''}>ฉบับแก้ไขตามข้อเสนอแนะกรรมการ${g.fix?' (ครั้งที่ '+Math.max(1,fx)+')':''}</option></select></div>
+  <div><label>หมายเหตุถึงเจ้าหน้าที่ <span class="meta">(ไม่บังคับ)</span></label><input name="note" maxlength="200" autocomplete="off" placeholder="เช่น แก้ไขบทที่ 2 ตามข้อเสนอแนะข้อ 1-3"></div></div>
+  <div><label>ไฟล์</label><div class="af-file"></div></div>
+  <div><label>หรือใส่ลิงก์ไฟล์ <span class="meta">(ไม่บังคับ — ใช้เมื่อไฟล์ใหญ่เกิน 8 MB)</span></label><input name="link" type="url" inputmode="url" autocomplete="off" placeholder="https://"></div>
+  <div class="am" aria-live="polite"></div><div class="row" style="align-items:center"><button class="btn sm"><i class="ph-bold ph-upload-simple"></i> แนบไฟล์</button><span class="meta">ไม่ทำให้สถานะเปลี่ยน — เจ้าหน้าที่จะเห็นและนำไปดำเนินการต่อ</span></div></form>`;
+ return `<details class="card tone-sky attd" data-att="${esc(it.id)}" ${openIt?'open':''}><summary><span class="ico"><i class="ph-duotone ph-paperclip"></i></span>แนบไฟล์เล่ม 2 เพิ่มเติม${L.length?` <span class="dbadge ok" style="font-size:12px">แนบแล้ว ${L.length}</span>`:''}<i class="ph-bold ph-caret-down cv"></i></summary>
+ <div class="att-b"><p class="meta" style="margin:0 0 4px">ส่งไฟล์เล่ม 2 ล่วงหน้า หรือส่งฉบับแก้ไขตามข้อเสนอแนะของกรรมการ เพื่อเป็นข้อมูลให้กลุ่มงานทรัพยากรบุคคล (รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB)</p>${list}${form}</div></details>`}
+function bindAtt(){$$('[data-att]').forEach(card=>{const id=card.dataset.att,f=$('form.af',card);if(!f)return;
+ const fm=mkFile($('.af-file',f),{exts:['pdf','doc','docx','zip'],max:8,hint:'รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB'});AFM[id]=fm;
+ f.onsubmit=async e=>{e.preventDefault();const b=$('button',f),m=$('.am',f);msg(m,'');const p={kind:f.kind.value,note:f.note.value.trim(),link:f.link.value.trim()};
+  if(!fm.get()&&!p.link)return msg(m,'กรุณาเลือกไฟล์ หรือใส่ลิงก์อย่างใดอย่างหนึ่ง');
+  if(p.link&&!/^https?:\/\//i.test(p.link))return msg(m,'ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://');
+  busy(b,1,'กำลังส่งไฟล์...');try{p.file=await fm.pack()}catch(er){busy(b,0);return msg(m,er.message)}
+  const d=await api('attAdd',[LASTCID,id,p],{timeout:120000,write:true});busy(b,0);if(!d.ok)return msg(m,d.message);
+  const it=LASTDATA.items.find(x=>x.id===id);if(it)it.att=d.att;const keep=card.open;card.outerHTML=attCard(it);bindAtt();const nc=$(`[data-att="${CSS.escape(id)}"]`);if(nc)nc.open=true;toast('แนบไฟล์เรียบร้อย เจ้าหน้าที่จะเห็นไฟล์ของท่านในระบบ')}})}
 $('#d-del').onclick=()=>confirmBox({title:'ลบรายการ '+EDIT.id+'?',text:'รายการและประวัติสถานะจะถูกลบถาวร ย้อนกลับไม่ได้',ok:'ลบรายการ',danger:true,icon:'ph-trash'},async()=>{const d=await api('adminDelete',[TOKEN,EDIT.id],{write:true});if(!d.ok)throw new Error(d.message)}).then(ok=>{if(ok){$('#dlg').close();toast('ลบรายการแล้ว');loadList()}});
 /* ---- แจ้งเตือน LINE รายรายการ (กดส่ง/ข้อความสำเร็จรูป/พิมพ์เอง + แนบไฟล์ + ประวัติ) ---- */
 const TPL=[
@@ -1047,15 +1323,15 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['track','lookup','submit','adminList','adminSave','adminDelete','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineLinkReq','lineLinkCheck','lineAdd','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','histGet','adminDelete','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineLinkReq','lineLinkCheck','lineAdd','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
 const bkkS=ms=>new Date(ms+7*36e5).toISOString().slice(0,19).replace('T',' ');
 DEMO.seed=function(){
  const now=Date.now(),D=864e5,T=(CFG.tracks||[]).map(x=>x.t),tr=i=>T[i]||'';
- const flat=CFG.stages.filter(s=>!s.fix).slice().sort((a,b)=>a.ord-b.ord);
- const DUR={b1_submit:.4,b1_check:1.5,b1_fix:3,b1_pass:.6,b1_dir:.8,b1_pho:3.5,b1_pho_dir:2,b1_gov:14,b1_signed:70,b2_submit:.5,b2_check:6,b2_pass:1,b2_dir:1,b2_pho:30,b2_read:60,b2_fix:12,b2_readpass:2,b2_pho_dir:5,b2_gov:15,b2_signed:2,b2_order:3};
+ const flat=CFG.stages.filter(s=>!s.fix&&!s.rep).slice().sort((a,b)=>a.ord-b.ord);
+ const DUR={b1_submit:.4,b1_check:1.5,b1_fix:3,b1_pass:.6,b1_dir:.8,b1_pho:3.5,b1_pho_dir:2,b1_gov:14,b1_signed:70,b2_submit:.5,b2_check:6,b2_pass:1,b2_dir:1,b2_pho:30,b2_read:60,b2_fix:12,b2_readpass:2,b2_pho_dir:5,b2_gov:15,b2_signed:2,b2_resub:10,b1_dir_ok:.5,b1_pho_ok:1,b2_dir_ok:1,b2_pho_ok:2};
  const P=[
   ['3999900000','1','นางสาว','สมหญิง','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_check',1.2,{lk:1}],
   ['3999900000','2','นาย','วิชัย','เภสัชกรปฏิบัติการ','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค',2,'b1_fix',6,{lk:1,note:'กรุณาแก้ไขแบบประเมินบุคคลหน้า 3 และแนบสำเนาวุฒิการศึกษา',q:[['applicant','แก้ไขเสร็จแล้วต้องส่งกลับที่ไหนครับ']]}],
@@ -1069,14 +1345,18 @@ DEMO.seed=function(){
   ['3999900001','0','นาย','อนุชา','นักรังสีการแพทย์ปฏิบัติการ','กลุ่มงานรังสีวิทยา',2,'b2_pho',104,{}],
   ['3999900001','1','นางสาว','มณีรัตน์','พยาบาลวิชาชีพชำนาญการ','กลุ่มงานการพยาบาล',3,'b2_fix',21,{lk:1,note:'คณะกรรมการให้ปรับปรุงบทที่ 3 และเพิ่มการวิเคราะห์ผลลัพธ์'}],
   ['3999900001','2','นาย','สมบัติ','เจ้าพนักงานการเงินและบัญชีชำนาญงาน','กลุ่มงานบริหารทั่วไป',1,'b2_gov',12,{}],
-  ['3999900001','3','นาง','ศิริพร','นักโภชนาการปฏิบัติการ','กลุ่มงานโภชนศาสตร์',2,'b2_order',2,{lk:1}],
+  ['3999900001','3','นาง','ศิริพร','นักโภชนาการปฏิบัติการ','กลุ่มงานโภชนศาสตร์',2,'b2_signed',2,{lk:1}],
   ['3999900001','4','นาย','จันทร์ดี','เจ้าพนักงานสาธารณสุขปฏิบัติงาน','กลุ่มงานเวชปฏิบัติครอบครัวและชุมชน',0,'promoted',3,{lk:1}],
-  ['3999900001','5','นางสาว','ปัญญา','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_pass',1.5,{fixAt:'b1_check',fixKey:'b1_fix'}]];
- const subs=[],his=[],qa=[],lnl=[],lnu=[];
+  ['3999900001','5','นางสาว','ปัญญา','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_pass',1.5,{fixAt:'b1_check',fixKey:'b1_fix'}],
+  ['3999900002','0','นาย','ธีรพงษ์','นักวิชาการสาธารณสุขปฏิบัติการ','กลุ่มงานเวชปฏิบัติครอบครัวและชุมชน',2,'b1_dir_ok',.6,{lk:1}],
+  ['3999900002','1','นางสาว','อรอุมา','พยาบาลวิชาชีพชำนาญการ','กลุ่มงานการพยาบาล',3,'b2_fix',8,{lk:1,rounds:3,att:1,note:'ปรับตัวชี้วัดผลลัพธ์ตามข้อเสนอแนะของกรรมการ (ครั้งที่ 3)'}],
+  ['3999900002','2','นาย','สุเทพ','เภสัชกรชำนาญการ','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค',3,'b2_resub',6,{rounds:2}]];
+ const subs=[],his=[],qa=[],lnl=[],lnu=[],att=[];
  P.forEach((x,i)=>{const o=x[9],tg=stg(x[7]);
   const c12=(x[0]+x[1]).padEnd(12,'0').slice(0,12),CID=mkCid(c12);
   let path=flat.filter(s=>s.ord<=tg.ord).map(s=>s.k);
-  if(tg.fix)path=flat.filter(s=>s.ord<tg.ord).map(s=>s.k).concat([x[7]]);
+  if(tg.fix||tg.rep)path=flat.filter(s=>s.ord<tg.ord).map(s=>s.k).concat([x[7]]);
+  if(o.rounds){const j=path.indexOf('b2_read'),ins=[];for(let q=1;q<o.rounds;q++)ins.push('b2_fix','b2_resub');if(j>-1)path.splice(j+1,0,...ins)}
   if(o.fixAt){const j=path.indexOf(o.fixAt);if(j>-1)path.splice(j+1,0,o.fixKey,o.fixAt)}
   const n=path.length,t=new Array(n),jit=.85+((i*37)%30)/100;t[n-1]=now-x[8]*D;
   for(let j=n-2;j>=0;j--)t[j]=t[j+1]-(DUR[path[j]]||1)*D*jit;
@@ -1086,10 +1366,12 @@ DEMO.seed=function(){
   const st0=bkkS(now-(365*(3+i%9))*D).slice(0,10),mm=Math.floor((now-(now-(365*(3+i%9))*D))/D/30.4);
   subs.push({id,ts:bkkS(t[0]),prefix:x[2],first:x[3],last,cid:CID,position:x[4],group:x[5],posNo:'ตัวอย่าง-'+(100+i),start:st0,tenure:Math.floor(mm/12)+' ปี '+(mm%12)+' เดือน',edu:'ปริญญาตรี',title:'',link:'https://example.com/demo.pdf',phone:'0812345'+('000'+(100+i)).slice(-3),email:'',status:x[7],note:o.note&&(tg.fix||!tg.end)?o.note:'',upd:bkkS(t[n-1]),track:tr(x[6])});
   if(o.lk){lnu.push({cid:CID,uid:'U'+('0'.repeat(31)+(i+1)).slice(-32),name:x[3]+' (LINE)',at:bkkS(t[0]+36e5),via:'code',active:true});lnl.push({t:bkkS(t[n-1]+6e4),id,cid:CID,type:'auto',by:DM_HR,m:'สถานะเปลี่ยนเป็น '+stg(x[7]).t,fn:'',fu:'',res:'sent',d:''})}
-  (o.q||[]).forEach(m=>qa.push({id,t:bkkS(now-3*36e5),from:m[0],by:who,m:m[1]}))});
+  (o.q||[]).forEach(m=>qa.push({id,t:bkkS(now-3*36e5),from:m[0],by:who,m:m[1]}));
+  if(o.att)att.push({id,t:bkkS(now-2*D),kind:'revision',round:String(o.rounds||1),name:'เล่ม2_ฉบับแก้ไขครั้งที่'+(o.rounds||1)+'.pdf',url:'#',by:who,note:'แก้ไขตามข้อเสนอแนะแล้ว',read:'N'})});
  const log=[[bkkS(now-36e5),'login','admin','success',''],[bkkS(now-30*6e4),'admin_save','admin','success','โหมดจำลอง'],[bkkS(now-10*6e4),'track','','success','1 รายการ']];
- return {subs,his,qa,lnl,lnu,log,seq:P.length}};
-DEMO.load=function(){if(this.db)return this.db;try{this.db=JSON.parse(sessionStorage.getItem(this.key)||'null')}catch(e){}if(!this.db||!this.db.subs)this.db=this.seed();return this.db};
+ const faq=[['เริ่มต้นใช้งาน','(ตัวอย่าง) ติดตามสถานะผลงาน อวช. ได้อย่างไร','กรอกเลขบัตรประชาชน 13 หลักที่แท็บ "ติดตามสถานะ"',1],['ระยะเวลา','(ตัวอย่าง) ต้องยื่นเล่ม 2 ภายในกี่วัน','ภายใน 180 วัน นับจากผู้ว่าราชการจังหวัดลงนามอนุมัติเล่ม 1',0],['การแก้ไขผลงาน','(ตัวอย่าง) กรรมการให้แก้ไขหลายครั้งต้องทำอย่างไร','ระบบนับ "ครั้งที่ N" ให้อัตโนมัติ แนบไฟล์ฉบับแก้ไขได้ทุกครั้ง',0]].map((f,i)=>({id:'FAQ-'+('00'+(i+1)).slice(-3),cat:f[0],q:f[1],a:f[2],pub:true,pin:!!f[3],ord:(i+1)*10,up:i,down:0,upd:bkkS(now),by:'โหมดจำลอง'}));
+ return {subs,his,qa,lnl,lnu,att,faq,log,seq:P.length}};
+DEMO.load=function(){if(this.db)return this.db;try{this.db=JSON.parse(sessionStorage.getItem(this.key)||'null')}catch(e){}if(!this.db||!this.db.subs||!this.db.att||!this.db.faq)this.db=this.seed();return this.db};
 DEMO.save=function(){try{sessionStorage.setItem(this.key,JSON.stringify(this.db))}catch(e){}};
 DEMO.reset=function(){this.db=this.seed();this.save();this.lk=null};
 DEMO.cids=function(){return this.load().subs.map(r=>({cid:r.cid,name:r.prefix+r.first+' '+r.last,st:r.status,id:r.id}))};
@@ -1101,18 +1383,18 @@ DEMO.log=function(a,r,d){this.db.log.push([bkkS(Date.now()),a,'admin',r||'succes
 DEMO.rows=function(){const db=this.db;return db.subs.slice().reverse().map(r=>{const o=Object.assign({},r),hs=db.his.filter(h=>h.id===r.id),first=k=>{const x=hs.find(h=>h.s===k);return x?x.t:''};
  let since=r.ts,prev='';hs.forEach(h=>{if(h.s!==prev){since=h.t;prev=h.s}});const g=stg(r.status);
  o.since=since;o.ck=g.clk?first(g.clk):'';o.b1s=first('b1_signed');o.lk=this.linked(r.cid);
- let c=0;db.qa.filter(m=>m.id===r.id).forEach(m=>{c=m.from==='applicant'?c+1:0});o.qa=c;return o})};
+ let c=0;db.qa.filter(m=>m.id===r.id).forEach(m=>{c=m.from==='applicant'?c+1:0});o.qa=c;let fx=0,pv='';hs.forEach(h=>{if(stg(h.s).fix&&h.s!==pv)fx++;pv=h.s});o.fx=fx;const at=(db.att||[]).filter(a=>a.id===r.id),rv=at.filter(a=>a.kind==='revision');o.attN=at.length;o.attNew=at.filter(a=>a.read!=='Y').length;o.attT=at.length?at[at.length-1].t:'';o.attRev=rv.length?rv[rv.length-1].t:'';return o})};
 DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Object.assign({ok:true},o||{});
  const cidOf=v=>String(v||'').replace(/\D/g,'');
  switch(fn){
  case 'track':{const cid=cidOf(a[0]);if(cid.length!==13)this.err('กรุณากรอกเลขบัตรประชาชน 13 หลัก');
   const mine=db.subs.filter(r=>r.cid===cid);if(!mine.length)this.err('ไม่พบเลขบัตรประชาชนนี้ในระบบ (โหมดจำลอง: ใช้เลขตัวอย่างจากแถบสีม่วงด้านบน)');
-  const items=mine.slice().reverse().map(r=>({id:r.id,ts:r.ts,position:r.position,group:r.group,posNo:r.posNo,tenure:r.tenure,edu:r.edu,hasFile:true,track:r.track,qa:self.thread(r.id),status:r.status,note:r.note,upd:r.upd,history:db.his.filter(h=>h.id===r.id).map(h=>({t:h.t,s:h.s,n:h.n,by:h.by}))}));
+  const items=mine.slice().reverse().map(r=>({id:r.id,ts:r.ts,position:r.position,group:r.group,posNo:r.posNo,tenure:r.tenure,edu:r.edu,hasFile:true,track:r.track,qa:self.thread(r.id),att:(db.att||[]).filter(a=>a.id===r.id).map(a=>({t:a.t,kind:a.kind,round:a.round,name:a.name,note:a.note})),fx:(()=>{let n=0,pv='';db.his.filter(h=>h.id===r.id).forEach(h=>{if(stg(h.s).fix&&h.s!==pv)n++;pv=h.s});return n})(),status:r.status,note:r.note,upd:r.upd,history:db.his.filter(h=>h.id===r.id).map(h=>({t:h.t,s:h.s,n:h.n,by:h.by}))}));
   const notes=db.lnl.filter(n=>n.cid===cid&&['auto','manual','typed'].includes(n.type)&&n.res==='sent').map(n=>({t:n.t,id:n.id,type:n.type,m:n.m,fn:n.fn,fu:n.fu,ok:true})).reverse().slice(0,40),p=mine[mine.length-1];
   return ok({name:p.prefix+p.first+' '+p.last,position:p.position,group:p.group,items,notes,nowMs:now,line:{enabled:true,linked:self.linked(cid),oaLink:''}})}
  case 'lookup':{const cid=cidOf(a[0]);if(!validCid(cid))this.err('เลขบัตรประชาชนไม่ถูกต้อง');const mine=db.subs.filter(r=>r.cid===cid),l=mine[mine.length-1];
   return ok({found:!!l,staff:l?{prefix:l.prefix,first:l.first,last:l.last,position:l.position,posNo:l.posNo,group:l.group,phone:l.phone}:null,prev:mine.length,latest:l?{id:l.id,status:l.status}:null,lineEnabled:true,lineLinked:self.linked(cid)})}
- case 'submit':{const p=a[0]||{},cid=cidOf(p.cid);if(!validCid(cid))this.err('เลขบัตรประชาชนไม่ถูกต้อง');if(!p.track)this.err('กรุณาเลือกระดับตำแหน่งที่ขอเลื่อน (ตามหลักเกณฑ์ ก.พ.)');
+ case 'submit':{const p=a[0]||{},cid=cidOf(p.cid);if(!validCid(cid))this.err('เลขบัตรประชาชนไม่ถูกต้อง');if(!p.track)this.err('กรุณาเลือกระดับตำแหน่งที่ขอเลื่อน');
   const t=bkkS(now),id='AWC-'+t.slice(0,10).replace(/-/g,'')+'-'+('000'+(++db.seq+0)).slice(-4);
   db.subs.push({id,ts:t,prefix:p.prefix||'',first:p.first||'',last:p.last||'',cid,position:p.position||'',group:p.group||'',posNo:p.posNo||'',start:p.start||'',tenure:'',edu:p.edu||'',title:'',link:p.link||'https://example.com/demo.pdf',phone:p.phone||'',email:p.email||'',status:'b1_submit',note:'',upd:t,track:p.track});
   db.his.push({id,t,s:'b1_submit',n:'ยื่นเอกสาร',by:(p.first||'')+' '+(p.last||'')});
@@ -1121,13 +1403,38 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
  case 'adminList':{const rows=this.rows(),counts={};rows.forEach(r=>{counts[r.status]=(counts[r.status]||0)+1});return ok({rows,counts,total:rows.length,lineEnabled:true,nowMs:now})}
  case 'adminSave':{const id=a[1],f=a[2]||{},r=this.find(id);if(f.status!==undefined&&!stageOk(f.status))this.err('สถานะไม่ถูกต้อง');
   if(f.cid!==undefined){f.cid=cidOf(f.cid);if(!validCid(f.cid))this.err('เลขบัตรประชาชนไม่ถูกต้อง')}
-  if(f.track&&!T_OK(f.track))this.err('ระดับตำแหน่งที่ขอเลื่อนไม่ถูกต้อง');
+  if(f.track&&!T_OK(f.track))this.err('ระดับตำแหน่งไม่ถูกต้อง');
   const ch=[];['prefix','first','last','cid','position','group','posNo','start','edu','link','phone','email','status','note','track'].forEach(k=>{if(f[k]===undefined)return;const v=String(f[k]==null?'':f[k]).trim();if(v===r[k])return;r[k]=v;ch.push(k)});
   const hasFile=!!(f.attach&&f.attach.data);let line=null;
-  if(ch.length){r.upd=bkkS(now);if(ch.includes('status')||ch.includes('note')){db.his.push({id,t:bkkS(now),s:r.status,n:r.note,by:DM_BY})}this.log('admin_save','success',id+': '+ch.join(','))}
+  if(ch.length){if(ch.includes('status')||ch.includes('note')){r.upd=bkkS(now);db.his.push({id,t:bkkS(now),s:r.status,n:r.note,by:DM_BY})}this.log('admin_save','success',id+': '+ch.join(','))}
   if((ch.includes('status')||ch.includes('note')||hasFile)&&f.sendLine!==false){if(this.linked(r.cid)){db.lnl.push({t:bkkS(now),id,cid:r.cid,type:'auto',by:DM_BY,m:'สถานะเปลี่ยนเป็น '+stg(r.status).t+(r.note?' — '+r.note:''),fn:hasFile?f.attach.name:'',fu:'',res:'sent',d:''});line={sent:1,failed:0}}else line={sent:0,failed:0,skipped:'none'}}
   this.save();return ok({changed:ch,line,file:hasFile?{name:f.attach.name,url:'#'}:null})}
- case 'adminDelete':{const id=a[1];this.find(id);db.subs=db.subs.filter(r=>r.id!==id);db.his=db.his.filter(h=>h.id!==id);this.save();return ok()}
+ case 'faqList':return ok({rows:db.faq.filter(f=>f.pub).slice().sort((a,b)=>(b.pin-a.pin)||a.ord-b.ord).map(f=>({id:f.id,cat:f.cat,q:f.q,a:f.a,pin:f.pin,upd:f.upd})),upd:''});
+ case 'faqVote':return ok();
+ case 'faqAdminList':{const rows=db.faq.slice().sort((a,b)=>(b.pin-a.pin)||a.ord-b.ord);return ok({rows,cats:[...new Set(rows.map(r=>r.cat))]})}
+ case 'faqSave':{const p=a[1]||{},q=String(p.q||'').trim(),an=String(p.a||'').trim();if(q.length<5||q.length>200)this.err('คำถามต้องยาว 5-200 ตัวอักษร');if(an.length<2||an.length>3000)this.err('คำตอบต้องไม่ว่างและไม่เกิน 3,000 ตัวอักษร');
+  let f=p.id?db.faq.find(x=>x.id===p.id):null;if(p.id&&!f)this.err('ไม่พบรายการ');
+  if(!f){f={id:'FAQ-'+('00'+(db.faq.reduce((m,x)=>Math.max(m,+x.id.replace(/\D/g,'')),0)+1)).slice(-3),up:0,down:0};db.faq.push(f)}
+  Object.assign(f,{cat:String(p.cat||'').trim()||'ทั่วไป',q,a:an,pub:p.pub!==false,pin:!!p.pin,ord:p.ord===''||p.ord==null||isNaN(+p.ord)?(f.ord||db.faq.length*10+10):+p.ord,upd:bkkS(now),by:DM_BY});this.save();return ok({id:f.id})}
+ case 'faqDelete':{db.faq=db.faq.filter(x=>x.id!==a[1]);this.save();return ok()}
+ case 'adminStatus':{const id=a[1],p=a[2]||{},r=this.find(id),st=p.status||'';if(st&&!stageOk(st))this.err('สถานะไม่ถูกต้อง');
+  const note=p.note==null?null:String(p.note).trim();let at=now;
+  if(p.customTime){const m=/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(p.when||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');
+   at=new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00+07:00`).getTime();if(isNaN(at))this.err('วันที่/เวลาไม่ถูกต้อง');if(at>now+3e5)this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
+   const hs=db.his.filter(h=>h.id===id),lt=hs.length?hs[hs.length-1].t:r.ts;if(bkkS(at)<lt)this.err('เวลาที่เลือกต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+lt.slice(0,16)+') — ให้บันทึกขั้นตอนเรียงตามลำดับเวลา')}
+  const ch=[];if(st&&st!==r.status){r.status=st;ch.push('status')}if(note!==null&&note!==r.note){r.note=note;ch.push('note')}
+  const hasFile=!!(p.attach&&p.attach.data);let line=null;
+  if(ch.length){r.upd=bkkS(at);db.his.push({id,t:bkkS(at),s:r.status,n:r.note,by:DM_BY});this.log('admin_status','success',id+': '+ch.join(',')+(p.customTime?' (ลงเวลาเอง)':''))}
+  if((ch.length||hasFile)&&p.sendLine!==false){if(this.linked(r.cid)){db.lnl.push({t:bkkS(now),id,cid:r.cid,type:'auto',by:DM_BY,m:'สถานะเปลี่ยนเป็น '+stg(r.status).t+(r.note?' — '+r.note:''),fn:hasFile?p.attach.name:'',fu:'',res:'sent',d:''});line={sent:1,failed:0}}else line={sent:0,failed:0,skipped:'none'}}
+  this.save();return ok({changed:ch,line,file:hasFile?{name:p.attach.name,url:'#'}:null,at:bkkS(at),status:r.status})}
+ case 'attAdd':{const cid=cidOf(a[0]),r=this.find(a[1]),p=a[2]||{};if(r.cid!==cid)this.err('ไม่พบรายการของท่าน');if(stg(r.status).end)this.err('รายการนี้เสร็จสิ้นแล้ว ไม่สามารถแนบไฟล์เพิ่มได้');
+  if(!(p.file&&p.file.name)&&!p.link)this.err('กรุณาแนบไฟล์หรือใส่ลิงก์');if(p.link&&!/^https?:\/\//i.test(p.link))this.err('ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://');
+  const kind=p.kind==='revision'?'revision':'book2';let rd=0;if(kind==='revision'){let pv='';db.his.filter(h=>h.id===r.id).forEach(h=>{if(stg(h.s).fix&&h.s!==pv)rd++;pv=h.s})}
+  db.att.push({id:r.id,t:bkkS(now),kind,round:rd?String(rd):'',name:(p.file&&p.file.name)||'ลิงก์ภายนอก',url:p.link||'#',by:r.first+' '+r.last,note:String(p.note||'').slice(0,200),read:'N'});this.log('att_add','success',r.id);this.save();
+  return ok({att:db.att.filter(x=>x.id===r.id).map(x=>({t:x.t,kind:x.kind,round:x.round,name:x.name,note:x.note}))})}
+ case 'attList':{const r=this.find(a[1]);const rows=db.att.filter(x=>x.id===r.id).map(x=>({t:x.t,kind:x.kind,round:x.round,name:x.name,url:x.url,by:x.by,note:x.note,isNew:x.read!=='Y'})).reverse();db.att.forEach(x=>{if(x.id===r.id)x.read='Y'});this.save();return ok({rows})}
+ case 'histGet':{const r=this.find(a[1]);return ok({history:db.his.filter(h=>h.id===r.id).map(h=>({t:h.t,s:h.s,n:h.n,by:h.by})),att:db.att.filter(x=>x.id===r.id).map(x=>({t:x.t,kind:x.kind,round:x.round,name:x.name,note:x.note}))})}
+ case 'adminDelete':{const id=a[1];this.find(id);db.subs=db.subs.filter(r=>r.id!==id);db.his=db.his.filter(h=>h.id!==id);db.att=(db.att||[]).filter(x=>x.id!==id);this.save();return ok()}
  case 'qaAsk':{const cid=cidOf(a[0]),r=this.find(a[1]);if(r.cid!==cid)this.err('ไม่พบรายการของท่าน');const t=String(a[2]||'').trim();if(t.length<2)this.err('กรุณาพิมพ์ข้อความ');
   db.qa.push({id:r.id,t:bkkS(now),from:'applicant',by:r.first+' '+r.last,m:t});this.save();return ok({thread:this.thread(r.id)})}
  case 'qaThread':{this.find(a[1]);return ok({thread:this.thread(a[1])})}
@@ -1154,7 +1461,7 @@ const stageOk=k=>CFG.stages.some(s=>s.k===k),T_OK=t=>(CFG.tracks||[]).some(x=>x.
 /* แถบแจ้งโหมดจำลอง + ทางลัดเลขบัตรตัวอย่าง */
 function demoBar(){const el=$('#demo-bar'),pill=$('#demo-pill');
  if(!DEMO.on){el.classList.add('hide');pill.classList.add('hide');el.innerHTML='';return}
- const L=DEMO.load().subs,pick=[0,1,6,10,13].map(i=>L[i]).filter(Boolean);
+ const L=DEMO.load().subs,pick=[0,2,6,10,16].map(i=>L[i]).filter(Boolean);
  el.innerHTML=`<div class="in"><b><i class="ph-fill ph-flask"></i> โหมดจำลองข้อมูล</b><span>ข้อมูลทั้งหมดเป็นตัวอย่าง — ไม่กระทบข้อมูลจริง ไม่ส่ง LINE/อีเมลจริง</span><span class="sp"></span>
   <span class="dm-chips">ลองติดตามสถานะ: ${pick.map(r=>`<button type="button" data-dc="${esc(r.cid)}" title="${esc(stg(r.status).t)}">${esc(r.first)} · ${esc(stg(r.status).t.replace(/\s*\(.*$/,'').slice(0,18))}</button>`).join('')}</span>
   <button type="button" id="dm-adm">แดชบอร์ด</button><button type="button" id="dm-rs">รีเซ็ตข้อมูล</button><button type="button" class="dm-x" id="dm-off">ออกจากโหมดจำลอง</button></div>`;
@@ -1169,7 +1476,7 @@ function setDemo(on,silent){DEMO.on=!!on;try{on?sessionStorage.setItem(DEMO.flag
  if(on)DEMO.load();else DEMO.db=null;ROWS=[];FILTER='';TRK='';LASTDATA=null;const o=$('#t-out');if(o)o.innerHTML='';demoBar();syncDemoBtn();
  if(!silent){toast(on?'เปิดโหมดจำลองข้อมูลแล้ว — ทุกปุ่มในระบบทดลองกดได้ ข้อมูลเป็นตัวอย่างและไม่กระทบข้อมูลจริง':'ออกจากโหมดจำลองแล้ว — กลับไปใช้ข้อมูลจริง','info',7000);if(USER)loadList()}}
 $('#a-demo').onclick=()=>{if(DEMO.on)return setDemo(false);
- confirmBox({title:'เปิดโหมดจำลองข้อมูล?',text:'ระบบจะแสดงข้อมูลตัวอย่าง 15 รายการ และให้ทดลองกดทุกฟังก์ชันได้จริง (เปลี่ยนสถานะ แจ้ง LINE ถาม-ตอบ ยื่นเอกสาร ติดตามสถานะ) โดยไม่แก้ข้อมูลจริงในชีทและไม่ส่งข้อความจริงถึงใคร ปิดโหมดเมื่อใดก็ได้',ok:'เปิดโหมดจำลอง',icon:'ph-flask'},async()=>{}).then(ok=>{if(ok)setDemo(true)})};
+ confirmBox({title:'เปิดโหมดจำลองข้อมูล?',text:'ระบบจะแสดงข้อมูลตัวอย่าง 18 รายการ และให้ทดลองกดทุกฟังก์ชันได้จริง (เปลี่ยนสถานะ แจ้ง LINE ถาม-ตอบ ยื่นเอกสาร ติดตามสถานะ) โดยไม่แก้ข้อมูลจริงในชีทและไม่ส่งข้อความจริงถึงใคร ปิดโหมดเมื่อใดก็ได้',ok:'เปิดโหมดจำลอง',icon:'ph-flask'},async()=>{}).then(ok=>{if(ok)setDemo(true)})};
 
 /* Boot */
 function offBoot(){const b=$('#boot');if(!b)return;b.classList.add('off');setTimeout(()=>b.remove(),450)}
