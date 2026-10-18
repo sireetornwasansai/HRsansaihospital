@@ -1395,7 +1395,7 @@ $('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r
  $('#ds').close();FLASH=r.id;
  if(!d.changed.length&&!d.file){toast('ไม่มีการเปลี่ยนแปลง','info')}
  else{const L=d.line;let t='อัพเดทสถานะแล้ว',k='ok';if(ct)t+=' (ลงเวลา '+thDT(d.at)+')';
-  if(L){if(L.sent>0)t+=' และส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':'');else if(L.skipped==='none'){t+=' แต่ผู้ยื่นยังไม่ได้เชื่อมต่อ LINE';k='warn'}else if(L.skipped==='disabled'){t+=' แต่ยังไม่ได้ตั้งค่า LINE';k='warn'}else{t+=' แต่ส่ง LINE ไม่สำเร็จ: '+((L.errors&&L.errors[0])||'ไม่ทราบสาเหตุ');k='err'}}
+  if(L){if(L.sent>0){t+=' และส่งแจ้งเตือน LINE แล้ว'+(d.file&&d.file.shared!==false?' (พร้อมไฟล์แนบ)':'');if(d.file&&d.file.shared===false){t+=' — แต่ไฟล์แนบไม่ได้ส่งไปกับ LINE เพราะ Google Drive ไม่อนุญาตแชร์ลิงก์ (ติดต่อผู้ดูแลระบบ)';k='warn'}}else if(L.skipped==='none'){t+=' แต่ผู้ยื่นยังไม่ได้เชื่อมต่อ LINE';k='warn'}else if(L.skipped==='disabled'){t+=' แต่ยังไม่ได้ตั้งค่า LINE';k='warn'}else{t+=' แต่ส่ง LINE ไม่สำเร็จ: '+((L.errors&&L.errors[0])||'ไม่ทราบสาเหตุ');k='err'}}
   toast(t,k,7000)}
  loadList()};
 /* ---- ไฟล์แนบจากผู้ยื่น (เจ้าหน้าที่ดู) ---- */
@@ -1457,7 +1457,7 @@ $('#n-send').onclick=async()=>{const b=$('#n-send'),m=$('#n-msg');msg(m,'');cons
  busy(b,1,FNT.get()?'กำลังอัปโหลดและส่ง...':'กำลังส่ง...');const p={mode:NMODE==='status'?'status':'text',kind:NMODE==='tpl'?'manual':'typed',text};
  try{const a=await FNT.pack();if(a)p.file=a}catch(er){busy(b,0);return msg(m,er.message)}
  const d=await api('lineSend',[TOKEN,NID,p],{timeout:120000,write:true});busy(b,0);
- if(d.ok){toast('ส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':''));$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear()}else msg(m,d.message);
+ if(d.ok){if(d.file&&d.file.shared===false)toast('ส่งข้อความ LINE แล้ว แต่ไฟล์แนบไม่ได้ส่ง เพราะ Google Drive ไม่อนุญาตแชร์ลิงก์ (ติดต่อผู้ดูแลระบบ)','warn',8000);else toast('ส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':''));$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear()}else msg(m,d.message);
  await refreshNotify()};
 /* ---- ถาม-ตอบ (เจ้าหน้าที่) ---- */
 let QID=null;
