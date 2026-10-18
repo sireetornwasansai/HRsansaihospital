@@ -531,6 +531,66 @@ body.wide .wrap{max-width:1320px}
 @keyframes stampIn{from{transform:rotate(-8deg) scale(1.8);opacity:0}}
 @media(prefers-reduced-motion:reduce){.nd.s-current .dflow-node,.nd.s-current .dflow-node::before,.nd.s-current .dflow-node::after,.nd.s-current .dflow-node i,.nd.s-current .dflow-info::before,.bk-stamp{animation:none!important}}
 .ds-lock{font-size:13px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:6px 10px;margin-top:8px}
+
+/* ===== v5: จัดรูปแบบป้ายผู้ลงนาม + ปรับ UI ===== */
+.thw{display:inline}
+.who{display:block;font-weight:800;color:inherit;line-height:1.35}.who.in{display:inline;font-weight:800}
+.dflow-label .who{font-size:14.5px;margin-bottom:1px}
+.dflow-label .lbl-sub{display:block;margin-top:2px}
+.dstage .who{display:block}.dstage .who.in{display:inline}
+.rt th{white-space:nowrap}.rt td{padding-right:12px}
+.rt td:first-child,.rt th:first-child{min-width:150px}
+.pr-why{font-size:12.5px;line-height:1.45;padding-left:16px;margin:6px 0 0}.pr-why li{margin-bottom:3px}
+.dash{align-items:start}
+.dflow-kpis{flex-wrap:wrap}.dflow-kpis>.meta{flex-basis:100%;margin-top:2px}
+.lv-ol{align-items:flex-start}
+.nd .dflow-info{display:flex;flex-direction:column;align-items:center;gap:3px}
+.nd .dflow-label{max-width:190px}
+.dflow-actor,.dflow-dwell{max-width:100%}
+.bk{margin-bottom:16px}
+.bk-h{align-items:center}
+@media(max-width:720px){
+ .nd .dflow-info{align-items:flex-start}.nd .dflow-label{max-width:none}
+ .bk-stamp{padding:10px 16px}.bk-stamp i{font-size:30px}
+ .rt td:first-child,.rt th:first-child{min-width:0}
+}
+.dstage{max-width:100%}.dstage>span,.dstage .thw{min-width:0}
+button .thw,.btn .thw{white-space:normal}
+
+@media(min-width:721px){.lv-many{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));row-gap:6px}.lv-many .nd{max-width:none;min-width:0}.lv-many .nd:nth-child(4n+1)::before{display:none}}
+.psum-l li{grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) minmax(150px,auto)}.psum-l .pd{white-space:normal}
+
+/* ===== v6: ช่องวันที่/เวลา 24 ชม., คำพูดลัด, แก้ไขวันที่ย้อนหลัง ===== */
+.dt{display:block}.dt-r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dt-f{display:inline-flex;align-items:center;position:relative;flex:0 1 auto}
+.dt-f input{min-height:46px;font-variant-numeric:tabular-nums;letter-spacing:.3px;margin:0}
+.dt-d{width:178px;padding-right:46px}.dt-t{width:104px;text-align:center}
+.dt-u{margin-left:8px;color:var(--mut);font-size:14px}
+.dt-p{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:transparent;border-radius:8px;cursor:pointer;color:var(--pri);font-size:20px;display:grid;place-items:center}
+.dt-p:hover{background:#e6f4f2}
+.dt-n{position:absolute;right:0;bottom:0;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+.dt-h{margin-top:4px;min-height:20px}.dt-h.bad{color:#b91c1c;font-weight:600}.dt-h.ok{color:#065f46}
+.dt-now{white-space:nowrap}
+.qn{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.qn .qn-l{font-size:13px;color:var(--mut);margin-right:2px}
+.qn button{display:inline-flex;gap:5px;align-items:center;min-height:34px;padding:2px 12px;border:1.5px solid var(--line);background:#fff;color:var(--ink,#1f2d33);border-radius:999px;font-size:13.5px;cursor:pointer;line-height:1.3;text-align:left}
+.qn button:hover{border-color:var(--pri);background:#f0fdfa}.qn button.on{border-color:var(--pri);background:#ccfbf1}
+.qn button.dyn{border-style:dashed;border-color:#d97706;background:#fffbeb}.qn button.clr{color:#b91c1c;border-color:#fecaca;background:#fff}
+.qn .qn-c{display:inline-flex;align-items:center}.qn .qn-c button:first-child{border-top-right-radius:0;border-bottom-right-radius:0;border-right:0}
+.qn .qn-c .x{border-top-left-radius:0;border-bottom-left-radius:0;padding:2px 9px;color:#b91c1c}
+.qn .qn-add{border-style:dashed;color:var(--pri-d,#0f766e)}
+.dspv.bad{background:#fef2f2;color:#991b1b}
+.hx{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:#fbfdfd}
+.hx>summary{cursor:pointer;list-style:none;padding:12px 16px;font-weight:700;display:flex;gap:8px;align-items:center;min-height:48px}
+.hx>summary::-webkit-details-marker{display:none}.hx>summary .meta{font-weight:400;margin-left:auto}
+.hx-l{list-style:none;margin:0;padding:0 12px 12px;display:grid;gap:8px}
+.hx-i{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.hx-i .no{width:28px;height:28px;border-radius:50%;background:#e6f4f2;color:#0f766e;display:grid;place-items:center;font-size:13px;font-weight:700}
+.hx-i .tt{font-weight:600;line-height:1.35}.hx-i .tm{font-size:13px;color:var(--mut)}.hx-i .tm b{color:#1f2d33;font-weight:600}
+.hx-i.edited .tm::after{content:" · แก้เวลาแล้ว";color:#b45309}
+.hx-f{grid-column:1/-1;border-top:1px dashed var(--line);margin-top:8px;padding-top:10px;display:grid;gap:8px}
+.hx-f .row{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:560px){.hx-i{grid-template-columns:28px minmax(0,1fr)}.hx-i>.btn{grid-column:1/-1}.dt-d{width:100%;flex:1 1 150px}}
 </style>
 <script defer src="https://sandtools.vercel.app/t.js" data-site="ppcwh43swb"></script>
 </head>
@@ -595,7 +655,7 @@ body.wide .wrap{max-width:1320px}
    <div><label class="req" for="s-position">ตำแหน่ง</label><input id="s-position" required></div>
    <div><label class="req" for="s-group">กลุ่มงาน</label><input id="s-group" required></div>
    <div><label for="s-posNo">ตำแหน่งเลขที่</label><input id="s-posNo"></div>
-   <div><label for="s-start">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><input id="s-start" type="date"><div class="meta" id="s-ten" aria-live="polite"></div></div>
+   <div><label for="s-start-d">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><div id="s-start-box"></div><div class="meta" id="s-ten" aria-live="polite"></div></div>
    <div class="full"><label class="req" for="s-edu">วุฒิการศึกษาสูงสุด</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่ามัธยมศึกษา</option><option>มัธยมศึกษา / ปวช.</option><option>ปวส. / อนุปริญญา</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>วุฒิบัตร / อนุมัติบัตรผู้เชี่ยวชาญเฉพาะทาง</option><option>อื่น ๆ</option></select></div>
   </div></div></div>
   <div class="card fsec"><div class="fsec-h"><span class="fsec-n">3</span><h2>ผลงาน</h2><span class="meta">แนบไฟล์หรือใส่ลิงก์ อย่างใดอย่างหนึ่ง</span></div><div class="fsec-b"><div class="grid">
@@ -639,12 +699,13 @@ body.wide .wrap{max-width:1320px}
  <div class="dsc" id="ds-cur"></div>
  <div class="grid" style="margin-top:14px">
   <div class="full"><label for="ds-status">สถานะใหม่</label><select id="ds-status"></select><div class="qk" id="ds-qk"></div></div>
-  <div class="full"><label for="ds-note">หมายเหตุถึงผู้ยื่น <span class="meta">(แสดงในหน้าติดตามและส่งทาง LINE/อีเมล)</span></label><textarea id="ds-note" rows="2" maxlength="500"></textarea></div>
+  <div class="full"><label for="ds-note">หมายเหตุถึงผู้ยื่น <span class="meta">(แสดงในหน้าติดตามและส่งทาง LINE/อีเมล)</span></label><textarea id="ds-note" rows="2" maxlength="500"></textarea><div class="qn" id="ds-qn" aria-label="คำพูดสำเร็จรูป"></div></div>
  </div>
  <div class="tmb" id="ds-tmb"><label class="chk" style="margin:0"><input type="checkbox" id="ds-ct"><span><b>เลือกลงเวลาเอง</b><span class="meta" style="display:block">ไม่ติ๊ก = ใช้เวลาปัจจุบัน (<span id="ds-now"></span>) · ติ๊กเมื่อต้องการบันทึกย้อนหลังตามวันที่เกิดขึ้นจริง</span></span></label>
-  <div id="ds-tbox" class="tm-in hide"><label for="ds-when">วันที่และเวลาที่เกิดขึ้นจริง</label><input type="datetime-local" id="ds-when"><div class="meta" id="ds-tmin" style="margin-top:4px"></div></div></div>
+  <div id="ds-tbox" class="tm-in hide"><label for="ds-when-d">วันที่และเวลาที่เกิดขึ้นจริง <span class="meta">(วว/ดด/ปปปป พ.ศ. · เวลา 24 ชม.)</span></label><div id="ds-when-box"></div><div class="meta" id="ds-tmin" style="margin-top:4px"></div></div></div>
  <div class="ds-sec"><h3><i class="ph ph-paperclip"></i> แนบรูปหรือไฟล์ส่งไปกับ LINE (ไม่บังคับ)</h3><div id="ds-file"></div>
   <label class="chk" style="margin-top:12px"><input type="checkbox" id="ds-send" checked><span>ส่งแจ้งเตือน LINE ให้เจ้าของผลงานเมื่อบันทึก <span class="meta" id="ds-lnst"></span></span></label></div>
+ <div id="ds-hx"></div>
  <div id="ds-rd"></div>
  <div class="dspv" id="ds-pv" role="status"></div>
  <div id="ds-msg" aria-live="polite"></div>
@@ -738,10 +799,13 @@ function thChunks(src){
  raw.forEach(c=>{const last=out[out.length-1];
   if(c!==' '&&last!==undefined&&last!==' '&&(/^[)\]\.,:;!?%]+$/.test(c)||/^[(\[]+$/.test(last)||/^\u00a0/.test(c)||/\u00a0$/.test(last)))out[out.length-1]=last+c;else out.push(c)});
  return out}
-function thHtml(s){const ch=thChunks(s);let h='';ch.forEach((c,i)=>{if(c===' '){h+=' ';return}const prev=ch[i-1];if(i&&prev!==' ')h+='<wbr>';h+=`<span class="nb">${esc(c)}</span>`});return h}
+function thHtml(s){const ch=thChunks(s);let h='';ch.forEach((c,i)=>{if(c===' '){h+=' ';return}const prev=ch[i-1];if(i&&prev!==' ')h+='<wbr>';h+=`<span class="nb">${esc(c)}</span>`});return `<span class="thw">${h}</span>`}
 /* ป้ายที่ลงท้ายด้วย (วงเล็บ) → วงเล็บทั้งก้อนลงบรรทัดใหม่ (inline=true: ไม่ขึ้นบรรทัดใหม่แต่ไม่ถูกตัดกลาง) */
-function fmtT(s,inline){s=String(s==null?'':s);const m=/^(.*?)\s*(\([^()]*\))\s*$/.exec(s);if(!m||!m[1])return thHtml(s);
- return thHtml(m[1])+(inline?' ':'')+`<span class="lbl-sub${inline?' in':''}">${thHtml(m[2])}</span>`}
+const ACT_RE=/^(รอ\s*)?(ผู้ว่าราชการจังหวัด|ผอ\.โรงพยาบาล|นพ\.สสจ\.|กลุ่มงานทรัพยากรบุคคล สสจ\.เชียงใหม่|สำนักงานศาลากลางจังหวัด|ศาลากลางจังหวัด)\s*(\S.*)$/;
+function fmtT(s,inline){s=String(s==null?'':s);let who='';const a=ACT_RE.exec(s);if(a){who=a[2];s=(a[1]?'รอ':'')+a[3]}
+ const m=/^(.*?)\s*(\([^()]*\))\s*$/.exec(s);let body;
+ if(!m||!m[1])body=thHtml(s);else body=thHtml(m[1])+(inline?' ':'')+`<span class="lbl-sub${inline?' in':''}">${thHtml(m[2])}</span>`;
+ return who?`<span class="who${inline?' in':''}">${thHtml(who)}</span>${inline?' ':''}${body}`:body}
 /* ระยะเวลาแบบละเอียด: 3 วัน 4 ชั่วโมง */
 const spanF=ms=>{const m=Math.max(0,Math.floor(ms/6e4));if(m<1)return 'ไม่ถึง 1 นาที';const d=Math.floor(m/1440),h=Math.floor(m%1440/60),n=m%60;if(d)return d+' วัน'+(h?' '+h+' ชั่วโมง':'');if(h)return h+' ชั่วโมง'+(n?' '+n+' นาที':'');return n+' นาที'};
 const nowMs=()=>Date.now()+SKEW;
@@ -923,7 +987,7 @@ function flowHtml(it){const now=nowMs(),st=it.status,cs=stg(st),h=it.history||[]
  const lastEv=h.length?h[h.length-1]:null,lastT=lastEv?toDate(lastEv.t):null,subT=toDate(it.ts);
  const flat=CFG.stages.filter(s=>!s.fix&&!s.rep),idx=flat.filter(s=>s.ord<cs.ord||s.k===st).length,PS=procStats(it);
  const rows=CFG.books.map(b=>{const started=cs.book>=b.n,bDone=cs.book>b.n||(ended&&cs.book===b.n)||(b.n===1&&!!first.b1_signed);
-  const lvs=b.lv.map(lv=>{const ns=CFG.stages.filter(s=>s.book===b.n&&s.lvl===lv&&(!(s.fix||s.rep)||first[s.k]||s.k===st)).map(s=>{
+  const lvs=b.lv.map(lv=>{const nsA=CFG.stages.filter(s=>s.book===b.n&&s.lvl===lv&&(!(s.fix||s.rep)||first[s.k]||s.k===st)).map(s=>{
     const done=s.ord<cs.ord||(ended&&s.k===st),cur=!done&&s.k===st,warn=cur&&s.fix,ev=(s.fix||s.rep)?last[s.k]:first[s.k];
     const skipped=done&&!first[s.k]&&s.k!=='b1_submit'&&s.k!=='b2_submit';
     const cls=skipped?'s-skipped':done?'s-done':cur?'s-current':'s-pending';
@@ -932,9 +996,9 @@ function flowHtml(it){const now=nowMs(),st=it.status,cs=stg(st),h=it.history||[]
     const time=skipped?'ข้าม':ev?thShort(ev.t):cur?'':started?'รอ':'';
     const who=ev&&!skipped?shortName(ev.by):'';
     const dwell=cur&&lastT?`<div class="dflow-dwell is-live"><i class="ph-bold ph-timer"></i>อยู่ในขั้นนี้ <span data-live="${esc(lastEv.t)}">${span(now-lastT)}</span></div>`:done&&!skipped&&dw[s.k]!=null?`<div class="dflow-dwell"><i class="ph-bold ph-timer"></i>${span(dw[s.k])}</div>`:'';
-    return `<li class="nd ${cls} ${s.sg?'sg-'+s.sg:''} tone-${warn?'amber':tone(s.k)}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${fmtT(lab)}</div><div class="dflow-time">${esc(time)}</div>${sgBadge(s,cur,done,skipped)}${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}).join('');
+    return `<li class="nd ${cls} ${s.sg?'sg-'+s.sg:''} tone-${warn?'amber':tone(s.k)}" ${cur?'aria-current="step"':''}><span class="dflow-node"><i class="${ic}" aria-hidden="true"></i></span><div class="dflow-info"><div class="dflow-label">${fmtT(lab)}</div><div class="dflow-time">${esc(time)}</div>${sgBadge(s,cur,done,skipped)}${who?`<div class="dflow-actor">${avatar(ev.by,'sm')}<span>${esc(who)}</span></div>`:''}${dwell}</div></li>`}),ns=nsA.join('');
    const pr=PS.find(x=>x.b===b.n&&x.l===lv);const pb=!pr||pr.skip?'':pr.end?`<span class="dbadge ok"><i class="ph-fill ph-seal-check"></i>เสร็จสิ้น · ใช้เวลา ${spanF(pr.ms)}</span>`:pr.live?`<span class="dbadge wait"><i class="ph-fill ph-hourglass-medium"></i>กำลังดำเนินการ · ${spanF(now-pr.start)}</span>`:'';
-   return `<div class="lv"><div class="lv-h"><i class="ph-fill ph-buildings"></i>${esc(CFG.lv[lv]||lv)}${pb}</div><ol class="lv-ol">${ns}</ol></div>`}).join('');
+   return `<div class="lv"><div class="lv-h"><i class="ph-fill ph-buildings"></i>${esc(CFG.lv[lv]||lv)}${pb}</div><ol class="lv-ol${nsA.length>5?' lv-many':''}">${ns}</ol></div>`}).join('');
   const wm=!bDone?'':b.n===1?`<div class="bk-wm" aria-hidden="true"><div class="bk-stamp"><i class="ph-fill ph-seal-check"></i><b>เล่ม 1 เสร็จสิ้นขั้นตอนแล้ว</b><span>ผู้ว่าราชการจังหวัดอนุมัติ${first.b1_signed?' · '+esc(thShort(first.b1_signed.t)):''}</span><span>${ended?'ปิดเคสแล้ว':'ขณะนี้อยู่ที่ขั้นตอนเล่ม 2'}</span></div></div>`:`<div class="bk-wm" aria-hidden="true"><div class="bk-stamp"><i class="ph-fill ph-medal"></i><b>ปิดเคสแล้ว</b><span>ได้รับการเลื่อนระดับ${first.promoted?' · '+esc(thShort(first.promoted.t)):''}</span><span>เล่ม 2 เสร็จสิ้นทุกขั้นตอน</span></div></div>`;
   return `<div class="bk ${bDone?'bk-done':started?'bk-on':'bk-off'}${bDone&&b.n===2?' bk-closed':''} tone-${started?tone(st):'slate'}">${wm}<div class="bk-h"><span class="bk-n">${b.n}</span><div><b>${esc(b.t)}</b><span class="meta">${bDone?'ดำเนินการครบแล้ว':started?'กำลังดำเนินการ':'ยังไม่ถึงขั้นตอนนี้'}</span></div>${bDone?'<span class="dbadge ok"><i class="ph-fill ph-check-circle"></i>เสร็จสิ้น</span>':''}</div>${b.n===2?'<div class="bk-180"><i class="ph-fill ph-calendar-check"></i><span>ส่งเล่ม 2 ภายใน 180 วัน นับจากผู้ว่าราชการจังหวัดอนุมัติเล่ม 1</span></div>':''}${lvs}</div>`}).join('');
  const ageD=lastT?Math.floor((now-lastT)/864e5):0;
@@ -1037,6 +1101,38 @@ $('#s-cid').addEventListener('blur',async()=>{const c=$('#s-cid').value.replace(
  if(d.prev)L.push(['warn','เคยยื่นเอกสารแล้ว '+d.prev+' รายการ (ล่าสุดอยู่ที่: '+stg(d.latest.status).t+') ติดตามได้ที่หน้า "ติดตามสถานะ"']);
  if(d.lineEnabled)L.push(d.lineLinked?['ok','เชื่อมต่อ LINE แล้ว']:['info','ยังไม่ได้เชื่อมต่อ LINE — หากเพิ่มเพื่อน LINE OA ไปแล้ว พิมพ์เลขบัตร 13 หลักในแชทเพื่อเชื่อมต่อได้ทันที']);
  box.innerHTML=chkRes('ตรวจสอบข้อมูลเดิมเรียบร้อย',L)});
+
+/* ===== ช่องวันที่ วว/ดด/ปปปป และเวลา 24 ชม. =====
+ * ไม่ใช้ <input type=date|datetime-local> โดยตรง เพราะเบราว์เซอร์แสดงตามภาษาของเครื่อง (เช่น AM/PM, เดือน/วัน/ปี)
+ * พิมพ์ปีเป็น พ.ศ. ได้ (เช่น 18/10/2569) — ถ้าพิมพ์เป็น ค.ศ. (ต่ำกว่า 2400) ระบบแปลงให้เอง
+ * ค่าที่เก็บ/ส่งไปเซิร์ฟเวอร์ = ค.ศ. รูปแบบ YYYY-MM-DD หรือ YYYY-MM-DDTHH:mm ในช่องซ่อน #id */
+const p2=n=>String(n).padStart(2,'0');
+const maskD=v=>{const d=String(v).replace(/\D/g,'').slice(0,8);return d.slice(0,2)+(d.length>2?'/'+d.slice(2,4):'')+(d.length>4?'/'+d.slice(4):'')};
+const maskT=v=>{const d=String(v).replace(/\D/g,'').slice(0,4);return d.slice(0,2)+(d.length>2?':'+d.slice(2):'')};
+function parseDmy(s){const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s||'').trim());if(!m)return null;let y=+m[3];if(y>=2400)y-=543;const mo=+m[2],d=+m[1];if(y<1900||y>2200||mo<1||mo>12||d<1)return null;const dt=new Date(Date.UTC(y,mo-1,d));return dt.getUTCFullYear()===y&&dt.getUTCMonth()===mo-1&&dt.getUTCDate()===d?`${y}-${p2(mo)}-${p2(d)}`:null}
+function parseHm(s){const m=/^(\d{1,2}):(\d{2})$/.exec(String(s||'').trim());return m&&+m[1]<24&&+m[2]<60?`${p2(+m[1])}:${m[2]}`:null}
+const isoToDmy=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');return m?`${m[3]}/${m[2]}/${+m[1]+543}`:''};
+const thD=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543}`:''};
+const dtHtml=(id,o={})=>`<div class="dt" id="${id}-w"><div class="dt-r"><span class="dt-f"><input id="${id}-d" class="dt-d" inputmode="numeric" maxlength="10" placeholder="วว/ดด/ปปปป" autocomplete="off" aria-label="วันที่ วัน/เดือน/ปี (พ.ศ.)"><button type="button" class="dt-p" data-pk="${id}" aria-label="เลือกวันที่จากปฏิทิน" title="เลือกจากปฏิทิน"><i class="ph ph-calendar-blank"></i></button><input type="date" id="${id}-n" class="dt-n" tabindex="-1" aria-hidden="true"></span>${o.time?`<span class="dt-f"><input id="${id}-t" class="dt-t" inputmode="numeric" maxlength="5" placeholder="ชช:นน" autocomplete="off" aria-label="เวลา 24 ชั่วโมง (ชั่วโมง:นาที)"><span class="dt-u">น.</span></span><button type="button" class="btn sm sec dt-now" data-now="${id}">ตอนนี้</button>`:''}</div><div class="meta dt-h" id="${id}-h" aria-live="polite"></div><input type="hidden" id="${id}"></div>`;
+function dtSync(id,quiet){const time=!!$('#'+id+'-t'),dS=$('#'+id+'-d').value.trim(),tS=time?$('#'+id+'-t').value.trim():'',h=$('#'+id+'-h'),hid=$('#'+id);
+ const d=parseDmy(dS),tm=time?parseHm(tS):'';let v='',txt='',bad=false;
+ if(!dS&&!tS){v=''}
+ else if(dS&&!d){bad=true;txt=dS.length>=10?'วันที่ไม่ถูกต้อง — พิมพ์เป็น วัน/เดือน/ปี เช่น 18/10/2569':''}
+ else if(time&&tS&&!tm){bad=true;txt=tS.length>=5?'เวลาไม่ถูกต้อง — ใช้ 24 ชั่วโมง เช่น 14:30':''}
+ else if(d&&(!time||tm)){v=time?`${d}T${tm}`:d;txt='= '+thD(d)+(time?' เวลา '+tm+' น.':'')}
+ h.textContent=quiet?'':txt;h.className='meta dt-h'+(bad&&txt?' bad':v?' ok':'');
+ const nat=$('#'+id+'-n');if(d)nat.value=d;
+ if(hid.value!==v){hid.value=v;hid.dispatchEvent(new Event('input',{bubbles:true}));hid.dispatchEvent(new Event('change',{bubbles:true}))}
+ return v}
+function bindDt(id){const dI=$('#'+id+'-d'),tI=$('#'+id+'-t'),nat=$('#'+id+'-n');
+ dI.addEventListener('input',()=>{const p=dI.selectionStart===dI.value.length;dI.value=maskD(dI.value);dtSync(id)});
+ if(tI)tI.addEventListener('input',()=>{tI.value=maskT(tI.value);dtSync(id)});
+ nat.addEventListener('change',()=>{if(nat.value){dI.value=isoToDmy(nat.value);dtSync(id)}});
+ $('[data-pk="'+id+'"]').onclick=()=>{try{if(parseDmy(dI.value))nat.value=parseDmy(dI.value);if(nat.showPicker)nat.showPicker();else nat.click()}catch(e){dI.focus()}};
+ const nb=$('[data-now="'+id+'"]');if(nb)nb.onclick=()=>setDt(id,bkk0().slice(0,16).replace(' ','T'))}
+function setDt(id,iso){const m=/^(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?/.exec(iso||'');$('#'+id+'-d').value=m?isoToDmy(m[1]):'';const t=$('#'+id+'-t');if(t)t.value=m&&m[2]?m[2]:'';dtSync(id,!iso)}
+$('#s-start-box').innerHTML=dtHtml('s-start');bindDt('s-start');
+$('#ds-when-box').innerHTML=dtHtml('ds-when',{time:1});bindDt('ds-when');
 $('#s-start').addEventListener('change',e=>{const v=e.target.value;if(!v)return $('#s-ten').textContent='';const a=new Date(v),n=new Date();let m=(n.getFullYear()-a.getFullYear())*12+n.getMonth()-a.getMonth();if(n.getDate()<a.getDate())m--;$('#s-ten').textContent=m<0?'':`อายุงาน ${Math.floor(m/12)} ปี ${m%12} เดือน`});
 $('#s-cid').addEventListener('blur',()=>{const c=$('#s-cid').value.replace(/\D/g,''),bad=c.length===13&&!validCid(c);$('#s-cid').setAttribute('aria-invalid',bad?'true':'false');$('#s-cid-e').classList.toggle('hide',!bad)});
 const REQ=['cid','prefix','first','last','position','group','track','edu'];
@@ -1053,7 +1149,7 @@ $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s
  sp.go(1);const d=await api('submit',[p],{timeout:120000,write:true});busy(b,0);
  if(!d.ok)return sp.fail(d.message);
  sp.done();LASTCID=p.cid;LASTDATA={line:{enabled:CFG.line&&CFG.line.enabled,linked:false}};
- $('#f-sub').reset();FSUB.clear();$('#s-ten').textContent='';$$('#f-sub [aria-invalid]').forEach(x=>x.removeAttribute('aria-invalid'));
+ $('#f-sub').reset();setDt('s-start','');FSUB.clear();$('#s-ten').textContent='';$$('#f-sub [aria-invalid]').forEach(x=>x.removeAttribute('aria-invalid'));
  $('#s-done').innerHTML=`<div class="card" style="border-color:var(--ok)"><div class="row" style="align-items:center;margin-bottom:8px"><img src="assets/logo.png" alt="" width="44" height="44" style="border-radius:50%"><div class="msg ok" style="margin:0;flex:1"><i class="ph-fill ph-check-circle"></i><div><b>ส่งเอกสารเรียบร้อย</b></div></div></div>
   <div class="meta">รหัสติดตาม</div><div class="row" style="align-items:center"><h2 style="margin:0" class="mono">${esc(d.id)}</h2><button class="btn sec sm" id="sd-cp"><i class="ph-bold ph-copy"></i> คัดลอก</button></div>
   <p>ใช้เลขบัตรประชาชนที่หน้า "ติดตามสถานะ" เพื่อดูความคืบหน้าได้ทุกเมื่อ</p>${qrHtml()?'<div style="margin:12px 0">'+qrHtml()+'</div>':''}
@@ -1133,7 +1229,7 @@ function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim(
  el.innerHTML=`${trkBar()}${dash()}
  ${CFG.lineOn?'':'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ระบบจะบันทึกสถานะตามปกติแต่ไม่ส่งแจ้งเตือน (ตั้งค่าที่แท็บ LINE)</div></div>'}
  <div class="row" style="margin-bottom:12px"><div class="grow ig"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส" aria-label="ค้นหา" value="${esc(q)}" style="padding-left:44px"></div><select class="srt" id="srt" aria-label="เรียงลำดับ"><option value="p" ${SORTM==='p'?'selected':''}>เรียงตามความสำคัญ</option><option value="w" ${SORTM==='w'?'selected':''}>รอนานที่สุดก่อน</option><option value="n" ${SORTM==='n'?'selected':''}>ยื่นล่าสุดก่อน</option></select><button class="btn sec" id="a-rf"><i class="ph-bold ph-arrows-clockwise"></i> รีเฟรช</button></div>
- <div class="card" style="padding:8px"><table class="rt fit"><colgroup><col style="width:8%"><col style="width:12%"><col style="width:13%"><col style="width:9.5%"><col style="width:5%"><col style="width:15%"><col style="width:16.5%"><col style="width:6%"><col style="width:15%"></colgroup><thead><tr><th>ความสำคัญ</th><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ไฟล์ผลงาน</th><th>สถานะ</th><th>ระยะเวลารอ</th><th>LINE</th><th>จัดการ</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+ <div class="card" style="padding:8px"><table class="rt fit"><colgroup><col style="width:13%"><col style="width:11%"><col style="width:12%"><col style="width:8%"><col style="width:6%"><col style="width:14%"><col style="width:15%"><col style="width:6%"><col style="width:15%"></colgroup><thead><tr><th>ความสำคัญ</th><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ไฟล์ผลงาน</th><th>สถานะ</th><th>ระยะเวลารอ</th><th>LINE</th><th>จัดการ</th></tr></thead><tbody id="tb"></tbody></table></div>`;
  const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();let L=view().filter(r=>matchF(r)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid).toLowerCase().includes(qq)));
   L=L.map(r=>({r,p:prio(r)}));L.sort(SORTM==='w'?(a,b)=>ageClk(b.r)-ageClk(a.r):SORTM==='n'?(a,b)=>(b.r.ts>a.r.ts?1:-1):(a,b)=>b.p.s-a.p.s||ageClk(b.r)-ageClk(a.r));
   $('#tb').innerHTML=rowsHtml(L.map(x=>x.r),SORTM==='p');
@@ -1146,7 +1242,7 @@ const rowsHtml=(rows,rk)=>rows.length?rows.map((r,i)=>`<tr data-id="${esc(r.id)}
 const FIELDS=[['prefix','คำนำหน้า'],['first','ชื่อ'],['last','นามสกุล'],['cid','เลขบัตรประชาชน'],['position','ตำแหน่ง'],['group','กลุ่มงาน'],['posNo','ตำแหน่งเลขที่'],['start','วันเริ่มงาน'],['edu','วุฒิการศึกษาสูงสุด'],['phone','เบอร์โทร'],['email','อีเมล'],['link','ลิงก์ไฟล์ผลงาน']];
 const FDS=mkFile($('#ds-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls','xlsx'],max:8,hint:'รูป (jpg, png) หรือไฟล์ (pdf, doc, docx, xls, xlsx) ไม่เกิน 8 MB — รูปใหญ่จะถูกย่อให้อัตโนมัติ'});
 function openEdit(id){EDIT=ROWS.find(r=>r.id===id);if(!EDIT)return;$('#d-ttl').textContent='แก้ไขข้อมูล '+id;msg($('#d-msg'),'');
- $('#d-grid').innerHTML=`<div class="full"><label for="e-track">ระดับตำแหน่งที่ขอเลื่อน</label><select id="e-track">${trkOpts(EDIT.track,true)}</select></div>`+FIELDS.map(([k,l])=>`<div><label for="e-${k}">${l}</label><input id="e-${k}" ${k==='start'?'type="date"':''} value="${esc(k==='start'?(EDIT[k]||'').slice(0,10):EDIT[k])}"></div>`).join('');
+ $('#d-grid').innerHTML=`<div class="full"><label for="e-track">ระดับตำแหน่งที่ขอเลื่อน</label><select id="e-track">${trkOpts(EDIT.track,true)}</select></div>`+FIELDS.map(([k,l])=>k==='start'?`<div><label for="e-start-d">${l} <span class="meta">(วว/ดด/ปปปป พ.ศ.)</span></label>${dtHtml('e-start')}</div>`:`<div><label for="e-${k}">${l}</label><input id="e-${k}" value="${esc(EDIT[k])}"></div>`).join('');bindDt('e-start');setDt('e-start',(EDIT.start||'').slice(0,10));
  $('#d-del').classList.toggle('hide',USER.r!=='admin');dlgOpen($('#dlg'))}
 $('#d-save').onclick=async()=>{const b=$('#d-save'),m=$('#d-msg');msg(m,'');const f={track:$('#e-track').value};FIELDS.forEach(([k])=>f[k]=$('#e-'+k).value);
  busy(b,1,'กำลังบันทึก...');const d=await api('adminSave',[TOKEN,EDIT.id,f],{timeout:60000,write:true});busy(b,0);
@@ -1162,7 +1258,7 @@ function sgBadge(s,cur,done,skipped){if(!s.sg||skipped)return '';
 function sgBars(V){const cnt=(w,s)=>V.filter(r=>{const g=stg(r.status);return g.who===w&&g.sg===s}).length;
  const pill=(w,s,n,ic,lb)=>{const f='sg:'+w+':'+s;return `<button type="button" class="sgp ${s==='wait'?'wait':'ok'} ${FILTER===f?'on':''}" data-f="${f}" aria-pressed="${FILTER===f}"><i class="ph-fill ${ic}"></i>${lb} <b>${n}</b></button>`};
  return `<div class="sbh">สถานะการลงนาม</div><div class="sgl">${Object.entries(SGW).map(([w,[n,ic]])=>`<div class="sgr"><span class="sgn"><i class="ph-bold ${ic}"></i>${esc(n)}</span>${pill(w,'wait',cnt(w,'wait'),'ph-hourglass-medium','รอลงนาม')}${pill(w,'done',cnt(w,'done'),'ph-check-circle','ลงนามแล้ว')}</div>`).join('')}</div>`}
-const fxBadge=r=>r.fx>0?`<div class="fxb ${r.fx>=3?'hi':r.fx>=2?'mid':''}" title="จำนวนครั้งที่กรรมการให้แก้ไขผลงาน"><i class="ph-bold ph-arrows-clockwise"></i>แก้ไขแล้ว ${r.fx} ครั้ง${r.fx>=2?' · แก้ไขซ้ำ':''}</div>`:'';
+const fxBadge=r=>r.fx>0?`<div class="fxb ${r.fx>=3?'hi':r.fx>=2?'mid':''}" title="จำนวนครั้งที่ถูกให้แก้ไข (กรรมการ สสจ. / ศาลากลางจังหวัด)"><i class="ph-bold ph-arrows-clockwise"></i>แก้ไขแล้ว ${r.fx} ครั้ง${r.fx>=2?' · แก้ไขซ้ำ':''}</div>`:'';
 const attBtn=r=>r.attN?`<button class="btn sm sec ab ab-att ${r.attNew?'has-q':''}" data-a="${esc(r.id)}" title="ไฟล์เล่ม 2 / ฉบับแก้ไขที่ผู้ยื่นแนบ"><i class="ph-bold ph-paperclip"></i> ไฟล์แนบ${r.attNew?`<span class="qbadge" aria-label="ไฟล์ใหม่ ${r.attNew} รายการ">${r.attNew}</span>`:` (${r.attN})`}</button>`:'';
 /* รอบการแก้ไขตามข้อเสนอแนะกรรมการ: เริ่มเมื่อเข้าสถานะ "แก้ไข" → ส่งฉบับแก้ไข (กรรมการอ่านซ้ำ) → ผ่าน หรือให้แก้ไขเพิ่ม (เริ่มรอบถัดไป) */
 function roundsOf(h){const hs=(h||[]).slice().sort((a,b)=>String(a.t).localeCompare(String(b.t))),R=[];let cur=null,prev='';
@@ -1183,16 +1279,70 @@ function roundsHtml(it,adm){const R=roundsOf(it.history);if(!R.length)return '';
  <div class="meta rds-tip"><i class="ph ph-timer"></i> รวมระยะเวลาตั้งแต่กรรมการให้แก้ไขครั้งแรกถึง${R[n-1].e?'ผ่านการตรวจ':'ปัจจุบัน'}: <b>${spanF(sum)}</b> — ระยะเวลาอ่านของกรรมการนับต่อเนื่องจากวันที่ส่งถึง สสจ. ไม่เริ่มนับใหม่ทุกครั้งที่แก้ไข</div>
  ${n>=2?(adm?`<div class="msg warn" style="margin:10px 0 0"><i class="ph-fill ph-warning"></i><div><b>แก้ไขซ้ำ ${n} ครั้งแล้ว</b> — แนะนำให้ประสานคณะกรรมการ สสจ. เพื่อสรุปประเด็นที่ต้องแก้ไขให้ครบในครั้งเดียว และแจ้งผู้ยื่นพร้อมกำหนดวันส่งฉบับแก้ไข</div></div>`:`<div class="msg info" style="margin:10px 0 0"><i class="ph-fill ph-info"></i><div>ทุกครั้งที่กรรมการให้แก้ไขเพิ่ม ระบบจะนับเป็นครั้งถัดไปโดยอัตโนมัติ แนะนำให้แนบไฟล์ฉบับแก้ไขทุกครั้งที่ช่อง “แนบไฟล์เล่ม 2 เพิ่มเติม” เพื่อให้งานทรัพยากรบุคคลส่งต่อกรรมการได้ทันที</div></div>`):''}</div>`}
 /* ---- อัพเดทสถานะ (แยกจากแก้ไขข้อมูล): เลือกสถานะ + หมายเหตุ + (ติ๊ก) ลงเวลาเอง ---- */
-let SST=null;
+let SST=null,DSB={min:'',max:''};
 const qkNext=r=>{const g=stg(r.status),L=[],nx=CFG.stages.slice().sort((a,b)=>a.ord-b.ord).find(s=>s.ord>g.ord&&!s.fix&&!s.rep);
- if(g.k==='b2_fix')L.push('b2_resub');if(g.k==='b2_read'||g.k==='b2_resub')L.push('b2_fix');if(nx)L.push(nx.k);
+ (g.lp||[]).forEach(k=>L.push(k));if(nx)L.push(nx.k);
  return [...new Set(L)].filter(k=>k!==r.status&&CFG.stages.some(s=>s.k===k))};
-const qkLbl=(r,k)=>{const s=stg(k);let t=s.t;if(k==='b2_fix')t+=' ครั้งที่ '+((r.fx||0)+(r.status==='b2_fix'?0:1));if(k==='b2_resub')t+=' ครั้งที่ '+Math.max(1,r.fx||1);return t};
+const qkLbl=(r,k)=>{const s=stg(k),F=r.fxk||{};let t=s.t;if(s.fix)t+=' ครั้งที่ '+((F[k]||0)+(r.status===k?0:1));else if(s.rep){const f=CFG.stages.find(x=>x.fix&&(x.lp||[]).includes(k));t+=' ครั้งที่ '+Math.max(1,f?(F[f.k]||1):(r.fx||1))}return t};
+function dsWhenErr(w){if(!w)return '';if(DSB.min&&w<DSB.min)return 'เวลาที่เลือกต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+thDT(DSB.min.replace('T',' ')+':00')+') — หากต้องการแก้ไขเวลาของขั้นตอนก่อนหน้า ให้ใช้ “ประวัติสถานะ · แก้ไขวันที่ตามเอกสาร” ด้านล่าง';if(DSB.max&&w>DSB.max)return 'ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้';return ''}
 function dsPreview(){const r=SST;if(!r)return;const st=$('#ds-status').value,ch=st!==r.status,nt=$('#ds-note').value!==(r.note||''),ct=$('#ds-ct').checked;
  const when=ct&&$('#ds-when').value?thDT($('#ds-when').value.replace('T',' ')+':00'):'เวลาปัจจุบัน (ตอนกดบันทึก)';
  const pv=$('#ds-pv');pv.className='dspv '+(ch||nt?'chg':'');
+ const we=ct?dsWhenErr($('#ds-when').value):'';if(we){pv.className='dspv bad';pv.innerHTML='<i class="ph-fill ph-warning"></i><div>'+esc(we)+'</div>';$$('#ds-qk button').forEach(b=>b.classList.toggle('on',b.dataset.k===st));return}
  pv.innerHTML=ch||nt||FDS.get()?`<i class="ph-fill ph-info"></i><div>จะบันทึก ${ch?`สถานะ <b>${fmtT(qkLbl(r,st),true)}</b>`:'หมายเหตุ'} · เวลา <b>${esc(when)}</b>${$('#ds-send').checked?' · ส่งแจ้ง LINE':' · ไม่ส่ง LINE'}</div>`:`<i class="ph-fill ph-info"></i><div>ยังไม่ได้เปลี่ยนสถานะหรือหมายเหตุ</div>`;
  $$('#ds-qk button').forEach(b=>b.classList.toggle('on',b.dataset.k===st))}
+
+/* ---- ชุดคำพูดสำเร็จรูปสำหรับ "หมายเหตุถึงผู้ยื่น" (กดเพื่อเติม/ต่อท้าย แก้ไขข้อความได้) + คำลัดของตนเอง (เก็บในเบราว์เซอร์นี้) ---- */
+const NOTE_BASE=[
+ ['รับเอกสารไปถ่ายสำเนา','ph-copy','ขอเชิญท่านมารับเอกสารที่กลุ่มงานทรัพยากรบุคคล เพื่อนำไปถ่ายสำเนาเอกสาร'],
+ ['ติดต่อแก้ไขเอกสาร','ph-note-pencil','ขอเชิญท่านติดต่อกลุ่มงานทรัพยากรบุคคล เพื่อดำเนินการแก้ไขเอกสาร'],
+ ['ติดต่อสอบถามรายละเอียด','ph-chats','หากมีข้อสงสัยเกี่ยวกับเอกสาร ขอเชิญท่านติดต่อกลุ่มงานทรัพยากรบุคคล เพื่อสอบถามรายละเอียดเพิ่มเติม'],
+ ['แนบไฟล์ฉบับแก้ไขในระบบ','ph-paperclip','เมื่อแก้ไขเอกสารเรียบร้อยแล้ว ขอให้ท่านแนบไฟล์ฉบับแก้ไขที่เมนู “ติดตามสถานะ” ของระบบ'],
+ ['เอกสารครบถ้วน','ph-seal-check','เอกสารของท่านครบถ้วน อยู่ระหว่างดำเนินการตามขั้นตอน'],
+ ['ระหว่างรอลงนาม','ph-signature','เอกสารอยู่ระหว่างรอการลงนาม กลุ่มงานทรัพยากรบุคคลจะแจ้งให้ทราบเมื่อมีความคืบหน้า']
+];
+const sendNote=r=>{let left=null;const d0=toDate(r.b1s||'');if(d0)left=180-Math.floor((nowMs()-d0)/DAY);
+ if(left===null)return ['ส่งผลงานภายใน 180 วัน','ph-calendar-check','โปรดส่งผลงานของท่านภายใน 180 วัน นับจากวันที่ผู้ว่าราชการจังหวัดลงนามอนุมัติเล่ม 1',1];
+ if(left>=0)return ['ส่งผลงาน · เหลืออีก '+left+' วัน','ph-calendar-check','โปรดส่งผลงานของท่านภายใน 180 วัน นับจากวันที่ผู้ว่าราชการจังหวัดลงนามอนุมัติเล่ม 1 (เหลืออีก '+left+' วัน จะครบกำหนด)',1];
+ return ['ส่งผลงาน · เกินกำหนด '+(-left)+' วัน','ph-alarm','ขณะนี้เกินกำหนดส่งผลงาน 180 วันแล้ว (เกินมา '+(-left)+' วัน) โปรดติดต่อกลุ่มงานทรัพยากรบุคคลโดยเร็ว',1]};
+const NK='awc_notes';const myNotes=()=>{try{const a=JSON.parse(localStorage.getItem(NK)||'[]');return Array.isArray(a)?a.filter(x=>typeof x==='string'&&x).slice(0,12):[]}catch(e){return[]}};
+const saveNotes=a=>{try{localStorage.setItem(NK,JSON.stringify(a.slice(0,12)))}catch(e){}};
+function dsNotes(r){const box=$('#ds-qn'),all=[...(stg(r.status).book===1?[sendNote(r)]:[]),...NOTE_BASE],mine=myNotes();
+ box.innerHTML='<span class="qn-l">คำพูดลัด:</span>'+all.map((x,i)=>`<button type="button" class="${x[3]?'dyn':''}" data-qi="${i}"><i class="ph ${x[1]}"></i>${esc(x[0])}</button>`).join('')
+  +mine.map((x,i)=>`<span class="qn-c"><button type="button" data-qm="${i}" title="${esc(x)}"><i class="ph ph-star"></i>${esc(x.length>26?x.slice(0,26)+'…':x)}</button><button type="button" class="x" data-qd="${i}" aria-label="ลบคำลัดนี้" title="ลบคำลัดนี้"><i class="ph-bold ph-x"></i></button></span>`).join('')
+  +'<button type="button" class="qn-add" data-qa="1" title="บันทึกข้อความที่พิมพ์ไว้เป็นคำลัดของท่าน (เก็บในเบราว์เซอร์นี้)"><i class="ph-bold ph-plus"></i>บันทึกข้อความนี้เป็นคำลัด</button><button type="button" class="clr" data-qc="1"><i class="ph ph-eraser"></i>ล้างหมายเหตุ</button>';
+ const put=txt=>{const n=$('#ds-note'),cur=n.value.trim();if(cur.includes(txt))return;n.value=cur?cur+'\n'+txt:txt;n.dispatchEvent(new Event('input',{bubbles:true}));n.focus()};
+ $$('[data-qi]',box).forEach(b=>b.onclick=()=>put(all[+b.dataset.qi][2]));
+ $$('[data-qm]',box).forEach(b=>b.onclick=()=>put(mine[+b.dataset.qm]));
+ $$('[data-qd]',box).forEach(b=>b.onclick=()=>{mine.splice(+b.dataset.qd,1);saveNotes(mine);dsNotes(r)});
+ $('[data-qc]',box).onclick=()=>{const n=$('#ds-note');n.value='';n.dispatchEvent(new Event('input',{bubbles:true}));n.focus()};
+ $('[data-qa]',box).onclick=()=>{const v=$('#ds-note').value.trim();if(v.length<3)return toast('พิมพ์ข้อความในช่องหมายเหตุก่อน แล้วกดบันทึกเป็นคำลัด','info');if(mine.includes(v))return toast('มีคำลัดนี้อยู่แล้ว','info');mine.unshift(v);saveNotes(mine);dsNotes(r);toast('บันทึกเป็นคำลัดแล้ว (เก็บในเบราว์เซอร์นี้)')}}
+
+/* ---- ประวัติสถานะ + แก้ไขวันที่ย้อนหลังของขั้นตอน (ตามวันที่ในเอกสาร) ---- */
+let HXD=null;
+function hxInit(r){const box=$('#ds-hx');HXD=null;box.innerHTML=`<details class="hx" id="hx-d"><summary><i class="ph-duotone ph-clock-counter-clockwise"></i>ประวัติสถานะ · แก้ไขวันที่ตามเอกสาร<span class="meta">กดเพื่อเปิด</span></summary><div id="hx-b"></div></details>`;
+ $('#hx-d').addEventListener('toggle',()=>{if($('#hx-d').open&&!HXD)hxLoad(r)})}
+async function hxLoad(r){const b=$('#hx-b');b.innerHTML='<div class="meta" style="padding:0 16px 14px"><span class="spin"></span> กำลังโหลด...</div>';const d=await api('histGet',[TOKEN,r.id]);if(SST!==r)return;if(!d.ok){b.innerHTML='';return msg(b,d.message)}HXD=d.history;hxDraw(r)}
+function hxDraw(r){const H=HXD,b=$('#hx-b');
+ b.innerHTML=`<div class="meta" style="padding:0 16px 10px">แก้ได้เฉพาะ “เวลาของขั้นตอนนั้น” ให้ตรงกับวันที่ในเอกสาร — ต้องอยู่ระหว่างเวลาของขั้นตอนก่อนหน้าและถัดไป · ระบบบันทึกผู้แก้และเวลาเดิมไว้ในประวัติการใช้งาน</div><ol class="hx-l">${H.map((h,i)=>`<li class="hx-i" data-i="${i}"><span class="no">${i+1}</span><div><div class="tt">${fmtT(stg(h.s).t,true)}</div><div class="tm"><b>${esc(thDT(h.t))}</b> · ${esc(shortName(h.by)||'-')}</div></div><button type="button" class="btn sm sec" data-hx="${i}"><i class="ph-bold ph-pencil-simple"></i> แก้ไขวันที่</button><div class="hx-f hide" id="hxf-${i}"></div></li>`).join('')}</ol>`;
+ $$('[data-hx]',b).forEach(bt=>bt.onclick=()=>hxEdit(r,+bt.dataset.hx))}
+function hxEdit(r,i){const H=HXD,h=H[i],f=$('#hxf-'+i),open=!f.classList.contains('hide');$$('.hx-f',$('#hx-b')).forEach(x=>{x.classList.add('hide');x.innerHTML=''});if(open)return;
+ const lo=i>0?H[i-1].t:'',hi=i<H.length-1?H[i+1].t:'',nowS=bkk0();
+ f.classList.remove('hide');
+ f.innerHTML=`<div><label for="hx${i}-d">วันที่และเวลาตามเอกสาร</label>${dtHtml('hx'+i,{time:1})}<div class="meta">ช่วงที่แก้ได้: ${lo?esc(thDT(lo)):'ไม่จำกัดขอบเขตเริ่มต้น'} → ${hi?esc(thDT(hi)):'เวลาปัจจุบัน'}</div></div><div><label for="hx${i}-r">เอกสารอ้างอิง <span class="meta">(ไม่บังคับ เช่น เลขที่หนังสือ)</span></label><input id="hx${i}-r" maxlength="120" autocomplete="off"></div><div id="hx${i}-m"></div><div class="row"><button type="button" class="btn sm" id="hx${i}-s"><i class="ph-bold ph-floppy-disk"></i> บันทึกวันที่</button><button type="button" class="btn sm sec" id="hx${i}-c">ยกเลิก</button></div>`;
+ bindDt('hx'+i);setDt('hx'+i,h.t.slice(0,16).replace(' ','T'));
+ $('#hx'+i+'-c').onclick=()=>{f.classList.add('hide');f.innerHTML=''};
+ $('#hx'+i+'-s').onclick=async()=>{const m=$('#hx'+i+'-m'),w=$('#hx'+i).value,btn=$('#hx'+i+'-s');msg(m,'');
+  if(!w)return msg(m,'กรุณากรอกวันที่ (วว/ดด/ปปปป) และเวลา (ชช:นน) ให้ครบ');
+  const wS=w.replace('T',' ')+':00';
+  if(w>nowS.slice(0,16).replace(' ','T'))return msg(m,'ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
+  if(lo&&wS<lo)return msg(m,'เวลาต้องไม่ก่อนขั้นตอนก่อนหน้า ('+thDT(lo)+')');
+  if(hi&&wS>hi)return msg(m,'เวลาต้องไม่หลังขั้นตอนถัดไป ('+thDT(hi)+')');
+  if(wS.slice(0,16)===h.t.slice(0,16))return msg(m,'เวลาที่เลือกเท่ากับเวลาเดิม','info');
+  busy(btn,1,'กำลังบันทึก...');const d=await api('histTime',[TOKEN,r.id,i,h.t,w,$('#hx'+i+'-r').value],{write:true});busy(btn,0);
+  if(!d.ok)return msg(m,d.message);toast('แก้ไขวันที่ของขั้นตอนที่ '+(i+1)+' แล้ว');
+  h.t=d.t;await loadList();const nr=ROWS.find(x=>x.id===r.id);if(nr&&SST===r){SST=nr;DSB.min=(nr.upd||nr.ts||'').slice(0,16).replace(' ','T');$('#ds-tmin').textContent='ต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+thDT(nr.upd||nr.ts)+') และไม่เกินเวลาปัจจุบัน';$('#ds-cur').querySelector('b').textContent=thShort(nr.since||nr.upd||nr.ts);hxDraw(nr);dsPreview()}}}
+
 function openStatus(id){const r=ROWS.find(x=>x.id===id);if(!r)return;SST=r;
  $('#ds-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}`;msg($('#ds-msg'),'');FDS.clear();$('#ds-rd').innerHTML='';
  $('#ds-cur').innerHTML=`<div><span class="meta">สถานะปัจจุบัน</span>${chip(r.status,1)}${fxBadge(r)}</div><div class="meta" style="text-align:right">เข้าขั้นตอนนี้<br><b>${esc(thShort(r.since||r.upd||r.ts))}</b></div>`;
@@ -1202,18 +1352,19 @@ function openStatus(id){const r=ROWS.find(x=>x.id===id);if(!r)return;SST=r;
  $('#ds-note').value=r.note||'';
  const nowL=bkk0().slice(0,16).replace(' ','T'),mn=(r.upd||r.ts||'').slice(0,16).replace(' ','T');
  $('#ds-ct').checked=false;$('#ds-tbox').classList.add('hide');$('#ds-tmb').classList.remove('on');
- $('#ds-when').max=nowL;$('#ds-when').min=mn;$('#ds-when').value=nowL;$('#ds-now').textContent=thDT(bkk0());$('#ds-tmin').textContent='ต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+thDT(r.upd||r.ts)+') และไม่เกินเวลาปัจจุบัน';
+ DSB={min:mn,max:nowL};setDt('ds-when',nowL);$('#ds-now').textContent=thDT(bkk0());$('#ds-tmin').textContent='ต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+thDT(r.upd||r.ts)+') และไม่เกินเวลาปัจจุบัน';dsNotes(r);hxInit(r);
  $('#ds-send').checked=true;$('#ds-lnst').textContent=!CFG.lineOn?'(ยังไม่ได้ตั้งค่า LINE)':r.lk?'(ผู้ยื่นผูก LINE แล้ว)':'(ผู้ยื่นยังไม่ผูก LINE — ระบบจะบันทึกแต่ส่งไม่ได้)';
  dsPreview();dlgOpen($('#ds'));
  if(r.fx>0||stg(r.status).fix||stg(r.status).rep){$('#ds-rd').innerHTML='<div class="meta" style="margin-top:14px"><span class="spin"></span> กำลังโหลดประวัติรอบแก้ไข...</div>';
   api('histGet',[TOKEN,r.id]).then(d=>{if(SST!==r)return;$('#ds-rd').innerHTML=d.ok?roundsHtml({history:d.history,att:d.att},true):''})}}
-$('#ds-ct').onchange=e=>{const on=e.target.checked;$('#ds-tbox').classList.toggle('hide',!on);$('#ds-tmb').classList.toggle('on',on);if(on){$('#ds-send').checked=false;setTimeout(()=>$('#ds-when').focus(),30)}else $('#ds-send').checked=true;dsPreview()};
+$('#ds-ct').onchange=e=>{const on=e.target.checked;$('#ds-tbox').classList.toggle('hide',!on);$('#ds-tmb').classList.toggle('on',on);if(on){$('#ds-send').checked=false;setTimeout(()=>$('#ds-when-d').focus(),30)}else $('#ds-send').checked=true;dsPreview()};
 ['ds-status','ds-note','ds-when','ds-send'].forEach(i=>{$('#'+i).addEventListener('input',dsPreview);$('#'+i).addEventListener('change',dsPreview)});
 $('#ds-file').addEventListener('change',dsPreview);
 $('#ds-x').onclick=$('#ds-cancel').onclick=()=>$('#ds').close();
 $('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r)return;msg(m,'');
  const ct=$('#ds-ct').checked,p={status:$('#ds-status').value,note:$('#ds-note').value,sendLine:$('#ds-send').checked,customTime:ct,when:ct?$('#ds-when').value:''};
- if(ct&&!p.when)return msg(m,'กรุณาเลือกวันที่และเวลา หรือเอาเครื่องหมายติ๊ก “เลือกลงเวลาเอง” ออกเพื่อใช้เวลาปัจจุบัน');
+ if(ct&&!p.when)return msg(m,'กรุณากรอกวันที่ (วว/ดด/ปปปป) และเวลา (ชช:นน) ให้ครบ หรือเอาเครื่องหมายติ๊ก “เลือกลงเวลาเอง” ออกเพื่อใช้เวลาปัจจุบัน');
+ if(ct){const e=dsWhenErr(p.when);if(e)return msg(m,e)}
  if(p.status===r.status&&p.note===(r.note||'')&&!FDS.get())return msg(m,'ยังไม่ได้เปลี่ยนสถานะหรือหมายเหตุ','info');
  busy(b,1,FDS.get()?'กำลังอัปโหลดและบันทึก...':'กำลังบันทึก...');
  try{const a=await FDS.pack();if(a)p.attach=a}catch(er){busy(b,0);return msg(m,er.message)}
@@ -1348,7 +1499,7 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','histGet','adminDelete','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineLinkReq','lineLinkCheck','lineAdd','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','histGet','adminDelete','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineLinkReq','lineLinkCheck','lineAdd','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
@@ -1356,7 +1507,7 @@ const bkkS=ms=>new Date(ms+7*36e5).toISOString().slice(0,19).replace('T',' ');
 DEMO.seed=function(){
  const now=Date.now(),D=864e5,T=(CFG.tracks||[]).map(x=>x.t),tr=i=>T[i]||'';
  const flat=CFG.stages.filter(s=>!s.fix&&!s.rep).slice().sort((a,b)=>a.ord-b.ord);
- const DUR={b1_submit:.4,b1_check:1.5,b1_fix:3,b1_pass:.6,b1_dir:.8,b1_pho:3.5,b1_pho_dir:2,b1_gov:14,b1_signed:70,b2_submit:.5,b2_check:6,b2_pass:1,b2_dir:1,b2_pho:30,b2_read:60,b2_fix:12,b2_readpass:2,b2_pho_dir:5,b2_gov:15,b2_signed:2,cmd_make:1.5,cmd_dir:1,cmd_dir_ok:.3,b2_resub:10,b1_dir_ok:.5,b1_pho_ok:1,b2_dir_ok:1,b2_pho_ok:2};
+ const DUR={b1_submit:.4,b1_check:1.5,b1_fix:3,b1_pass:.6,b1_dir:.8,b1_pho:3.5,b1_pho_dir:2,b1_gov:14,b1_signed:70,b2_submit:.5,b2_check:6,b2_pass:1,b2_dir:1,b2_pho:30,b2_read:60,b2_fix:12,b2_readpass:2,b2_pho_dir:5,b2_gov:15,b2_signed:2,b1_gov_chk:2,b1_gov_fix:5,b1_gov_fixed:1,b2_gov_chk:2,cmd_make:1.5,cmd_dir:1,cmd_dir_ok:.3,b2_resub:10,b1_dir_ok:.5,b1_pho_ok:1,b2_dir_ok:1,b2_pho_ok:2};
  const P=[
   ['3999900000','1','นางสาว','สมหญิง','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_check',1.2,{lk:1}],
   ['3999900000','2','นาย','วิชัย','เภสัชกรปฏิบัติการ','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค',2,'b1_fix',6,{lk:1,note:'กรุณาแก้ไขแบบประเมินบุคคลหน้า 3 และแนบสำเนาวุฒิการศึกษา',q:[['applicant','แก้ไขเสร็จแล้วต้องส่งกลับที่ไหนครับ']]}],
@@ -1408,7 +1559,7 @@ DEMO.log=function(a,r,d){this.db.log.push([bkkS(Date.now()),a,'admin',r||'succes
 DEMO.rows=function(){const db=this.db;return db.subs.slice().reverse().map(r=>{const o=Object.assign({},r),hs=db.his.filter(h=>h.id===r.id),first=k=>{const x=hs.find(h=>h.s===k);return x?x.t:''};
  let since=r.ts,prev='';hs.forEach(h=>{if(h.s!==prev){since=h.t;prev=h.s}});const g=stg(r.status);
  o.since=since;o.ck=g.clk?first(g.clk):'';o.b1s=first('b1_signed');o.lk=this.linked(r.cid);
- let c=0;db.qa.filter(m=>m.id===r.id).forEach(m=>{c=m.from==='applicant'?c+1:0});o.qa=c;let fx=0,pv='';hs.forEach(h=>{if(stg(h.s).fix&&h.s!==pv)fx++;pv=h.s});o.fx=fx;const at=(db.att||[]).filter(a=>a.id===r.id),rv=at.filter(a=>a.kind==='revision');o.attN=at.length;o.attNew=at.filter(a=>a.read!=='Y').length;o.attT=at.length?at[at.length-1].t:'';o.attRev=rv.length?rv[rv.length-1].t:'';return o})};
+ let c=0;db.qa.filter(m=>m.id===r.id).forEach(m=>{c=m.from==='applicant'?c+1:0});o.qa=c;let fx=0,pv='';hs.forEach(h=>{if(stg(h.s).fix&&h.s!==pv)fx++;pv=h.s});o.fx=fx;o.fxk={};{let pv2='';hs.forEach(h=>{const g=stg(h.s);if((g.fix||g.rep)&&h.s!==pv2)o.fxk[h.s]=(o.fxk[h.s]||0)+1;pv2=h.s})};const at=(db.att||[]).filter(a=>a.id===r.id),rv=at.filter(a=>a.kind==='revision');o.attN=at.length;o.attNew=at.filter(a=>a.read!=='Y').length;o.attT=at.length?at[at.length-1].t:'';o.attRev=rv.length?rv[rv.length-1].t:'';return o})};
 DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Object.assign({ok:true},o||{});
  const cidOf=v=>String(v||'').replace(/\D/g,'');
  switch(fn){
@@ -1442,6 +1593,10 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   if(!f){f={id:'FAQ-'+('00'+(db.faq.reduce((m,x)=>Math.max(m,+x.id.replace(/\D/g,'')),0)+1)).slice(-3),up:0,down:0};db.faq.push(f)}
   Object.assign(f,{cat:String(p.cat||'').trim()||'ทั่วไป',q,a:an,pub:p.pub!==false,pin:!!p.pin,ord:p.ord===''||p.ord==null||isNaN(+p.ord)?(f.ord||db.faq.length*10+10):+p.ord,upd:bkkS(now),by:DM_BY});this.save();return ok({id:f.id})}
  case 'faqDelete':{db.faq=db.faq.filter(x=>x.id!==a[1]);this.save();return ok()}
+ case 'histTime':{const id=a[1],r=this.find(id),hs=db.his.filter(h=>h.id===id),i=+a[2],h=hs[i];if(!h)this.err('ไม่พบขั้นตอนที่ต้องการแก้ไข');if(a[3]&&h.t!==a[3])this.err('ข้อมูลขั้นตอนนี้ถูกแก้ไขโดยผู้อื่นแล้ว กรุณาปิดแล้วเปิดใหม่');
+  const m=/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(a[4]||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');const nw=m[1]+' '+m[2]+':00';if(nw>bkkS(now+3e5))this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
+  if(i>0&&nw<hs[i-1].t)this.err('เวลาต้องไม่ก่อนขั้นตอนก่อนหน้า ('+hs[i-1].t.slice(0,16)+')');if(i<hs.length-1&&nw>hs[i+1].t)this.err('เวลาต้องไม่หลังขั้นตอนถัดไป ('+hs[i+1].t.slice(0,16)+')');
+  h.t=nw;if(i===0)r.ts=nw;if(i===hs.length-1)r.upd=nw;this.save();return ok({t:nw,old:a[3]})}
  case 'adminStatus':{const id=a[1],p=a[2]||{},r=this.find(id),st=p.status||'';if(st&&!stageOk(st))this.err('สถานะไม่ถูกต้อง');if(st==='promoted'&&r.status!=='cmd_dir_ok'&&r.status!=='promoted')this.err('ปิดเคสได้หลังผู้อำนวยการโรงพยาบาลลงนามคำสั่งเลื่อนระดับแล้วเท่านั้น');
   const note=p.note==null?null:String(p.note).trim();let at=now;
   if(p.customTime){const m=/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(p.when||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');
