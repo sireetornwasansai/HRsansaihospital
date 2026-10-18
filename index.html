@@ -1,7 +1,14 @@
 <!doctype html>
+<!--
+  ระบบติดตามสถานะการประเมินผลงาน (อวช.) โรงพยาบาลสันทราย จังหวัดเชียงใหม่
+  ผู้พัฒนา: นายจันทกรณ์ จีกัน (Chanthakon Chikan) นักวิชาการสาธารณสุขชำนาญการ
+  กลุ่มงานพัฒนาคุณภาพบริการและมาตรฐาน โรงพยาบาลสันทราย | โทร 053-921-199 ต่อ 168
+  Copyright (c) 2026 Chanthakon Chikan. Released under the MIT License.
+-->
 <html lang="th">
 <head>
 <meta charset="utf-8">
+<meta name="author" content="Chanthakon Chikan">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f766e">
 <meta name="description" content="ติดตามสถานะการประเมินผลงาน (อวช.) กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่">
@@ -261,7 +268,7 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
 .dlg-logo{width:34px;height:34px;border-radius:50%;vertical-align:middle;margin-right:8px}
 
 /* --- ท้ายหน้า + ตัวช่วยอื่น --- */
-.foot{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}.foot img{width:30px;height:30px;border-radius:50%}
+.foot{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}.foot img{width:30px;height:30px;border-radius:50%}.foot-t{text-align:left;line-height:1.5;font-size:13px;color:var(--mut)}.foot-t b{color:var(--ink,inherit);font-size:14px}.foot-k{font-size:11px;letter-spacing:.04em;text-transform:uppercase;opacity:.8}
 .pw{position:relative}.pw button{position:absolute;right:4px;top:4px;min-height:36px;min-width:40px;border:0;background:none;cursor:pointer;color:var(--mut);font-size:20px}
 .login-card{max-width:440px;text-align:center}.login-card form{text-align:left}.login-card>img{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;display:block;box-shadow:0 8px 22px #0f766e30}
 .empty-s{text-align:center;padding:28px 16px}.empty-s>i{font-size:46px;color:var(--pri);display:block;margin-bottom:6px}.empty-s h2{margin-bottom:4px}
@@ -535,6 +542,7 @@ body.wide .wrap{max-width:1320px}
 /* ===== v5: จัดรูปแบบป้ายผู้ลงนาม + ปรับ UI ===== */
 .thw{display:inline}
 .who{display:block;font-weight:800;color:inherit;line-height:1.35}.who.in{display:inline;font-weight:800}
+.who-low{display:block;font-weight:700;color:inherit;opacity:.85;line-height:1.35;font-size:.94em}.who-low.in{display:inline;margin-left:.3em}
 .dflow-label .who{font-size:14.5px;margin-bottom:1px}
 .dflow-label .lbl-sub{display:block;margin-top:2px}
 .dstage .who{display:block}.dstage .who.in{display:inline}
@@ -686,7 +694,7 @@ button .thw,.btn .thw{white-space:normal}
  </div>
 </section>
 </main>
-<footer><div class="wrap foot"><img src="assets/logo.png" alt="" width="30" height="30" loading="lazy"><span>© กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่</span></div></footer>
+<footer><div class="wrap foot"><img src="assets/logo.png" alt="" width="30" height="30" loading="lazy"><div class="foot-t"><div class="foot-k">ผู้พัฒนา</div><b>Chanthakon Chikan</b><div>Copyright © 2026</div><div>กลุ่มงานพัฒนาคุณภาพบริการและมาตรฐาน</div></div></div></footer>
 <!-- Dialog: แก้ไขข้อมูลรายการ (ไม่เปลี่ยนสถานะ — การเปลี่ยนสถานะอยู่ที่ปุ่ม "อัพเดทสถานะ") -->
 <dialog id="dlg" aria-labelledby="d-ttl"><div class="hd"><h2 id="d-ttl">แก้ไขข้อมูล</h2><button class="btn sec sm" type="button" id="d-x">ปิด</button></div>
  <div class="msg info" style="margin:12px 0 16px"><i class="ph ph-info"></i><div>หน้านี้แก้เฉพาะ<b>ข้อมูลผู้ยื่น</b> ไม่ส่งแจ้งเตือน LINE — หากต้องการเปลี่ยนสถานะ ใส่หมายเหตุ หรือลงเวลา ให้ใช้ปุ่ม <button type="button" class="btn sm" id="d-tostatus" style="min-height:32px"><i class="ph-bold ph-flag"></i> อัพเดทสถานะ</button></div></div>
@@ -801,10 +809,12 @@ function thChunks(src){
  return out}
 function thHtml(s){const ch=thChunks(s);let h='';ch.forEach((c,i)=>{if(c===' '){h+=' ';return}const prev=ch[i-1];if(i&&prev!==' ')h+='<wbr>';h+=`<span class="nb">${esc(c)}</span>`});return `<span class="thw">${h}</span>`}
 /* ป้ายที่ลงท้ายด้วย (วงเล็บ) → วงเล็บทั้งก้อนลงบรรทัดใหม่ (inline=true: ไม่ขึ้นบรรทัดใหม่แต่ไม่ถูกตัดกลาง) */
-const ACT_RE=/^(รอ\s*)?(ผู้ว่าราชการจังหวัด|ผอ\.โรงพยาบาล|นพ\.สสจ\.|กลุ่มงานทรัพยากรบุคคล สสจ\.เชียงใหม่|สำนักงานศาลากลางจังหวัด|ศาลากลางจังหวัด)\s*(\S.*)$/;
-function fmtT(s,inline){s=String(s==null?'':s);let who='';const a=ACT_RE.exec(s);if(a){who=a[2];s=(a[1]?'รอ':'')+a[3]}
+const ACT_RE=/^(รอ\s*)?(หน่วยงานสารบรรณ|ผู้ว่าราชการจังหวัด|ผอ\.โรงพยาบาล|นพ\.สสจ\.|กลุ่มงานทรัพยากรบุคคล สสจ\.เชียงใหม่|สำนักงานศาลากลางจังหวัด|ศาลากลางจังหวัด)\s*(\S.*)$/;
+function fmtT(s,inline){s=String(s==null?'':s);let who='',low='';const rr=/^(.*?)\s*(\([^()]*\))\s+(ครั้งที่\s*\d+)$/.exec(s);if(rr&&rr[1])s=rr[1]+' '+rr[3]+' '+rr[2];const a=ACT_RE.exec(s);if(a){who=a[2];s=(a[1]?'รอ':'')+a[3]}
+ const lw=/^(.*?)\s+โรงพยาบาลสันทราย(?=\s|\(|$)(.*)$/.exec(s);if(lw&&lw[1]){low='โรงพยาบาลสันทราย';s=lw[1]+lw[2]}
  const m=/^(.*?)\s*(\([^()]*\))\s*$/.exec(s);let body;
  if(!m||!m[1])body=thHtml(s);else body=thHtml(m[1])+(inline?' ':'')+`<span class="lbl-sub${inline?' in':''}">${thHtml(m[2])}</span>`;
+ if(low){const m2=/^(.*?)(<span class="lbl-sub[^>]*>.*)$/.exec(body);body=m2?m2[1]+`<span class="who-low${inline?' in':''}">${thHtml(low)}</span>`+m2[2]:body+`<span class="who-low${inline?' in':''}">${thHtml(low)}</span>`}
  return who?`<span class="who${inline?' in':''}">${thHtml(who)}</span>${inline?' ':''}${body}`:body}
 /* ระยะเวลาแบบละเอียด: 3 วัน 4 ชั่วโมง */
 const spanF=ms=>{const m=Math.max(0,Math.floor(ms/6e4));if(m<1)return 'ไม่ถึง 1 นาที';const d=Math.floor(m/1440),h=Math.floor(m%1440/60),n=m%60;if(d)return d+' วัน'+(h?' '+h+' ชั่วโมง':'');if(h)return h+' ชั่วโมง'+(n?' '+n+' นาที':'');return n+' นาที'};
