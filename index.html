@@ -358,6 +358,11 @@ dialog{box-shadow:0 20px 60px #0f172a55}dialog[open]{animation:dpop .2s ease-out
 .lw-d{text-align:right;font-weight:800;font-size:18px;line-height:1}.lw-d small{display:block;font-size:11.5px;font-weight:500;color:var(--mut)}
 .lw .pbar{max-width:none;margin:0}
 @media(max-width:720px){.lw li{grid-template-columns:28px minmax(0,1fr) auto}.lw li .pbar{grid-column:2/4}.lw li .btn{grid-column:2/4}}
+.mn-h{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}.mn-h h2{margin:0 0 2px;font-size:22px}
+.mn-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.mn-nav button{display:inline-flex;gap:8px;align-items:center;min-height:42px;padding:0 14px 0 8px;border:1.5px solid var(--line);background:#fff;border-radius:999px;cursor:pointer;font:inherit;font-size:14px}
+.mn-nav button b{width:26px;height:26px;border-radius:50%;background:#d9f0ec;color:#0b5a52;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+.mn-nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}.mn-nav button.on b{background:#fff;color:var(--pri)}
+.mn-wrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#f3f7f6}.mn-wrap iframe{display:block;width:1200px;border:0;transform-origin:top left;background:#f3f7f6}.mn-pn{margin-top:14px}
 .stb{border:0;background:none;cursor:pointer;font-size:21px;line-height:1;padding:0 4px 0 0;margin-right:2px;min-width:30px;min-height:30px;color:#b6c0cc;vertical-align:middle;border-radius:8px;transition:transform .15s,color .15s}.stb:hover{color:#f59e0b;transform:scale(1.15)}.stb:focus-visible{outline:2px solid #f59e0b;outline-offset:1px}.stb.on{color:#f59e0b;text-shadow:0 1px 8px #f59e0b66}.stb:disabled{opacity:.5}
 tr.is-star{background:rgba(245,158,11,.07)}tr.is-star>td:first-child{box-shadow:inset 4px 0 0 #f59e0b}
 .ab-pro{background:#ecfdf5;border-color:#34d399;color:#047857}.ab-pro:hover{background:#d1fae5}.ab-pro i{color:#059669}
@@ -692,8 +697,8 @@ button .thw,.btn .thw{white-space:normal}
  <div id="a-panel" class="hide">
   <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>เจ้าหน้าที่ HR</span><i class="ph-bold ph-caret-right"></i><span>จัดการ อวช.</span></nav>
   <div class="page-head"><span class="ph-title-ico" style="padding:0;overflow:hidden;background:#fff;box-shadow:0 0 0 2px #fff,0 0 0 4px #cfe9e6"><img src="assets/logo.png" alt="" width="50" height="50" style="width:100%;height:100%;object-fit:cover"></span><div style="flex:1"><h1>แดชบอร์ด จัดการ อวช.</h1><p>ผู้ใช้: <b id="a-user"></b></p></div><div class="row" style="gap:8px"><button class="btn sec sm" id="a-demo" type="button" aria-pressed="false" title="แสดงข้อมูลตัวอย่างให้ทดลองกดทุกฟังก์ชัน โดยไม่กระทบข้อมูลจริง"><i class="ph-bold ph-flask"></i> โหมดจำลองข้อมูล</button><button class="btn sec sm" id="a-out"><i class="ph-bold ph-sign-out"></i> ออกจากระบบ</button></div></div>
-  <div class="tabs" role="tablist"><button data-t="list" class="on"><i class="ph ph-list-checks"></i> รายการผลงาน</button><button data-t="line" id="tb-line"><svg class="lico" viewBox="0 0 24 24" aria-hidden="true"><path class="b" d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.2 7.9.4.1.9.2 1 .6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5C22.3 12.8 22 11.5 22 10c0-4.4-4.5-8-10-8z"/><text class="t" x="12" y="11.6" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Arial,sans-serif">LINE</text></svg> LINE</button><button data-t="faq" id="tb-faq"><i class="ph ph-question"></i> คำถามที่พบบ่อย</button><button data-t="users" id="tb-users"><i class="ph ph-users"></i> ผู้ใช้</button><button data-t="log" id="tb-log"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการใช้งาน</button></div>
-  <div id="a-list"></div><div id="a-line" class="hide"></div><div id="a-faq" class="hide"></div><div id="a-users" class="hide"></div><div id="a-log" class="hide"></div>
+  <div class="tabs" role="tablist"><button data-t="list" class="on"><i class="ph ph-list-checks"></i> รายการผลงาน</button><button data-t="line" id="tb-line"><svg class="lico" viewBox="0 0 24 24" aria-hidden="true"><path class="b" d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.2 7.9.4.1.9.2 1 .6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5C22.3 12.8 22 11.5 22 10c0-4.4-4.5-8-10-8z"/><text class="t" x="12" y="11.6" text-anchor="middle" font-size="6.2" font-weight="800" font-family="Arial,sans-serif">LINE</text></svg> LINE</button><button data-t="faq" id="tb-faq"><i class="ph ph-question"></i> คำถามที่พบบ่อย</button><button data-t="users" id="tb-users"><i class="ph ph-users"></i> ผู้ใช้</button><button data-t="log" id="tb-log"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการใช้งาน</button><button data-t="manual" id="tb-manual"><i class="ph ph-book-open-text"></i> คู่มือการใช้งาน</button></div>
+  <div id="a-list"></div><div id="a-line" class="hide"></div><div id="a-faq" class="hide"></div><div id="a-users" class="hide"></div><div id="a-log" class="hide"></div><div id="a-manual" class="hide"></div>
  </div>
 </section>
 </main>
@@ -1183,8 +1188,8 @@ async function enter(u){USER=u;document.body.classList.toggle('wide',(location.h
  ['tb-users','tb-log','tb-line'].forEach(i=>$('#'+i).classList.toggle('hide',u.r!=='admin'));loadList()}
 function logout(silent){if(TOKEN&&!silent)api('logout',[TOKEN]);TOKEN='';USER=null;document.body.classList.remove('wide');if(typeof DEMO!=='undefined'&&DEMO.on)setDemo(false,true);localStorage.removeItem('awc_tk');$('#a-panel').classList.add('hide');$('#a-login').classList.remove('hide');['dlg','dn','ds','da'].forEach(i=>$('#'+i).open&&$('#'+i).close())}
 $('#a-out').onclick=()=>logout();
-$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));['list','line','faq','users','log'].forEach(t=>$('#a-'+t).classList.toggle('hide',t!==b.dataset.t));
- ({list:loadList,line:loadLine,faq:loadFaqAdmin,users:loadUsers,log:loadLog})[b.dataset.t]()});
+$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.toggle('on',x===b));['list','line','faq','users','log','manual'].forEach(t=>$('#a-'+t).classList.toggle('hide',t!==b.dataset.t));
+ ({list:loadList,line:loadLine,faq:loadFaqAdmin,users:loadUsers,log:loadLog,manual:loadManual})[b.dataset.t]()});
 const lnBadge=r=>r.lk?'<span class="dbadge ok" style="font-size:12px" title="ผูก LINE แล้ว"><i class="ph-fill ph-check-circle"></i>ผูกแล้ว</span>':'<span class="chip gray" style="font-size:12px" title="ยังไม่ผูก LINE"><i class="ph ph-minus-circle"></i>ยังไม่ผูก</span>';
 async function loadList(){const el=$('#a-list');if(!ROWS.length)el.innerHTML=skTable(6);const d=await api('adminList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}ROWS=d.rows;COUNTS=d.counts;CFG.lineOn=d.lineEnabled;if(d.nowMs)SKEW=d.nowMs-Date.now();renderList()}
 let FLASH='';
@@ -1509,6 +1514,22 @@ async function loadUsers(){const el=$('#a-users');el.innerHTML=skTable(4);const 
   $('#up-gen').onclick=()=>{const cs='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789',a=new Uint32Array(12);crypto.getRandomValues(a);const pw=[...a].map(n=>cs[n%cs.length]).join('');$('#up-p').type='text';$('#up-p').value=pw;$('#up-c').value=pw;msg($('#up-m'),'รหัสที่สุ่ม: '+pw+' — โปรดจดแล้วแจ้งผู้ใช้ (ระบบจะไม่แสดงอีก)','ok')};
   $('#f-up').onsubmit=async ev=>{ev.preventDefault();const p1=$('#up-p').value;if(p1.length<8)return msg($('#up-m'),'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร');if(p1!==$('#up-c').value)return msg($('#up-m'),'รหัสผ่านยืนยันไม่ตรงกัน');const g=$('#up-go');busy(g,1,'กำลังบันทึก...');const r=await api('userEdit',[TOKEN,u.username,{password:p1}],{write:true});busy(g,0);if(!r.ok)return msg($('#up-m'),r.message);$('#du').close();toast('ตั้งรหัสผ่านใหม่ให้ '+u.username+' แล้ว');loadUsers()};
   dlgOpen($('#du'))})}
+/* ===== คู่มือการใช้งานสำหรับเจ้าหน้าที่ (ไฟล์ manual/ch1-9.html) ===== */
+const MN=['เริ่มต้น','แผนที่หน้าจอ','อ่านตารางรายการ','อัพเดทสถานะ','เส้นทางเอกสาร','ปุ่มอื่นๆ ในแถว','แท็บอื่นๆ','งานประจำวัน','ถ้า…ให้ทำ…'];
+let MNI=0;
+function loadManual(){const el=$('#a-manual');try{const s=+localStorage.getItem('awc_mn');if(s>=0&&s<MN.length)MNI=s}catch(e){}
+ el.innerHTML=`<div class="mn-h"><div><h2><i class="ph-bold ph-book-open-text"></i> คู่มือการใช้งานสำหรับเจ้าหน้าที่</h2><div class="meta">อินโฟกราฟิกอธิบายทุกปุ่ม · งานประจำวัน · วิธีรับมือเหตุการณ์ต่างๆ</div></div><a class="btn sm sec" id="mn-open" target="_blank" rel="noopener"><i class="ph-bold ph-arrow-square-out"></i> เปิดเต็มหน้า / พิมพ์</a></div>
+ <div class="mn-nav" role="tablist">${MN.map((t,i)=>`<button type="button" data-mn="${i}" class="${i===MNI?'on':''}"><b>${i+1}</b>${esc(t)}</button>`).join('')}</div>
+ <div class="mn-wrap" id="mn-wrap"><iframe id="mn-fr" title="คู่มือการใช้งาน" loading="lazy"></iframe></div>
+ <div class="row mn-pn"><button type="button" class="btn sec sm" id="mn-prev"><i class="ph-bold ph-caret-left"></i> ตอนก่อนหน้า</button><span class="grow"></span><button type="button" class="btn sm" id="mn-next">ตอนถัดไป <i class="ph-bold ph-caret-right"></i></button></div>`;
+ const fr=$('#mn-fr'),wrap=$('#mn-wrap');
+ const fit=()=>{try{fr.style.height='200px';const d=fr.contentDocument,H=Math.max(d.documentElement.scrollHeight,d.body.scrollHeight),W=wrap.clientWidth,s=Math.min(1,Math.max(.55,W/1200));fr.style.height=H+'px';fr.style.transform=`scale(${s})`;wrap.style.height=Math.ceil(H*s)+'px';wrap.style.overflowX=W<1200*s-1?'auto':'hidden'}catch(e){}};
+ const go=i=>{MNI=Math.max(0,Math.min(MN.length-1,i));try{localStorage.setItem('awc_mn',MNI)}catch(e){}
+  $$('[data-mn]',el).forEach(b=>b.classList.toggle('on',+b.dataset.mn===MNI));$('#mn-open').href='manual/ch'+(MNI+1)+'.html';
+  $('#mn-prev').disabled=MNI===0;$('#mn-next').disabled=MNI===MN.length-1;fr.src='manual/ch'+(MNI+1)+'.html'};
+ fr.onload=()=>{fit();setTimeout(fit,400);window.scrollTo({top:Math.max(0,el.getBoundingClientRect().top+scrollY-90),behavior:'smooth'})};
+ window.addEventListener('resize',()=>{if(!el.classList.contains('hide'))fit()});
+ $$('[data-mn]',el).forEach(b=>b.onclick=()=>go(+b.dataset.mn));$('#mn-prev').onclick=()=>go(MNI-1);$('#mn-next').onclick=()=>go(MNI+1);go(MNI)}
 async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=await api('logList',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
  el.innerHTML=`<div class="card tw" style="padding:8px"><table class="rt"><thead><tr><th>เวลา</th><th>กิจกรรม</th><th>ผู้ใช้</th><th>ผลลัพธ์</th><th>รายละเอียด</th></tr></thead><tbody>${d.rows.map(r=>`<tr><td data-l="เวลา">${esc(thDT(r[0]))}</td><td data-l="กิจกรรม">${esc(r[1])}</td><td data-l="ผู้ใช้">${esc(r[2])}</td><td data-l="ผลลัพธ์">${esc(r[3])}</td><td data-l="รายละเอียด">${esc(r[4])}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">ยังไม่มีประวัติ</td></tr>'}</tbody></table></div>`}
 /* ===================== โหมดจำลองข้อมูล (เดโมจากแอดมิน) =====================

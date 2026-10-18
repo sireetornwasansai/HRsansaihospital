@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1200">
+<title>คู่มือแอดมิน อวช. — แท็บอื่นๆ</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;color:#12302c}
+*{box-sizing:border-box}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+ul,ol{padding:0;list-style:none}
+.card{background:#fff;border:1px solid #d3e0dd;border-radius:18px}
+.n{width:34px;height:34px;border-radius:50%;background:#0f766e;color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex:none}
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:600}
+.tab{padding:7px 16px;border-radius:999px;border:1px solid #cfdcd9;background:#fff;font-size:14px;color:#2d4a45}
+.tab.on{background:#0f766e;border-color:#0f766e;color:#fff}
+.pn{padding:24px;display:flex;flex-direction:column;gap:12px}
+.pn h3{font-size:24px;font-weight:700}
+.pn .u{font-size:15px;line-height:1.6;color:#3d5753}
+.pn ol{display:flex;flex-direction:column;gap:9px;counter-reset:s}
+.pn li{display:flex;gap:10px;font-size:15px;line-height:1.55;color:#2d4a45}
+.pn li i{font-style:normal;flex:none;width:24px;height:24px;border-radius:50%;background:#d9f0ec;color:#0b5a52;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.w{background:#fff3d6;border-radius:10px;padding:9px 14px;font-size:14.5px;line-height:1.55;color:#5a3a00}
+</style>
+<style>html,body{background:#f3f7f6}@media print{@page{size:1200px auto;margin:0}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style>
+</head>
+<body>
+<div style="width:1200px;min-height:1500px;background:#f3f7f6;padding:56px 64px 40px;display:flex;flex-direction:column;gap:28px">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+  <div style="font-size:15px;font-weight:600;letter-spacing:.04em;color:#0f766e">ตอนที่ 7</div>
+  <h2 style="font-size:40px;font-weight:700;line-height:1.25">แท็บอื่นๆ — LINE · คำถามที่พบบ่อย · ผู้ใช้ · ประวัติ</h2>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:4px"><span class="tab">รายการผลงาน</span><span class="tab on">LINE</span><span class="tab on">คำถามที่พบบ่อย</span><span class="tab on">ผู้ใช้</span><span class="tab on">ประวัติการใช้งาน</span><span style="font-size:14px;color:#7a4a00">แท็บ LINE · ผู้ใช้ · ประวัติการใช้งาน เห็นเฉพาะ <b>ผู้ดูแลระบบ</b> ส่วน คำถามที่พบบ่อย เจ้าหน้าที่ทุกคนใช้ได้</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start">
+
+  <div class="card pn">
+    <div style="display:flex;gap:10px;align-items:center"><h3>แท็บ LINE</h3><span class="pill" style="background:#fdebc8;color:#7a4a00">ผู้ดูแลระบบ</span></div>
+    <p class="u">ใช้ดูแลการส่งข้อความ LINE ถึงผู้ยื่น เปิดดูเมื่อผู้ยื่นบอกว่าไม่ได้รับข้อความ</p>
+    <ol>
+      <li><i>1</i><span><b>ข้อความไม่ถึงใครเลย:</b> กดปุ่ม <b>“ตรวจสอบการเชื่อมต่อ”</b> ระบบทดสอบการเชื่อมต่อกับ LINE และแสดงที่อยู่ Webhook ถ้าขึ้นแจ้งปัญหา ให้ส่งข้อความนั้นให้ผู้ดูแลระบบ/ผู้พัฒนา</span></li>
+      <li><i>2</i><span><b>ผู้ยื่นเพิ่มเพื่อนแล้วแต่ยังไม่ผูก:</b> ดูตาราง “เพิ่มเพื่อนแล้วแต่ยังไม่ผูก” มีชื่อ LINE เวลา ข้อความล่าสุด และ <b>“ผู้ยื่นที่น่าจะตรง”</b> ให้กดชื่อผู้ยื่นที่ตรงเพื่อผูก ถ้าไม่มีชื่อตรง กด <b>“ใช้ userId นี้”</b> แล้วกรอกเลขบัตรประชาชนเอง</span></li>
+      <li><i>3</i><span><b>ตรวจย้อนหลัง:</b> ตารางล่างสุดคือประวัติข้อความ (เวลา · รหัส/ผู้รับ · ประเภท · ผู้ส่ง · ข้อความ · ผลลัพธ์) ใช้ดูว่าข้อความที่ส่งออกไปสำเร็จหรือไม่</span></li>
+    </ol>
+    <div class="w">ผูกให้ผิดคน = ข้อความของคนหนึ่งไปถึงอีกคน ตรวจเลขบัตรและชื่อให้ตรงก่อนกดทุกครั้ง</div>
+  </div>
+
+  <div class="card pn">
+    <div style="display:flex;gap:10px;align-items:center"><h3>แท็บ คำถามที่พบบ่อย</h3><span class="pill" style="background:#d9f0ec;color:#0b5a52">เจ้าหน้าที่ทุกคน</span></div>
+    <p class="u">คำถามที่ผู้ยื่นเปิดอ่านได้เองโดยไม่ต้องเข้าสู่ระบบ ช่วยลดจำนวนคนโทรถาม</p>
+    <ol>
+      <li><i>1</i><span>กด <b>“เพิ่มคำถาม”</b> แล้วกรอก <b>หมวดหมู่ · ลำดับแสดง</b> (เลขน้อยขึ้นก่อน) <b>· คำถาม · คำตอบ</b> (ไม่เกิน 3,000 ตัวอักษร พิมพ์ลิงก์ https://… ระบบทำเป็นลิงก์ให้)</span></li>
+      <li><i>2</i><span>ติ๊ก <b>“เผยแพร่”</b> ถ้าพร้อมให้ผู้ยื่นเห็น ไม่ติ๊ก = <b>ฉบับร่าง</b> (ผู้ยื่นไม่เห็น) ติ๊ก <b>“ปักหมุด แนะนำ”</b> เพื่อให้ขึ้นก่อนข้ออื่น แล้วกด <b>“บันทึก”</b></span></li>
+      <li><i>3</i><span>กด <b>“ดูหน้าที่ผู้ยื่นเห็น”</b> เพื่อตรวจว่าแสดงถูกต้อง คอลัมน์ “ความเห็น” คือจำนวนคนที่กดว่าเป็นประโยชน์/ไม่เป็นประโยชน์ ข้อที่ไม่เป็นประโยชน์เยอะ ควรเขียนใหม่</span></li>
+    </ol>
+    <div class="w">ผู้ยื่นถามเรื่องเดิมซ้ำ 3 ครั้งขึ้นไป ให้เพิ่มเป็นคำถามที่พบบ่อย แล้วตอบผู้ถามพร้อมลิงก์ไปหน้านั้น</div>
+  </div>
+
+  <div class="card pn">
+    <div style="display:flex;gap:10px;align-items:center"><h3>แท็บ ผู้ใช้</h3><span class="pill" style="background:#fdebc8;color:#7a4a00">ผู้ดูแลระบบ</span></div>
+    <p class="u">จัดการว่าใครเข้าระบบนี้ได้ ใช้เมื่อมีเจ้าหน้าที่ใหม่ ย้าย หรือลืมรหัสผ่าน</p>
+    <ol>
+      <li><i>1</i><span><b>เพิ่มเจ้าหน้าที่ใหม่:</b> พิมพ์ชื่อ นามสกุล หรือเลขบัตร (อย่างน้อย 2 ตัวอักษร) เพื่อค้นหาจากทะเบียนบุคลากร → เลือกคนที่ถูกต้อง</span></li>
+      <li><i>2</i><span>ตั้ง <b>ชื่อผู้ใช้</b> (ค่าเริ่มต้นคือเลขบัตร แก้ได้) และ <b>รหัสผ่านเริ่มต้น</b> (อย่างน้อย 8 ตัว) เลือก <b>สิทธิ์</b>: <b>เจ้าหน้าที่</b> (จัดการผลงานได้) หรือ <b>ผู้ดูแลระบบ</b> (ทำได้ทุกอย่าง) → กด <b>“เพิ่มผู้ใช้”</b></span></li>
+      <li><i>3</i><span><b>ลืมรหัสผ่าน:</b> ที่แถวของคนนั้นกดตั้งรหัสผ่านใหม่ ผู้ใช้ต้องใช้รหัสใหม่ตั้งแต่ครั้งถัดไป</span></li>
+      <li><i>4</i><span><b>คนลาออก/ย้าย:</b> กด <b>“ปิดใช้งาน”</b> บัญชีเข้าไม่ได้ทันที ประวัติเดิมยังอยู่ ถ้ากลับมากด “เปิดใช้งาน”</span></li>
+    </ol>
+    <div class="w">ให้สิทธิ์ “ผู้ดูแลระบบ” เฉพาะคนที่จำเป็น เพราะลบรายการและดูประวัติได้ ส่งรหัสผ่านเริ่มต้นให้เจ้าตัวโดยตรง ไม่ส่งในกลุ่มแชต</div>
+  </div>
+
+  <div class="card pn">
+    <div style="display:flex;gap:10px;align-items:center"><h3>แท็บ ประวัติการใช้งาน</h3><span class="pill" style="background:#fdebc8;color:#7a4a00">ผู้ดูแลระบบ</span></div>
+    <p class="u">สมุดบันทึกของระบบ ว่า “ใคร ทำอะไร เมื่อไร” ใช้ตรวจสอบเมื่อข้อมูลเปลี่ยนโดยไม่รู้ที่มา</p>
+    <ol>
+      <li><i>1</i><span>เปิดแท็บ จะเห็นตารางเรียงจากล่าสุด: <b>เวลา · กิจกรรม · ผู้ใช้ · ผลลัพธ์ · รายละเอียด</b></span></li>
+      <li><i>2</i><span>ค้นรหัสเรื่อง (เช่น AWC-…) ด้วยปุ่มค้นหาของเบราว์เซอร์ (Ctrl + F) เพื่อดูทุกอย่างที่เกิดกับเรื่องนั้น</span></li>
+    </ol>
+    <div style="background:#eef5f3;border-radius:12px;padding:12px 16px;font-size:14px;line-height:1.7;color:#2d4a45"><b>ชื่อกิจกรรมที่พบบ่อย:</b><br><b>admin_hist_time</b> = แก้ไขวันที่ย้อนหลัง (มีเวลาเดิม → เวลาใหม่) · <b>star_on / star_off</b> = ติดดาว / เอาดาวออก · <b>admin_delete</b> = ลบรายการ · <b>login</b> = เข้าสู่ระบบ</div>
+    <div class="w">ลบหรือแก้ไม่ได้ จึงเชื่อถือได้เวลามีข้อสงสัยว่า “ใครเป็นคนแก้วันที่”</div>
+  </div>
+</div>
+
+<div style="background:#0f4f49;border-radius:22px;padding:28px 32px;color:#fff;display:flex;gap:30px;align-items:center">
+  <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+    <span class="pill" style="background:#9fe0d6;color:#0b3f3a;align-self:flex-start">ฝึกก่อนใช้จริง</span>
+    <h3 style="font-size:26px;font-weight:700">ปุ่ม “โหมดจำลองข้อมูล”</h3>
+    <p style="font-size:16px;line-height:1.65;color:#d3efea">อยู่ในหน้า “เจ้าหน้าที่ HR” (หลังเข้าสู่ระบบ) เปิดแล้วจะมีข้อมูลตัวอย่างให้ทดลองกดทุกปุ่มได้เต็มที่ <b>ไม่กระทบข้อมูลจริง</b> ไม่เขียนลงชีท และไม่ส่ง LINE หรืออีเมลจริง ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายหมด</p>
+  </div>
+  <div style="width:340px;flex:none;background:#fff;color:#12302c;border-radius:16px;padding:18px 20px;font-size:15px;line-height:1.7"><b>แนะนำสำหรับเจ้าหน้าที่ใหม่</b><br>1. เปิดโหมดจำลอง<br>2. ลองอัพเดทสถานะจนครบเล่ม 1<br>3. ลองแก้วันที่ย้อนหลัง และติดดาว<br>4. ลองส่งแจ้ง LINE และตอบคำถาม<br>5. ปิดโหมดจำลอง แล้วเริ่มงานจริง</div>
+</div>
+
+<div style="display:flex;justify-content:space-between;font-size:13px;color:#6b8581"><span>คู่มือแอดมิน ระบบติดตามสถานะ อวช. · โรงพยาบาลสันทราย จังหวัดเชียงใหม่</span><span>ตอนที่ 7 จาก 9</span></div>
+</div>
+</body>
+</html>
