@@ -802,11 +802,11 @@ const toDate=s=>{const m=TS.exec(s||'');return m?new Date(`${m[1]}-${m[2]}-${m[3
 const span=ms=>{const m=Math.floor(ms/6e4);if(m<1)return 'ไม่ถึง 1 นาที';if(m<60)return m+' นาที';const h=Math.floor(m/60);if(h<24)return h+' ชั่วโมง';return Math.floor(h/24)+' วัน'};
 
 /* ---- ตัดคำไทย: ไม่ตัดกลางคำ / วงเล็บอยู่บรรทัดล่างทั้งก้อน ---- */
-const KEEP=['กลุ่มงานทรัพยากรบุคคล','ทรัพยากรบุคคล','กลุ่มงาน','โรงพยาบาลสันทราย','รพ.สันทราย','นายแพทย์สาธารณสุขจังหวัด','สาธารณสุขจังหวัด','ผู้ว่าราชการจังหวัด','ศาลากลางจังหวัด','ผู้อำนวยการ','นพ.สสจ.','สสจ.','คุณสมบัติ','รูปแบบเอกสาร','ลงนามแล้ว','ลงนาม','อนุมัติ','เสร็จสิ้น','รับเอกสารแล้ว','ผ่านการประเมิน','ผ่านการตรวจสอบ','ได้รับการเลื่อนระดับแล้ว','เลื่อนระดับ','คำสั่งเลื่อน','กรรมการอ่านผลงาน','การแก้ไข','ประเมินบุคคล','ประเมินผลงาน','เจ้าหน้าที่','ผู้ยื่น'];
+const KEEP=['ครั้งที่','ตรวจสอบซ้ำ','ตรวจสอบรูปแบบเอกสาร','ตรวจสอบ','กลุ่มงานทรัพยากรบุคคล','ทรัพยากรบุคคล','กลุ่มงาน','โรงพยาบาลสันทราย','รพ.สันทราย','นายแพทย์สาธารณสุขจังหวัด','สาธารณสุขจังหวัด','ผู้ว่าราชการจังหวัด','ศาลากลางจังหวัด','ผู้อำนวยการ','นพ.สสจ.','สสจ.','คุณสมบัติ','รูปแบบเอกสาร','ลงนามแล้ว','ลงนาม','อนุมัติ','เสร็จสิ้น','รับเอกสารแล้ว','ผ่านการประเมิน','ผ่านการตรวจสอบ','ได้รับการเลื่อนระดับแล้ว','เลื่อนระดับ','คำสั่งเลื่อน','กรรมการอ่านผลงาน','การแก้ไข','ประเมินบุคคล','ประเมินผลงาน','เจ้าหน้าที่','ผู้ยื่น'];
 const KEEP_RE=new RegExp('('+KEEP.slice().sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|')+')');
 const SEG=(typeof Intl!=='undefined'&&Intl.Segmenter)?new Intl.Segmenter('th',{granularity:'word'}):null;
 function thChunks(src){
- src=String(src==null?'':src).replace(/เล่ม (\d)/g,'เล่ม\u00a0$1').replace(/ : /g,'\u00a0: ').replace(/(\d+) (วัน|ชั่วโมง|นาที|ปี|เดือน)/g,'$1\u00a0$2');
+ src=String(src==null?'':src).replace(/เล่ม (\d)/g,'เล่ม\u00a0$1').replace(/ : /g,'\u00a0: ').replace(/ครั้งที่ (\d+)/g,'ครั้งที่\u00a0$1').replace(/(\d+) (วัน|ชั่วโมง|นาที|ปี|เดือน)/g,'$1\u00a0$2');
  const raw=[];
  src.split(/([ \t\n]+)/).forEach(tok=>{if(!tok)return;if(/^[ \t\n]+$/.test(tok)){raw.push(' ');return}
   tok.split(KEEP_RE).forEach(part=>{if(!part)return;if(KEEP.includes(part)){raw.push(part);return}
@@ -1545,7 +1545,7 @@ const bkkS=ms=>new Date(ms+7*36e5).toISOString().slice(0,19).replace('T',' ');
 DEMO.seed=function(){
  const now=Date.now(),D=864e5,T=(CFG.tracks||[]).map(x=>x.t),tr=i=>T[i]||'';
  const flat=CFG.stages.filter(s=>!s.fix&&!s.rep).slice().sort((a,b)=>a.ord-b.ord);
- const DUR={b1_submit:.4,b1_check:1.5,b1_fix:3,b1_pass:.6,b1_dir:.8,b1_pho:3.5,b1_pho_dir:2,b1_gov:14,b1_signed:70,b2_submit:.5,b2_check:6,b2_pass:1,b2_dir:1,b2_pho:30,b2_read:60,b2_fix:12,b2_readpass:2,b2_pho_dir:5,b2_gov:15,b2_signed:2,b1_gov_chk:2,b1_gov_fix:5,b1_gov_fixed:1,b2_gov_chk:2,cmd_make:1.5,cmd_dir:1,cmd_dir_ok:.3,b2_resub:10,b1_dir_ok:.5,b1_pho_ok:1,b2_dir_ok:1,b2_pho_ok:2};
+ const DUR={b1_submit:.4,b1_check:1.5,b1_fix:3,b1_fixed:.5,b1_pass:.6,b1_dir:.8,b1_pho:3.5,b1_pho_dir:2,b1_gov:14,b1_signed:70,b2_submit:.5,b2_check:6,b2_pass:1,b2_dir:1,b2_pho:30,b2_read:60,b2_fix:12,b2_readpass:2,b2_pho_dir:5,b2_gov:15,b2_signed:2,b1_gov_chk:2,b1_gov_fix:5,b1_gov_fixed:1,b2_gov_chk:2,cmd_make:1.5,cmd_dir:1,cmd_dir_ok:.3,b2_resub:10,b1_dir_ok:.5,b1_pho_ok:1,b2_dir_ok:1,b2_pho_ok:2};
  const P=[
   ['3999900000','1','นางสาว','สมหญิง','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_check',1.2,{lk:1}],
   ['3999900000','2','นาย','วิชัย','เภสัชกรปฏิบัติการ','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค',2,'b1_fix',6,{lk:1,note:'กรุณาแก้ไขแบบประเมินบุคคลหน้า 3 และแนบสำเนาวุฒิการศึกษา',q:[['applicant','แก้ไขเสร็จแล้วต้องส่งกลับที่ไหนครับ']]}],
@@ -1561,7 +1561,7 @@ DEMO.seed=function(){
   ['3999900001','2','นาย','สมบัติ','เจ้าพนักงานการเงินและบัญชีชำนาญงาน','กลุ่มงานบริหารทั่วไป',1,'b2_gov',12,{}],
   ['3999900001','3','นาง','ศิริพร','นักโภชนาการปฏิบัติการ','กลุ่มงานโภชนศาสตร์',2,'b2_signed',2,{lk:1}],
   ['3999900001','4','นาย','จันทร์ดี','เจ้าพนักงานสาธารณสุขปฏิบัติงาน','กลุ่มงานเวชปฏิบัติครอบครัวและชุมชน',0,'promoted',3,{lk:1}],
-  ['3999900001','5','นางสาว','ปัญญา','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_pass',1.5,{fixAt:'b1_check',fixKey:'b1_fix'}],
+  ['3999900001','5','นางสาว','ปัญญา','พยาบาลวิชาชีพปฏิบัติการ','กลุ่มงานการพยาบาล',2,'b1_pass',1.5,{fixAt:'b1_check',fixKey:'b1_fix',fixKey2:'b1_fixed'}],
   ['3999900002','0','นาย','ธีรพงษ์','นักวิชาการสาธารณสุขปฏิบัติการ','กลุ่มงานเวชปฏิบัติครอบครัวและชุมชน',2,'b1_dir_ok',.6,{lk:1}],
   ['3999900002','1','นางสาว','อรอุมา','พยาบาลวิชาชีพชำนาญการ','กลุ่มงานการพยาบาล',3,'b2_fix',8,{lk:1,rounds:3,att:1,note:'ปรับตัวชี้วัดผลลัพธ์ตามข้อเสนอแนะของกรรมการ (ครั้งที่ 3)'}],
   ['3999900002','2','นาย','สุเทพ','เภสัชกรชำนาญการ','กลุ่มงานเภสัชกรรมและคุ้มครองผู้บริโภค',3,'b2_resub',6,{rounds:2}]];
@@ -1571,7 +1571,7 @@ DEMO.seed=function(){
   let path=flat.filter(s=>s.ord<=tg.ord).map(s=>s.k);
   if(tg.fix||tg.rep)path=flat.filter(s=>s.ord<tg.ord).map(s=>s.k).concat([x[7]]);
   if(o.rounds){const j=path.indexOf('b2_read'),ins=[];for(let q=1;q<o.rounds;q++)ins.push('b2_fix','b2_resub');if(j>-1)path.splice(j+1,0,...ins)}
-  if(o.fixAt){const j=path.indexOf(o.fixAt);if(j>-1)path.splice(j+1,0,o.fixKey,o.fixAt)}
+  if(o.fixAt){const j=path.indexOf(o.fixAt);if(j>-1)path.splice(j+1,0,o.fixKey,o.fixKey2||o.fixAt)}
   const n=path.length,t=new Array(n),jit=.85+((i*37)%30)/100;t[n-1]=now-x[8]*D;
   for(let j=n-2;j>=0;j--)t[j]=t[j+1]-(DUR[path[j]]||1)*D*jit;
   const id='AWC-'+bkkS(t[0]).slice(0,10).replace(/-/g,'')+'-'+('000'+(i+1)).slice(-4);
