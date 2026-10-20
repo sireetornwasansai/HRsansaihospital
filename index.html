@@ -14,6 +14,7 @@
 <meta name="description" content="ติดตามสถานะการประเมินผลงาน (อวช.) กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/favicon-192.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <meta property="og:title" content="ระบบติดตามสถานะการประเมินผลงาน (อวช.) · รพ.สันทราย">
 <meta property="og:image" content="/assets/logo.png">
 <link rel="preload" as="image" href="assets/logo.png">
@@ -1713,6 +1714,19 @@ async function boot(){$('#t-guide').innerHTML=skel(3);const c=await api('config'
  if(TOKEN&&!USER){const v=await api('verify',[TOKEN]);if(v.ok)enter(v.user);else logout(true)}
  if(DEMO.on&&!USER)setDemo(false,true);syncDemoBtn()}
 route();boot();
+</script>
+<script>
+/* PWA: ลงทะเบียน service worker + ปุ่ม "ติดตั้งแอป" (Chrome/Edge บน PC) */
+(function(){
+  if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})});
+  var dp=null,b=null;
+  function btn(){if(b)return b;b=document.createElement('button');b.type='button';b.id='pwa-install';b.hidden=true;
+    b.setAttribute('aria-label','ติดตั้งเป็นแอปบนคอมพิวเตอร์');b.textContent='⬇ ติดตั้งแอป';
+    b.style.cssText='position:fixed;right:16px;bottom:16px;z-index:60;padding:10px 16px;border:0;border-radius:999px;background:#0f766e;color:#fff;font:600 15px/1.2 inherit;font-family:inherit;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer';
+    b.onclick=function(){if(!dp)return;dp.prompt();dp.userChoice.finally(function(){dp=null;b.hidden=true})};document.body.appendChild(b);return b}
+  addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;btn().hidden=false});
+  addEventListener('appinstalled',function(){dp=null;if(b)b.hidden=true});
+})();
 </script>
 </body>
 </html>
