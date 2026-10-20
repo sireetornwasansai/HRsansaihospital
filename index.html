@@ -610,6 +610,7 @@ button .thw,.btn .thw{white-space:normal}
 @media(max-width:560px){.hx-i{grid-template-columns:28px minmax(0,1fr)}.hx-i>.btn{grid-column:1/-1}.dt-d{width:100%;flex:1 1 150px}}
 .wt{display:flex;gap:8px;align-items:flex-start;margin:6px 0 4px;font-weight:600;line-height:1.45;overflow-wrap:anywhere}.wt i{color:var(--pri);font-size:20px;flex:none;margin-top:1px}
 .wk-t{font-weight:600;line-height:1.35;max-width:260px;overflow-wrap:anywhere;margin-bottom:4px}
+.wkb{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:10px 14px;border:1px solid var(--line);border-left:4px solid var(--pri);border-radius:12px;background:#fff}.wkb[hidden]{display:none}.wkb>i{font-size:22px;color:var(--pri);flex:none;margin-top:2px}.wkb>div{display:grid;gap:2px;min-width:0}.wkb b{line-height:1.45;overflow-wrap:anywhere}
 </style>
 <script defer src="https://sandtools.vercel.app/t.js" data-site="ppcwh43swb"></script>
 </head>
@@ -716,6 +717,7 @@ button .thw,.btn .thw{white-space:normal}
 
 <!-- Dialog: อัพเดทสถานะ -->
 <dialog id="ds" aria-labelledby="ds-ttl"><div class="hd"><div><h2 id="ds-ttl"><i class="ph-bold ph-flag"></i> อัพเดทสถานะ</h2><div class="meta" id="ds-sub"></div></div><button class="btn sec sm" type="button" id="ds-x">ปิด</button></div>
+ <div class="wkb" id="ds-wk" hidden></div>
  <div class="dsc" id="ds-cur"></div>
  <div class="grid" style="margin-top:14px">
   <div class="full"><label for="ds-status">สถานะใหม่</label><select id="ds-status"></select><div class="qk" id="ds-qk"></div></div>
@@ -870,7 +872,8 @@ const fmtCid=v=>{const d=v.replace(/\D/g,'').slice(0,13);return[d.slice(0,1),d.s
 const maskCid=c=>c?('x-xxxx-xxxxx-'+c.slice(-3,-1)+'-'+c.slice(-1)):'';
 const copy=async(t,label)=>{try{await navigator.clipboard.writeText(t);toast((label||'คัดลอก')+'แล้ว')}catch{toast('คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง','warn')}};
 const dlgOpen=d=>{if(!d.open)d.showModal()};
-['dlg','dn','dl','dc','dq','ds','da','df'].forEach(i=>$('#'+i).addEventListener('click',e=>{if(e.target.id===i)e.target.close()}));
+/* กล่องโต้ตอบ: คลิกหรือลากเมาส์นอกกรอบ / กด Esc ไม่ถือเป็นการปิด (กันข้อมูลที่กรอกหาย) — ปิดได้เฉพาะปุ่ม "ปิด/ยกเลิก" ในกล่อง */
+['dlg','dn','dl','dc','dq','ds','da','df','du'].forEach(i=>{const d=$('#'+i);if(d)d.addEventListener('cancel',e=>e.preventDefault())});
 $('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();$('#q-x').onclick=()=>$('#dq').close();
 $('#dl').addEventListener('close',()=>{clearInterval(LP);LP=null});
 /* ===== ตัวเลือกไฟล์ (ตรวจชนิด/ขนาด + ตัวอย่างรูป + บีบอัดรูป) ===== */
@@ -1372,6 +1375,7 @@ function hxEdit(r,i){const H=HXD,h=H[i],f=$('#hxf-'+i),open=!f.classList.contain
 
 function openStatus(id){const r=ROWS.find(x=>x.id===id);if(!r)return;SST=r;
  $('#ds-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}${r.title?' · '+r.title:''}`;msg($('#ds-msg'),'');FDS.clear();$('#ds-rd').innerHTML='';
+ {const w=$('#ds-wk');w.hidden=!r.title;w.innerHTML=r.title?`<i class="ph-duotone ph-article"></i><div><span class="meta">ชื่อผลงานที่ยื่นประเมิน</span><b>${esc(r.title)}</b></div>`:''}
  $('#ds-cur').innerHTML=`<div><span class="meta">สถานะปัจจุบัน</span>${chip(r.status,1)}${fxBadge(r)}</div><div class="meta" style="text-align:right">เข้าขั้นตอนนี้<br><b>${esc(thShort(r.since||r.upd||r.ts))}</b></div>`;
  $('#ds-status').innerHTML=statusOpts(r.status);
  const q=qkNext(r);$('#ds-qk').innerHTML=q.length?'<span class="meta">ขั้นตอนถัดไป:</span>'+q.map(k=>`<button type="button" class="tone-${tone(k)}" data-k="${esc(k)}"><i class="ph-bold ${stg(k).ic||'ph-flag'}"></i>${fmtT(qkLbl(r,k),true)}</button>`).join(''):'';
@@ -1405,7 +1409,7 @@ $('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r
  loadList()};
 /* ---- ไฟล์แนบจากผู้ยื่น (เจ้าหน้าที่ดู) ---- */
 const ATK={book2:'ไฟล์เล่ม 2',revision:'ฉบับแก้ไขตามข้อเสนอแนะกรรมการ'};
-async function openAtt(id){const r=ROWS.find(x=>x.id===id);if(!r)return;$('#da-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}`;$('#da-b').innerHTML=skel(2);dlgOpen($('#da'));
+async function openAtt(id){const r=ROWS.find(x=>x.id===id);if(!r)return;$('#da-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}${r.title?' · ผลงาน: '+r.title:''}`;$('#da-b').innerHTML=skel(2);dlgOpen($('#da'));
  const d=await api('attList',[TOKEN,id]);if(!d.ok){$('#da-b').innerHTML='';return msg($('#da-b'),d.message)}
  r.attNew=0;r.attN=d.rows.length;
  $('#da-b').innerHTML=d.rows.length?`<ul class="attl">${d.rows.map(a=>`<li><i class="ph-fill ph-file-text"></i><div><a href="${esc(a.url)}" target="_blank" rel="noopener"><b>${esc(a.name)}</b></a>${a.isNew?' <span class="dbadge wait" style="font-size:12px">ใหม่</span>':''}<span class="meta">${esc(ATK[a.kind]||a.kind)}${a.round?' ครั้งที่ '+esc(a.round):''} · ${esc(thDT(a.t))} · โดย ${esc(a.by||'ผู้ยื่น')}</span>${a.note?`<span class="meta">หมายเหตุ: ${esc(a.note)}</span>`:''}</div></li>`).join('')}</ul>`:'<div class="empty">ยังไม่มีไฟล์แนบ</div>';
@@ -1444,7 +1448,7 @@ $('#n-tpl').onchange=e=>{const t=TPL[e.target.value];if(t){$('#n-text').value=t[
 const cnt=()=>$('#n-cnt').textContent=$('#n-text').value.length+' / 1000';$('#n-text').oninput=cnt;
 function setMode(m){NMODE=m;$$('#n-seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#n-tplbox').classList.toggle('hide',m!=='tpl');$('#n-textbox').classList.toggle('hide',m==='status');if(m==='typed'){$('#n-tpl').value=''}}
 $$('#n-seg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
-async function openNotify(id){const r=ROWS.find(x=>x.id===id);if(!r)return;NID=id;NINFO=null;$('#n-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}`;
+async function openNotify(id){const r=ROWS.find(x=>x.id===id);if(!r)return;NID=id;NINFO=null;$('#n-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}${r.title?' · ผลงาน: '+r.title:''}`;
  $('#n-state').innerHTML='<div class="skeleton sk-text" style="width:70%"></div>';$('#n-hist').innerHTML=skel(3);$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear();msg($('#n-msg'),'');setMode('status');dlgOpen($('#dn'));
  await refreshNotify()}
 async function refreshNotify(){const d=await api('lineInfo',[TOKEN,NID]);if(!d.ok){$('#n-state').innerHTML='';$('#n-hist').innerHTML='';return msg($('#n-msg'),d.message)}NINFO=d;
@@ -1467,7 +1471,7 @@ $('#n-send').onclick=async()=>{const b=$('#n-send'),m=$('#n-msg');msg(m,'');cons
 /* ---- ถาม-ตอบ (เจ้าหน้าที่) ---- */
 let QID=null;
 const drawQ=t=>{const el=$('#q-th');el.innerHTML=t.length?t.map(m=>`<div class="qb ${m.from==='staff'?'a':'s'}">${esc(m.m)}<small>${esc(m.by||(m.from==='staff'?'เจ้าหน้าที่':'ผู้ยื่น'))} · ${esc(thShort(m.t))}</small></div>`).join(''):'<div class="empty">ยังไม่มีข้อความ</div>';el.scrollTop=el.scrollHeight};
-async function openQa(id){QID=id;const r=ROWS.find(x=>x.id===id);if(!r)return;$('#q-sub').textContent=id+' · '+r.prefix+r.first+' '+r.last;$('#q-th').innerHTML=skel(3);$('#q-t').value='';msg($('#q-m'),'');dlgOpen($('#dq'));
+async function openQa(id){QID=id;const r=ROWS.find(x=>x.id===id);if(!r)return;$('#q-sub').textContent=id+' · '+r.prefix+r.first+' '+r.last+(r.title?' · ผลงาน: '+r.title:'');$('#q-th').innerHTML=skel(3);$('#q-t').value='';msg($('#q-m'),'');dlgOpen($('#dq'));
  const d=await api('qaThread',[TOKEN,id]);if(!d.ok){$('#q-th').innerHTML='';return msg($('#q-m'),d.message)}drawQ(d.thread)}
 $('#q-send').onclick=async()=>{const b=$('#q-send'),m=$('#q-m'),t=$('#q-t').value.trim();msg(m,'');if(t.length<2)return msg(m,'กรุณาพิมพ์ข้อความ');busy(b,1,'กำลังส่ง...');
  const d=await api('qaReply',[TOKEN,QID,t],{write:true});busy(b,0);if(!d.ok)return msg(m,d.message);$('#q-t').value='';drawQ(d.thread);const r=ROWS.find(x=>x.id===QID);if(r)r.qa=0;renderList();
