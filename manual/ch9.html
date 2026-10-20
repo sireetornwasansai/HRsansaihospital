@@ -107,6 +107,13 @@ ul,ol{padding:0;list-style:none}
 
   <div class="cs" style="grid-column:span 2"><div class="if"><span>ถ้า</span><b>กดปุ่ม “เลื่อนระดับแล้ว” (ปิดเคส) ผิดคน</b></div>
     <div class="do"><span>ให้ทำ</span><ol><li>กด <span class="bd">อัพเดทสถานะ</span> ที่แถวนั้น เลือกสถานะ <span class="bd">ผู้ว่าราชการจังหวัดลงนามแล้ว (คำสั่งเลื่อนระดับ)</span> ย้อนกลับ (เอาติ๊ก LINE ออก ถ้าไม่ต้องการให้ผู้ยื่นได้ข้อความซ้ำ) และเขียนหมายเหตุอธิบาย</li><li>แจ้งผู้ยื่นด้วยตนเอง หากเขาเห็นข้อความ “ปิดเคส” หรือได้รับ LINE ไปแล้ว</li></ol></div></div>
+
+  <div class="cs"><div class="if"><span>ถ้า</span><b>เวลาในระบบไม่ตรงความจริง (เช่น ยื่น 09:19 แต่ขึ้น 16:19 หรือ “ยื่นมาแล้ว ไม่ถึง 1 นาที”)</b></div>
+    <div class="do"><span>ให้ทำ</span><ol><li>รีเฟรชหน้า แล้วลองอีกครั้ง (ระบบรุ่นล่าสุดอ่านเวลาจากเซิร์ฟเวอร์ ไม่ใช่นาฬิกาเครื่อง)</li><li>ถ้ายังเพี้ยน แจ้งผู้ดูแลระบบให้เปิด Google Sheet ไปที่ <b>ไฟล์ → การตั้งค่า → เขตเวลา</b> ตั้งเป็น <b>Asia/Bangkok</b> และรันฟังก์ชัน <b>diagTime()</b> ใน Apps Script เพื่อตรวจ</li><li>รายการที่ลงเวลาผิดไปแล้ว แก้ได้ที่ “ประวัติสถานะ · แก้ไขวันที่ตามเอกสาร”</li></ol></div></div>
+  <div class="cs"><div class="if"><span>ถ้า</span><b>ผู้ยื่นบอกว่าชื่อผลงานพิมพ์ผิด หรือรายเก่าไม่มีชื่อผลงาน</b></div>
+    <div class="do"><span>ให้ทำ</span><ol><li>กด <span class="bd">แก้ไขข้อมูล</span> ที่แถวนั้น แก้ช่อง <b>ชื่อผลงาน</b></li><li>กด <span class="bd">บันทึกข้อมูล</span> (ไม่เปลี่ยนสถานะ ไม่ส่ง LINE)</li></ol></div></div>
+  <div class="cs"><div class="if"><span>ถ้า</span><b>อยากเปิดระบบเหมือนโปรแกรมบนคอมพิวเตอร์</b></div>
+    <div class="do"><span>ให้ทำ</span><ol><li>เปิดเว็บด้วย Chrome หรือ Edge</li><li>กดปุ่ม <b>“⬇ ติดตั้งแอป”</b> มุมขวาล่าง แล้วกดยืนยัน</li><li>เปิดจากไอคอนบน Desktop / Start Menu ได้ทันที หากมีการอัปเดตระบบ ให้ปิดแล้วเปิดแอปใหม่หนึ่งครั้ง</li></ol></div></div>
 </div>
 
 <div style="background:#0f4f49;border-radius:20px;padding:24px 30px;color:#fff;display:flex;gap:18px;align-items:center;margin-top:6px">
