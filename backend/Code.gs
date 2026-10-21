@@ -20,13 +20,14 @@
  *   (ระบบยืนยันตัวตน/reCAPTCHA ถูกถอดออกแล้ว — ไม่ต้องตั้ง RECAPTCHA_* อีก)
  *
  * แท็บที่ระบบสร้างให้อัตโนมัติ: ยื่นอวช, ประวัติสถานะ, Users, Notifications, ActivityLog, LineUsers, LineLog, LinePending (ผู้เพิ่มเพื่อนที่ยังไม่ผูก), ถามตอบ, ไฟล์แนบ (ไฟล์เล่ม 2 / ฉบับแก้ไขจากผู้ยื่น)
+ *   ถังขยะ = แท็บสำรองรายการที่ลบ (กู้คืนได้จากหน้าเว็บ) ; ยกเลิกรายการ = สถานะ cancelled (ปิดเคสแบบไม่สำเร็จ)
  *   (ตัวเลือก) HR_NOTIFY_EMAIL   อีเมลเจ้าหน้าที่ HR — ระบบส่งอีเมลแจ้งเมื่อผู้ยื่นแนบไฟล์เล่ม 2 (คั่นหลายอีเมลด้วย ,)
  */
 var TZ = 'Asia/Bangkok', SESSION_TTL = 3600;
 var ORG = 'กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่';
 var TITLE = 'ระบบติดตามสถานะการประเมินผลงาน (อวช.)';
 /* ระดับหน่วยงาน (lvl) และเล่ม (BOOKS) — หน้าเว็บวาดแถวตามค่าที่ตั้งตรงนี้ */
-var LV = { hos: 'โรงพยาบาลสันทราย', pho: 'สำนักงานสาธารณสุขจังหวัด (สสจ.)', gov: 'ศาลากลางจังหวัด', cmd: 'โรงพยาบาลสันทราย (แจ้งผลและปิดเคส)' };
+var LV = { cxl: 'ยกเลิกรายการ', hos: 'โรงพยาบาลสันทราย', pho: 'สำนักงานสาธารณสุขจังหวัด (สสจ.)', gov: 'ศาลากลางจังหวัด', cmd: 'โรงพยาบาลสันทราย (แจ้งผลและปิดเคส)' };
 /* ระดับตำแหน่งที่ขอเลื่อน (เดิมเรียก "ระดับ ก.พ.") — ใช้เป็นตัวเลือกในฟอร์มยื่นและตัวกรองหน้าจัดการ (t=ค่าที่เก็บในชีท g=กลุ่ม tn=โทนสี) */
 var TRACKS = [
   { t: 'ปฏิบัติงาน → ชำนาญงาน', g: 'ประเภททั่วไป', tn: 'sky' },
@@ -115,9 +116,12 @@ var STAGES = [
   S_('cmd_gov', 'รอ ผู้ว่าราชการจังหวัดลงนาม (คำสั่งเลื่อนระดับ)', 3, 'gov', 350, 'indigo', 'ph-hourglass-medium', 'blue', 'คำสั่งเลื่อนระดับอยู่ระหว่างเสนอผู้ว่าราชการจังหวัดลงนาม', 'ศาลากลางจังหวัดเชียงใหม่', 0, { sg: 'wait', who: 'gov', bd: 'ระยะเวลาไม่แน่นอน (ขึ้นกับหน่วยงาน)' }),
   S_('cmd_gov_ok', 'ผู้ว่าราชการจังหวัดลงนามแล้ว (คำสั่งเลื่อนระดับ)', 3, 'gov', 360, 'emerald', 'ph-signature', 'green', 'ผู้ว่าราชการจังหวัดลงนามคำสั่งเลื่อนระดับแล้ว ส่งกลับโรงพยาบาลเพื่อแจ้งผลและปิดเคส', 'ผู้ว่าราชการจังหวัดเชียงใหม่', 0, { sg: 'done', who: 'gov', fin: true, nx: 'ขั้นตอนถัดไป: กลุ่มงานทรัพยากรบุคคลแจ้งผลและบันทึกปิดเคส' }),
   /* ปิดเคส: ทำได้เฉพาะเมื่อสถานะปัจจุบันคือ cmd_gov_ok — บังคับที่ apiAdminStatus_ */
-  S_('promoted', 'ได้รับการเลื่อนระดับแล้ว (ปิดเคส สำเร็จ)', 3, 'cmd', 400, 'emerald', 'ph-medal', 'green', 'ขอแสดงความยินดี ท่านได้รับการเลื่อนระดับแล้ว กระบวนการประเมินเสร็จสิ้น (ปิดเคส)', HR, 0, { end: true })
+  S_('promoted', 'ได้รับการเลื่อนระดับแล้ว (ปิดเคส สำเร็จ)', 3, 'cmd', 400, 'emerald', 'ph-medal', 'green', 'ขอแสดงความยินดี ท่านได้รับการเลื่อนระดับแล้ว กระบวนการประเมินเสร็จสิ้น (ปิดเคส)', HR, 0, { end: true }),
+  /* ยกเลิกรายการ: ปิดเคสแบบไม่สำเร็จ (ผู้ยื่นถอนเรื่อง/ไม่ผ่าน/ย้ายออก/ซ้ำ/บันทึกผิด) — ทำได้ทุกขั้นตอนก่อนปิดเคส ผ่าน apiAdminCancel_ (บังคับระบุเหตุผล)
+   * end=true จึงไม่ถูกนับเป็นงานค้าง/ค้างนาน/ใกล้ครบ 180 วัน ; cancel=true ให้หน้าเว็บแยกแสดง (ไม่อยู่ในรายการสถานะที่เลือกได้ — กู้คืนด้วย apiAdminRestore_) */
+  S_('cancelled', 'ยกเลิกรายการ (ปิดเคส ไม่ดำเนินการต่อ)', 3, 'cxl', 420, 'rose', 'ph-prohibit', 'orange', 'รายการนี้ถูกยกเลิกและปิดเคสแล้ว ไม่ดำเนินการต่อในระบบ หากมีข้อสงสัยกรุณาติดต่อกลุ่มงานทรัพยากรบุคคล', HR, 0, { end: true, cancel: true })
 ];
-var SH = { SUB: 'ยื่นอวช', HIS: 'ประวัติสถานะ', USR: 'Users', NOT: 'Notifications', LOG: 'ActivityLog', STAFF: 'allstaff', LNU: 'LineUsers', LNL: 'LineLog', LNP: 'LinePending', QA: 'ถามตอบ', ATT: 'ไฟล์แนบ', FAQ: 'คำถามที่พบบ่อย' };
+var SH = { SUB: 'ยื่นอวช', HIS: 'ประวัติสถานะ', USR: 'Users', NOT: 'Notifications', LOG: 'ActivityLog', STAFF: 'allstaff', LNU: 'LineUsers', LNL: 'LineLog', LNP: 'LinePending', QA: 'ถามตอบ', ATT: 'ไฟล์แนบ', FAQ: 'คำถามที่พบบ่อย', TRASH: 'ถังขยะ' };
 var HEAD = {
   SUB: ['รหัส', 'เวลายื่น', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'เลขบัตรประชาชน', 'ตำแหน่ง', 'กลุ่มงาน', 'ตำแหน่งเลขที่', 'วันเริ่มงาน', 'อายุงาน', 'วุฒิการศึกษาสูงสุด', 'ชื่อผลงาน', 'ลิงก์ไฟล์', 'เบอร์โทร', 'อีเมล', 'สถานะ', 'หมายเหตุ', 'อัปเดตล่าสุด', 'ระดับตำแหน่ง', 'ติดดาว'],
   HIS: ['รหัส', 'เวลา', 'สถานะ', 'หมายเหตุ', 'โดย'],
@@ -131,6 +135,9 @@ var HEAD = {
   FAQ: ['รหัส', 'หมวด', 'คำถาม', 'คำตอบ', 'เผยแพร่', 'ปักหมุด', 'ลำดับ', 'เป็นประโยชน์', 'ไม่เป็นประโยชน์', 'อัปเดตล่าสุด', 'โดย'],
   ATT: ['รหัส', 'เวลา', 'ชนิด', 'ครั้งที่แก้ไข', 'ชื่อไฟล์', 'ลิงก์ไฟล์', 'ผู้ส่ง', 'หมายเหตุ', 'เจ้าหน้าที่อ่านแล้ว']
 };
+/* ถังขยะ: สำรองรายการที่ลบ (ข้อมูลรายการ/ประวัติสถานะ/ไฟล์แนบ/ถามตอบ เป็น JSON) เพื่อกู้คืนได้ */
+HEAD.TRASH = ['ลบเมื่อ', 'ลบโดย', 'รหัส', 'ชื่อ-สกุล', 'สถานะตอนลบ', 'เหตุผล', 'ข้อมูลรายการ (JSON)', 'ประวัติสถานะ (JSON)', 'ไฟล์แนบ (JSON)', 'ถามตอบ (JSON)', 'กู้คืนเมื่อ'];
+var CANCEL_REASONS = ['ผู้ยื่นขอถอนเรื่อง / ยกเลิกการส่ง', 'ไม่ผ่านการประเมิน', 'เกินกำหนด 180 วัน (ไม่ยื่นเล่ม 2)', 'ย้าย / ลาออก / เกษียณ / พ้นจากตำแหน่ง', 'ส่งซ้ำ / รายการซ้ำซ้อน', 'บันทึกข้อมูลผิดพลาด', 'อื่น ๆ (ระบุในรายละเอียด)'];
 var KEYS = ['id', 'ts', 'prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'tenure', 'edu', 'title', 'link', 'phone', 'email', 'status', 'note', 'upd', 'track', 'star'];
 /* แก้ไขข้อมูลทั่วไป (ปุ่ม "แก้ไข") — สถานะ/หมายเหตุเปลี่ยนผ่าน apiAdminStatus_ (ปุ่ม "อัพเดทสถานะ") เท่านั้น */
 var EDITABLE = ['prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'edu', 'title', 'link', 'phone', 'email', 'track'];
@@ -153,7 +160,8 @@ var API = {
   lineInfo: apiLineInfo_, lineSend: apiLineSend_, lineAdmin: apiLineAdmin_, lineCheck: apiLineCheck_, lineUnlink: apiLineUnlink_, lineAdd: apiLineAdd_, linePending: apiLinePending_,
   qaAsk: apiQaAsk_, qaReply: apiQaReply_, qaThread: apiQaThread_,
   faqList: apiFaqList_, faqVote: apiFaqVote_, faqAdminList: apiFaqAdminList_, faqSave: apiFaqSave_, faqDelete: apiFaqDelete_,
-  adminStatus: apiAdminStatus_, attAdd: apiAttAdd_, attList: apiAttList_, histGet: apiHistory_, histTime: apiHisTime_, star: apiStar_
+  adminStatus: apiAdminStatus_, attAdd: apiAttAdd_, attList: apiAttList_, histGet: apiHistory_, histTime: apiHisTime_, star: apiStar_,
+  adminCancel: apiAdminCancel_, adminRestore: apiAdminRestore_, trashList: apiTrashList_, trashRestore: apiTrashRestore_
 };
 function doGet() { return json_({ ok: true, name: TITLE }); }
 function doPost(e) {
@@ -576,8 +584,8 @@ function spanTh_(ms) {
 }
 /* ระยะเวลารวมปัจจุบัน: เล่ม 1 (ยื่นเอกสาร→ผู้ว่าฯ อนุมัติ) | ช่วงจัดทำเล่ม 2 (180 วัน) | เล่ม 2 (ยื่นเล่ม 2→ผู้ว่าฯ ลงนาม) | ออกคำสั่งเลื่อนระดับ (ผู้ว่าฯ ลงนามเล่ม 2→ผู้ว่าฯ ลงนามคำสั่ง) | รวมตั้งแต่เริ่มต้น→ปัจจุบัน/ปิดเคส */
 function durationInfo_(it) {
-  var sh = sheet_('HIS'), hv = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues() : [], first = {}, firstAny = null;
-  hv.forEach(function (h) { if (str_(h[0]) !== it.id) return; var k = normKey_(str_(h[2])), t = ms_(str_(h[1])); if (t === null) return; if (firstAny === null || t < firstAny) firstAny = t; if (first[k] === undefined || t < first[k]) first[k] = t; });
+  var sh = sheet_('HIS'), hv = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues() : [], first = {}, firstAny = null, lastCx = null;
+  hv.forEach(function (h) { if (str_(h[0]) !== it.id) return; var k = normKey_(str_(h[2])), t = ms_(str_(h[1])); if (t === null) return; if (k === 'cancelled') lastCx = t; if (firstAny === null || t < firstAny) firstAny = t; if (first[k] === undefined || t < first[k]) first[k] = t; });
   var now = Date.now(), sub = first.b1_submit !== undefined ? first.b1_submit : (ms_(it.ts) !== null ? ms_(it.ts) : firstAny);
   var o = { rows: [], total: null, totalLabel: '', closed: first.promoted !== undefined };
   if (sub === null || sub === undefined) return o;
@@ -589,6 +597,8 @@ function durationInfo_(it) {
   }
   if (b2Start !== undefined) o.rows.push({ k: 'เล่ม 2 : ยื่นเอกสาร → ผู้ว่าราชการจังหวัดลงนาม', v: spanTh_((b2End !== undefined ? b2End : now) - b2Start), s: b2End !== undefined ? 'เสร็จสิ้นแล้ว' : 'กำลังดำเนินการ (นับถึงปัจจุบัน)', done: b2End !== undefined });
   if (b2End !== undefined) o.rows.push({ k: 'ออกคำสั่งเลื่อนระดับ : ผู้ว่าฯ ลงนามเล่ม 2 → ผู้ว่าฯ ลงนามคำสั่ง', v: spanTh_((cmdEnd !== undefined ? cmdEnd : now) - b2End), s: cmdEnd !== undefined ? 'เสร็จสิ้นแล้ว' : 'กำลังดำเนินการ (นับถึงปัจจุบัน)', done: cmdEnd !== undefined });
+  if (closed === undefined && normKey_(it.status) === 'cancelled' && lastCx !== null) closed = lastCx;
+  if (closed !== undefined) o.closed = true;
   o.total = (closed !== undefined ? closed : now) - sub;
   o.totalLabel = closed !== undefined ? 'รวมตั้งแต่เริ่มต้นจนปิดเคส' : 'รวมตั้งแต่ยื่นเอกสารเล่ม 1 ถึงปัจจุบัน';
   return o;
@@ -928,7 +938,7 @@ function apiSubmit_(p) {
   var id, it;
   try {
     if (up) f.link = up.url;
-    var sh = sheet_('SUB'), n = sh.getLastRow(); var taken = {}; subs_().forEach(function (r) { taken[r.id] = 1; }); var day = Utilities.formatDate(new Date(), TZ, 'yyyyMMdd'); do { id = 'AWC-' + day + '-' + ('000' + n).slice(-4); n++; } while (taken[id]);   // กัน รหัสซ้ำเมื่อมีการลบแถว
+    var sh = sheet_('SUB'), n = sh.getLastRow(); var taken = {}; subs_().forEach(function (r) { taken[r.id] = 1; }); usedIds_(taken); var day = Utilities.formatDate(new Date(), TZ, 'yyyyMMdd'); do { id = 'AWC-' + day + '-' + ('000' + n).slice(-4); n++; } while (taken[id]);   // กัน รหัสซ้ำเมื่อมีการลบแถว
     var t = now_();
     appendText_(sh, [id, t, f.prefix, f.first, f.last, f.cid, f.position, f.group, f.posNo, f.start, tenure_(f.start), f.edu, f.title, f.link, f.phone, f.email, 'b1_submit', '', t, f.track]);
     appendText_(sheet_('HIS'), [id, t, 'b1_submit', 'ยื่นเอกสาร', f.first + ' ' + f.last]);
@@ -1023,8 +1033,9 @@ function parseWhen_(v) {
 /* อัพเดทสถานะ (ปุ่ม "อัพเดทสถานะ"): p = { status, note, customTime (true=เลือกเวลาเอง), when, sendLine, attach }
  * - customTime ไม่ติ๊ก → ใช้เวลาปัจจุบันของเซิร์ฟเวอร์ ; ติ๊ก → ใช้ when (ต้องไม่ล่วงหน้า และไม่ก่อนเวลาของขั้นตอนก่อนหน้า)
  * - ประวัติสถานะ (HIS) เป็นแหล่งข้อมูลเดียวกับหน้าติดตามของผู้ยื่น และส่ง LINE อัตโนมัติ (แนบไฟล์ได้) */
-function apiAdminStatus_(token, id, p) {
-  var u = auth_(token);
+function apiAdminStatus_(token, id, p) { return statusCore_(auth_(token), id, p, false); }
+/* internal=true เฉพาะที่เรียกจาก apiAdminCancel_ / apiAdminRestore_ (ผู้เรียกจากหน้าเว็บตั้งค่านี้เองไม่ได้) */
+function statusCore_(u, id, p, internal) {
   p = p || {};
   var status = (p.status === undefined || p.status === null || p.status === '') ? '' : normKey_(str_(p.status));
   if (status && !stageOk_(status)) throw new Error('สถานะไม่ถูกต้อง');
@@ -1038,6 +1049,8 @@ function apiAdminStatus_(token, id, p) {
     cur = findSub_(id);
     if (!cur) throw new Error('ไม่พบรายการ');
     var newStatus = status || cur.status, sCh = newStatus !== cur.status, nCh = note !== null && note !== cur.note;
+    if (!internal && sCh && newStatus === 'cancelled') throw new Error('การยกเลิกรายการต้องกดปุ่ม "ยกเลิกรายการ" และระบุเหตุผล');
+    if (!internal && sCh && cur.status === 'cancelled') throw new Error('รายการนี้ถูกยกเลิกแล้ว — หากต้องการดำเนินการต่อให้กด "กู้คืนรายการ" ก่อน');
     if (sCh && newStatus === 'promoted' && cur.status !== 'cmd_gov_ok') throw new Error('ปิดเคสได้หลังผู้ว่าราชการจังหวัดลงนามคำสั่งเลื่อนระดับแล้วเท่านั้น — กรุณาบันทึกสถานะ "ผู้ว่าราชการจังหวัดลงนามแล้ว (คำสั่งเลื่อนระดับ)" ก่อน');
     if (sCh || nCh) {
       at = when || now_();
@@ -1132,12 +1145,115 @@ function apiStar_(token, id, on) {
     return { star: v === 'Y' };
   } finally { lock.releaseLock(); }
 }
-function apiAdminDelete_(token, id) {
-  var u = auth_(token, true), cur = findSub_(id);
+/* ยกเลิกรายการ (ปิดเคสแบบไม่สำเร็จ): p = { reason (ต้องตรง CANCEL_REASONS), detail, sendLine, customTime, when }
+ * บันทึกเป็นสถานะ "cancelled" ในประวัติ (ไม่ลบข้อมูล) → ไม่ถูกนับเป็นงานค้าง และกู้คืนได้ด้วย apiAdminRestore_ */
+function apiAdminCancel_(token, id, p) {
+  var u = auth_(token); p = p || {}; id = str_(id);
+  var reason = str_(p.reason), detail = str_(p.detail).replace(/\s+/g, ' ').slice(0, 300);
+  if (CANCEL_REASONS.indexOf(reason) < 0) throw new Error('กรุณาเลือกเหตุผลการยกเลิก');
+  if (reason.indexOf('อื่น ๆ') === 0 && !detail) throw new Error('กรุณาระบุรายละเอียดเหตุผลการยกเลิก');
+  var cur = findSub_(id);
   if (!cur) throw new Error('ไม่พบรายการ');
-  sheet_('SUB').deleteRow(cur.row);
-  log_('admin_delete', u.u, 'success', id);
+  if (stageObj_(cur.status).end) throw new Error('รายการนี้ปิดเคสแล้ว ไม่สามารถยกเลิกได้');
+  var r = statusCore_(u, id, { status: 'cancelled', note: 'ยกเลิกรายการ: ' + reason + (detail ? ' — ' + detail : ''), sendLine: p.sendLine, customTime: p.customTime, when: p.when }, true);
+  log_('admin_cancel', u.u, 'success', id + ': ' + reason + (detail ? ' — ' + detail : ''));
+  return r;
+}
+/* กู้คืนรายการที่ยกเลิก: กลับไปขั้นตอนล่าสุดก่อนยกเลิก (ไม่ส่ง LINE เว้นแต่ sendLine=true) */
+function apiAdminRestore_(token, id, p) {
+  var u = auth_(token); p = p || {}; id = str_(id);
+  var cur = findSub_(id);
+  if (!cur) throw new Error('ไม่พบรายการ');
+  if (cur.status !== 'cancelled') throw new Error('รายการนี้ไม่ได้อยู่ในสถานะยกเลิก');
+  var sh = sheet_('HIS'), hv = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues() : [], prev = '';
+  hv.forEach(function (h) { if (str_(h[0]) !== id) return; var k = normKey_(str_(h[2])); if (k !== 'cancelled' && stageOk_(k)) prev = k; });
+  if (!prev) prev = 'b1_submit';
+  var r = statusCore_(u, id, { status: prev, note: 'กู้คืนรายการที่ยกเลิก' + (str_(p.detail) ? ' — ' + str_(p.detail).slice(0, 200) : ''), sendLine: p.sendLine === true }, true);
+  log_('admin_restore', u.u, 'success', id + ' → ' + prev);
+  return r;
+}
+/* ---------- ลบรายการ (เฉพาะผู้ดูแลระบบ) — สำรองลงแท็บ "ถังขยะ" ก่อนลบ แล้วลบแถวที่เกี่ยวข้อง (ประวัติสถานะ/ไฟล์แนบ/ถามตอบ) ด้วย ---------- */
+function rowsOfId_(sh, ncol, id) {
+  var n = sh.getLastRow(); if (n < 2) return [];
+  var out = [];
+  sh.getRange(2, 1, n - 1, ncol).getValues().forEach(function (r, i) { if (str_(r[0]) === id) out.push({ row: i + 2, vals: r.map(str_) }); });
+  return out;
+}
+function delRows_(sh, list) { list.slice().sort(function (a, b) { return b.row - a.row; }).forEach(function (o) { sh.deleteRow(o.row); }); }
+function vals_(list) { return list.map(function (o) { return o.vals; }); }
+/* รหัสที่เคยใช้แล้ว (ยังมีประวัติหรืออยู่ในถังขยะ) — กันออกรหัสใหม่ซ้ำแล้วไปรับประวัติเก่า */
+function usedIds_(taken) {
+  var h = sheet_('HIS'), n = h.getLastRow(); if (n > 1) h.getRange(2, 1, n - 1, 1).getValues().forEach(function (r) { taken[str_(r[0])] = 1; });
+  var t = sheet_('TRASH'), m = t.getLastRow(); if (m > 1) t.getRange(2, 3, m - 1, 1).getValues().forEach(function (r) { taken[str_(r[0])] = 1; });
+}
+function apiAdminDelete_(token, id, p) {
+  var u = auth_(token, true); id = str_(id);
+  var reason = str_(p && p.reason).replace(/\s+/g, ' ').slice(0, 300);
+  if (reason.length < 3) throw new Error('กรุณาระบุเหตุผลการลบ (เช่น ข้อมูลนำเข้า / แบ็กอัพผิดพลาด)');
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var cur = findSub_(id);
+    if (!cur) throw new Error('ไม่พบรายการ');
+    var sSub = sheet_('SUB'), sHis = sheet_('HIS'), sAtt = sheet_('ATT'), sQa = sheet_('QA');
+    var dup = subs_().filter(function (r) { return r.id === id; }).length > 1;   /* มีแถวรหัสเดียวกันซ้ำ (เช่นแบ็กอัพซ้ำ) → ลบเฉพาะแถวนี้ ไม่แตะประวัติ */
+    var rs = [{ row: cur.row, vals: sSub.getRange(cur.row, 1, 1, KEYS.length).getValues()[0].map(str_) }];
+    var rh = dup ? [] : rowsOfId_(sHis, 5, id), ra = dup ? [] : rowsOfId_(sAtt, 9, id), rq = dup ? [] : rowsOfId_(sQa, 7, id);
+    var cells = [JSON.stringify(rs[0].vals), JSON.stringify(vals_(rh)), JSON.stringify(vals_(ra)), JSON.stringify(vals_(rq))];
+    cells.forEach(function (c) { if (c.length > 49000) throw new Error('ข้อมูลของรายการนี้มากเกินกว่าจะสำรองลงถังขยะได้ (ประวัติ/ถามตอบยาวมาก) — กรุณาสำเนาแท็บเก็บไว้ก่อน แล้วลบด้วยตนเอง'); });
+    appendText_(sheet_('TRASH'), [now_(), u.u, id, (cur.prefix + cur.first + ' ' + cur.last).trim(), cur.status, reason].concat(cells, ['']));
+    delRows_(sSub, rs); delRows_(sHis, rh); delRows_(sAtt, ra); delRows_(sQa, rq);
+    log_('admin_delete', u.u, 'success', id + ' (สำรองในถังขยะ: ประวัติ ' + rh.length + ', ไฟล์แนบ ' + ra.length + ', ถามตอบ ' + rq.length + ')' + (dup ? ' [มีรหัสซ้ำ — คงประวัติไว้]' : '') + ' เหตุผล: ' + reason);
+  } finally { lock.releaseLock(); }
   return {};
+}
+function trashRows_() {
+  var s = sheet_('TRASH'), n = s.getLastRow(); if (n < 2) return [];
+  return s.getRange(2, 1, n - 1, 11).getValues().map(function (r, i) {
+    return { row: i + 2, t: str_(r[0]), by: str_(r[1]), id: str_(r[2]), name: str_(r[3]), status: normKey_(str_(r[4])), reason: str_(r[5]), sub: str_(r[6]), his: str_(r[7]), att: str_(r[8]), qa: str_(r[9]), restored: str_(r[10]) };
+  });
+}
+function apiTrashList_(token) {
+  auth_(token, true);
+  return { rows: trashRows_().reverse().slice(0, 200).map(function (r) { return { row: r.row, t: r.t, by: r.by, id: r.id, name: r.name, status: r.status, reason: r.reason, restored: r.restored, canRestore: !r.restored && r.sub.length > 2 }; }) };
+}
+function apiTrashRestore_(token, row) {
+  var u = auth_(token, true); row = +row;
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var tr = trashRows_().filter(function (r) { return r.row === row; })[0];
+    if (!tr) throw new Error('ไม่พบรายการในถังขยะ');
+    if (tr.restored) throw new Error('รายการนี้ถูกกู้คืนไปแล้ว');
+    var sub; try { sub = JSON.parse(tr.sub); } catch (e) { sub = []; }
+    if (!sub.length) throw new Error('ไม่มีข้อมูลรายการหลักให้กู้คืน (เป็นข้อมูลกำพร้าที่ล้างออก)');
+    if (findSub_(tr.id)) throw new Error('มีรายการรหัส ' + tr.id + ' อยู่ในระบบแล้ว');
+    appendText_(sheet_('SUB'), sub);
+    [['HIS', tr.his], ['ATT', tr.att], ['QA', tr.qa]].forEach(function (q) {
+      var list; try { list = JSON.parse(q[1]); } catch (e) { list = []; }
+      var sh = sheet_(q[0]); list.forEach(function (r) { appendText_(sh, r); });
+    });
+    setText_(sheet_('TRASH').getRange(row, 11), now_());
+    log_('trash_restore', u.u, 'success', tr.id);
+    return { id: tr.id };
+  } finally { lock.releaseLock(); }
+}
+/* รันเองจากตัวแก้ไข Apps Script (ครั้งเดียวหลังแบ็กอัพ/ลบแถวผิดพลาด): ย้ายประวัติสถานะ/ไฟล์แนบ/ถามตอบที่ "ไม่มีรายการหลัก" ไปไว้ในถังขยะ แล้วลบออกจากแท็บเดิม */
+function cleanOrphans() {
+  var ids = {}; subs_().forEach(function (r) { ids[r.id] = 1; });
+  var spec = [['HIS', 5, 'his'], ['ATT', 9, 'att'], ['QA', 7, 'qa']], by = {}, del = [];
+  spec.forEach(function (sp) {
+    var sh = sheet_(sp[0]), n = sh.getLastRow(); if (n < 2) return;
+    sh.getRange(2, 1, n - 1, sp[1]).getValues().forEach(function (r, i) {
+      var id = str_(r[0]); if (!id || ids[id]) return;
+      (by[id] = by[id] || { his: [], att: [], qa: [] })[sp[2]].push(r.map(str_)); del.push({ sh: sh, row: i + 2 });
+    });
+  });
+  var tr = sheet_('TRASH');
+  Object.keys(by).forEach(function (id) {
+    var o = by[id]; appendText_(tr, [now_(), 'cleanOrphans', id, '', '', 'ข้อมูลกำพร้า (ไม่มีรายการหลัก)', '[]', JSON.stringify(o.his).slice(0, 49000), JSON.stringify(o.att).slice(0, 49000), JSON.stringify(o.qa).slice(0, 49000), '']);
+  });
+  del.sort(function (a, b) { return b.row - a.row; }).forEach(function (d) { d.sh.deleteRow(d.row); });
+  log_('clean_orphans', 'script', 'success', Object.keys(by).length + ' รหัส / ' + del.length + ' แถว');
+  return { ids: Object.keys(by).length, rows: del.length };
 }
 
 /* ---------- Admin: ผู้ใช้ / ประวัติการใช้งาน ---------- */

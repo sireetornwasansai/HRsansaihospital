@@ -2,7 +2,7 @@
  * หลักการ: หน้าเว็บ/ไฟล์ตั้งค่า = "เครือข่ายก่อน" (ได้เวอร์ชันล่าสุดเสมอ) แล้วค่อยใช้แคชสำรอง
  * ไม่แตะคำขอไปยัง Google Apps Script (ข้ามโดเมน/POST) จึงไม่มีข้อมูลผู้ยื่นหรือโทเค็นถูกเก็บในแคช
  * เปลี่ยน CACHE เมื่ออยากล้างแคชเก่า */
-const CACHE = 'awc-v1';
+const CACHE = 'awc-v2';
 const SHELL = ['/', '/index.html', '/config.js', '/manifest.webmanifest', '/assets/logo.png', '/assets/icon-192.png', '/assets/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL).catch(() => {})).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
