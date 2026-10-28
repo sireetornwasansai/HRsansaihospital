@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+   <script src="config.js"></script>
+<script src="consent-gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="แหล่งอบรมออนไลน์ด้านจริยธรรมการวิจัยในมนุษย์ สำหรับผู้วิจัยที่ต้องการรับประกาศนียบัตรแนบประกอบการยื่นขอรับการพิจารณาจริยธรรมการวิจัย โรงพยาบาลสันทราย">
+<title>อบรมจริยธรรมการวิจัย — คณะกรรมการจริยธรรมการวิจัยในมนุษย์ โรงพยาบาลสันทราย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --n900:#0b1f35; --n800:#112844; --n700:#173454; --n600:#1e4068;
+  --n400:#3d6491; --n100:#dce7f3; --n50:#eef3f9;
+  --g700:#7c5c18; --g600:#9a7220; --g500:#b58a2a; --g400:#c9a037;
+  --g100:#f0e3c0; --g50:#f8f2e1;
+  --gr800:#164d34; --gr700:#1b5e3e; --gr100:#d6ede3; --gr50:#eaf4ee;
+  --r700:#b91c1c; --r50:#fef2f2;
+  --u900:#151e28; --u700:#344255; --u500:#5a6e85;
+  --u300:#a8b8cb; --u200:#d0dae6; --u100:#e8edf5; --u50:#f4f6fa;
+  --white:#ffffff;
+  --ff:'Sarabun','Helvetica Neue',Arial,sans-serif;
+  --ffs:'Noto Serif Thai',Georgia,serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:clip}
+*{min-width:0}
+body{font-family:var(--ff);color:var(--u700);background:var(--white);
+     line-height:1.65;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button{font-family:inherit;cursor:pointer}
+.container{max-width:1440px;margin-inline:auto;padding-inline:2rem}
+
+.rev{opacity:0;transform:translateY(14px);
+  transition:opacity .55s var(--ease),transform .55s var(--ease)}
+.rev.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rev{opacity:1!important;transform:none!important;transition:none!important}
+}
+
+.ribbon{height:4px;background:linear-gradient(90deg,
+  var(--n800) 0% 33.33%,var(--g500) 33.33% 66.66%,var(--gr700) 66.66% 100%)}
+
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:300;background:var(--n900);box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.hdr-in{display:flex;align-items:center;gap:1.2rem;padding-block:11px;
+  max-width:1440px;margin-inline:auto;padding-inline:2rem}
+.hdr-logo{height:48px;width:auto;object-fit:contain;flex-shrink:0}
+.hdr-sep{width:1px;height:38px;background:rgba(255,255,255,.16);flex-shrink:0}
+.hdr-id{flex:1;min-width:0}
+.hdr-id h1{font-family:var(--ffs);font-size:.875rem;font-weight:600;color:#fff;
+  line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-id p{font-size:.72rem;color:rgba(255,255,255,.42);letter-spacing:.02em;margin-top:2px}
+.hdr-util{display:flex;align-items:center;gap:.6rem;flex-shrink:0;margin-left:auto}
+.hdr-util>*{flex-shrink:0}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--ff);
+  font-size:.84rem;font-weight:600;padding:.5rem 1.1rem;border-radius:4px;
+  border:1.5px solid transparent;
+  transition:background .18s var(--ease),border-color .18s,color .18s,
+             transform .18s,box-shadow .18s;white-space:nowrap;line-height:1}
+.btn svg{flex-shrink:0}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.72);
+  border-color:rgba(255,255,255,.22)}
+.btn-ghost:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.4);color:#fff}
+.btn-gold{background:var(--g500);color:var(--n900);border-color:var(--g500)}
+.btn-guide{position:relative;background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);
+  border-color:rgba(255,255,255,.25);gap:.4rem}
+.btn-guide:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.5);color:#fff}
+.btn-gold:hover{background:var(--g400);border-color:var(--g400);
+  transform:translateY(-1px);box-shadow:0 4px 14px rgba(181,138,42,.35)}
+
+/* ══════════════════════════════════════════════════════════════
+   MAIN MENU BAR — เมนูแนวนอนใต้แถบชื่อหน่วยงาน
+══════════════════════════════════════════════════════════════ */
+.nb{position:sticky;top:70px;z-index:290;background:var(--n800);
+  border-top:1px solid rgba(255,255,255,.07);border-bottom:2px solid var(--g500)}
+.nb-in{max-width:1440px;margin-inline:auto;padding-inline:1.4rem}
+.nb-list{display:flex;align-items:stretch;flex-wrap:wrap}
+.nb-item{position:relative;display:flex}
+.nb-link{display:flex;align-items:center;gap:.32rem;padding:.78rem .85rem;
+  font-size:.83rem;font-weight:500;color:rgba(255,255,255,.66);
+  background:none;border:none;font-family:var(--ff);white-space:nowrap;
+  position:relative;transition:color .16s}
+.nb-link::after{content:'';position:absolute;left:.85rem;right:.85rem;bottom:0;height:2px;
+  background:var(--g500);transform:scaleX(0);transform-origin:center;
+  transition:transform .18s var(--ease)}
+.nb-link:hover,.nb-link.is-active{color:#fff}
+.nb-link:hover::after,.nb-link.is-active::after{transform:scaleX(1)}
+.nb-caret{width:9px;height:9px;flex-shrink:0;transition:transform .18s var(--ease)}
+.nb-item.open .nb-caret{transform:rotate(180deg)}
+.nb-panel{position:absolute;top:100%;left:0;min-width:236px;background:var(--white);
+  border:1px solid var(--u200);border-radius:0 0 8px 8px;box-shadow:0 14px 30px rgba(11,31,53,.24);
+  padding:.4rem;z-index:295;opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:opacity .16s var(--ease),transform .16s var(--ease),visibility .16s}
+.nb-item.open .nb-panel{opacity:1;visibility:visible;transform:none}
+.nb-panel a{display:block;padding:.62rem .75rem;border-radius:6px;font-size:.82rem;
+  color:var(--n800);font-weight:500;transition:background .14s}
+.nb-panel a:hover{background:var(--u50)}
+@media(hover:hover) and (pointer:fine){
+  .nb-item.has-drop:hover .nb-panel{opacity:1;visibility:visible;transform:none}
+  .nb-item.has-drop:hover .nb-caret{transform:rotate(180deg)}
+}
+.nb-toggle{display:none;background:none;border:1.5px solid rgba(255,255,255,.22);
+  border-radius:5px;color:#fff;width:34px;height:34px;align-items:center;
+  justify-content:center;flex-shrink:0}
+@media(max-width:900px){
+  .nb{position:static}
+  .nb-toggle{display:inline-flex}
+  .nb-in{padding-block:.2rem}
+  .nb-list{display:none;flex-direction:column;width:100%;padding-block:.3rem .5rem}
+  .nb.mobile-open .nb-list{display:flex}
+  .nb-item{width:100%}
+  .nb-link{width:100%;padding:.78rem .1rem;justify-content:space-between}
+  .nb-link::after{display:none}
+  .nb-panel{position:static;box-shadow:none;border:none;border-radius:6px;
+    background:rgba(255,255,255,.05);opacity:1;visibility:visible;transform:none;
+    display:none;margin:0 0 .3rem;padding:.15rem}
+  .nb-item.open .nb-panel{display:block}
+  .nb-panel a{color:rgba(255,255,255,.7)}
+  .nb-panel a:hover{background:rgba(255,255,255,.08)}
+}
+/* PAGE BANNER */
+.pg-hero{background:var(--n900);position:relative;overflow:hidden}
+.pg-hero::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent 95px,
+    rgba(255,255,255,.018) 95px,rgba(255,255,255,.018) 96px);pointer-events:none}
+.pg-hero-in{position:relative;z-index:1;padding-block:44px 46px}
+.crumb{display:flex;align-items:center;gap:.5rem;font-size:.76rem;
+  color:rgba(255,255,255,.45);margin-bottom:1rem}
+.crumb a{color:rgba(255,255,255,.7);transition:color .15s}
+.crumb a:hover{color:var(--g400)}
+.eyebrow{display:inline-flex;align-items:center;gap:.75rem;
+  font-size:.65rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--g400);margin-bottom:1rem}
+.eyebrow::before,.eyebrow::after{content:'';display:block;height:1px;
+  width:18px;background:var(--g500);opacity:.7}
+.pg-title{font-family:var(--ffs);font-size:clamp(1.35rem,3vw,2rem);
+  font-weight:700;color:#fff;line-height:1.4;margin-bottom:.85rem}
+.pg-desc{font-size:.92rem;color:rgba(255,255,255,.55);line-height:1.85;max-width:64ch}
+
+/* SECTIONS */
+.sec{padding-block:4rem}
+.sec-alt{background:var(--u50)}
+.sec-gold{background:var(--g50);border-top:1.5px solid var(--g100);border-bottom:1.5px solid var(--g100)}
+.sec-head{margin-bottom:2.5rem}
+.sec-eye{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--g600);display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.sec-eye::after{content:'';height:1px;width:36px;background:var(--u200)}
+.sec-ttl{font-family:var(--ffs);font-size:1.4rem;font-weight:700;
+  color:var(--n800);line-height:1.4}
+.sec-dsc{font-size:.875rem;color:var(--u500);margin-top:.75rem;
+  line-height:1.8;max-width:60ch}
+
+/* REQUIREMENT NOTICE */
+.req-panel{display:flex;gap:1.1rem;align-items:flex-start;background:var(--n900);
+  border-radius:10px;padding:1.6rem 1.75rem;position:relative;overflow:hidden}
+.req-panel::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent 95px,
+    rgba(255,255,255,.02) 95px,rgba(255,255,255,.02) 96px);pointer-events:none}
+.req-ico{width:46px;height:46px;border-radius:9px;background:rgba(181,138,42,.18);
+  color:var(--g400);display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;flex-shrink:0;position:relative;z-index:1}
+.req-txt{position:relative;z-index:1}
+.req-txt h3{font-family:var(--ffs);font-size:1rem;font-weight:700;color:#fff;margin-bottom:.55rem;line-height:1.5}
+.req-txt p{font-size:.84rem;color:rgba(255,255,255,.6);line-height:1.9;max-width:70ch}
+.req-txt p strong{color:var(--g400);font-weight:600}
+.req-txt a{color:var(--g400);font-weight:600;border-bottom:1px solid rgba(201,160,55,.4)}
+.req-txt a:hover{color:var(--g100);border-color:var(--g100)}
+
+/* TRAINING CARDS */
+.trn-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-top:1.75rem}
+@media(max-width:760px){.trn-grid{grid-template-columns:1fr}}
+.trn-card{display:flex;flex-direction:column;background:var(--white);
+  border:1px solid var(--u200);border-radius:10px;overflow:hidden;
+  transition:box-shadow .2s var(--ease),transform .2s var(--ease),border-color .2s var(--ease)}
+.trn-card:hover{box-shadow:0 14px 34px rgba(11,31,53,.13);transform:translateY(-3px);border-color:var(--u300)}
+.trn-bar{height:5px}
+.trn-bar-navy{background:var(--n700)}
+.trn-bar-gold{background:var(--g500)}
+.trn-bar-green{background:var(--gr700)}
+.trn-bar-slate{background:var(--u700)}
+.trn-cover-wrap{overflow:hidden}
+.trn-cover{width:100%;aspect-ratio:3/2;object-fit:cover;object-position:top center;
+  display:block;background:var(--u50);transition:transform .3s var(--ease)}
+.trn-card:hover .trn-cover{transform:scale(1.03)}
+.trn-body{padding:1.5rem 1.4rem 1.3rem;flex:1;display:flex;flex-direction:column}
+.trn-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;margin-bottom:1rem}
+.trn-org{display:flex;align-items:center;gap:.6rem;min-width:0}
+.trn-org-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0}
+.trn-org-ico.navy{background:var(--n50);color:var(--n700)}
+.trn-org-ico.gold{background:var(--g50);color:var(--g600)}
+.trn-org-ico.green{background:var(--gr50);color:var(--gr700)}
+.trn-org-ico.slate{background:var(--u100);color:var(--u700)}
+.trn-org-name{font-size:.72rem;font-weight:700;color:var(--u500);line-height:1.4}
+.trn-badge{flex-shrink:0;font-size:.6rem;font-weight:700;letter-spacing:.05em;
+  color:var(--g700);background:var(--g100);padding:3px 8px;border-radius:20px;white-space:nowrap}
+.trn-ttl{font-family:var(--ffs);font-size:1.02rem;font-weight:700;color:var(--n800);
+  line-height:1.5;margin-bottom:.65rem}
+.trn-dsc{font-size:.8rem;color:var(--u500);line-height:1.85;flex:1;margin-bottom:1.1rem}
+.trn-meta{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.3rem}
+.trn-tag{display:inline-flex;align-items:center;gap:4px;font-size:.66rem;font-weight:600;
+  color:var(--u700);background:var(--u50);border:1px solid var(--u100);
+  border-radius:20px;padding:3px 9px 3px 7px}
+.trn-tag i{font-size:12px;color:var(--u500)}
+.trn-go{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;
+  background:var(--n900);color:#fff;font-size:.8rem;font-weight:600;
+  padding:.65rem 1rem;border-radius:6px;transition:background .16s var(--ease);margin-top:auto}
+.trn-card:hover .trn-go{background:var(--n700)}
+
+/* STEP TIMELINE (after training) */
+.stp-track{position:relative;max-width:900px;display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}
+@media(max-width:820px){.stp-track{grid-template-columns:1fr}}
+.stp{background:var(--white);border:1px solid var(--u200);border-radius:10px;
+  padding:1.4rem 1.3rem;position:relative}
+.stp-num{width:34px;height:34px;border-radius:50%;background:var(--n900);color:var(--g400);
+  display:flex;align-items:center;justify-content:center;font-family:var(--ffs);
+  font-size:.9rem;font-weight:700;margin-bottom:.9rem}
+.stp h4{font-size:.88rem;font-weight:700;color:var(--n800);margin-bottom:.5rem;line-height:1.45}
+.stp p{font-size:.78rem;color:var(--u500);line-height:1.8}
+.stp p a{color:var(--g600);font-weight:600;border-bottom:1px solid var(--g400)}
+.stp-arrow{display:none}
+@media(min-width:821px){
+  .stp:not(:last-child)::after{content:'';position:absolute;top:26px;right:-1.4rem;
+    width:1.4rem;height:1px;background:var(--u200)}
+}
+
+/* FOOTER */
+.ftr{background:var(--n900);border-top:2px solid var(--g500);padding-block:3rem 2rem;margin-top:0;position:relative;overflow:hidden}
+.ftr::before{content:'';position:absolute;inset:-20px;
+  background:url('images/footer-bg.jpg') center/cover no-repeat;
+  filter:blur(9px) saturate(1.1) brightness(.85);
+  transform:scale(1.08);z-index:0;pointer-events:none}
+.ftr::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,31,53,.55) 0%,rgba(11,31,53,.72) 100%);
+  z-index:1;pointer-events:none}
+.ftr .container{position:relative;z-index:2}
+.ftr-g{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:3rem;
+  padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:1.5rem}
+.fcol h4{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--g400);margin-bottom:1rem}
+.fcol p,.fcol a{font-size:.78rem;color:rgba(255,255,255,.62);line-height:1.9;display:block;transition:color .15s}
+.fcol a:hover{color:var(--g400)}
+.fbot{display:flex;justify-content:space-between;align-items:center;
+  font-size:.72rem;color:rgba(255,255,255,.48);flex-wrap:wrap;gap:.75rem}
+.pdpa{display:inline-flex;align-items:center;gap:.5rem;
+  border:1px solid rgba(255,255,255,.1);border-radius:20px;
+  padding:4px 12px;font-size:.68rem;color:rgba(255,255,255,.55)}
+
+/* RESPONSIVE */
+@media(max-width:1080px){
+  .hdr-in{gap:.8rem}
+  .hdr-id p{display:none}
+}
+@media(max-width:960px){
+  .hdr-in{padding-inline:1.2rem}
+  .container{padding-inline:1.2rem}
+  .ftr-g{grid-template-columns:1fr;gap:1.5rem}
+}
+@media(max-width:600px){
+  .container{padding-inline:1rem}
+  .sec{padding-block:2.75rem}
+  .pg-hero-in{padding-block:34px 36px}
+  .req-panel{flex-direction:column;padding:1.3rem}
+}
+@media(max-width:480px){
+  .hdr-logo{height:38px}
+  .hdr-sep{height:30px}
+  .hdr-id h1{font-size:.72rem;line-height:1.35}
+  .btn{padding:.42rem .8rem;font-size:.78rem}
+  .pg-title{font-size:1.1rem}
+  .pg-desc{font-size:.85rem}
+  .sec-ttl{font-size:1.15rem}
+}
+</style>
+<style id="icons-local">
+.ti{display:inline-block;width:1em;height:1em;flex:none;vertical-align:-.125em;background-color:currentColor;-webkit-mask:var(--ti) center/contain no-repeat;mask:var(--ti) center/contain no-repeat;font-style:normal;line-height:1}
+.ti-ok{color:#1b5e3e}.ti-warn{color:#b7791f}.ti-err{color:#b91c1c}
+.ti-award{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0' /%3E %3Cpath d='M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889' /%3E %3Cpath d='M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889' /%3E %3C/svg%3E")}
+.ti-building-bank{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M3 21l18 0' /%3E %3Cpath d='M3 10l18 0' /%3E %3Cpath d='M5 6l7 -3l7 3' /%3E %3Cpath d='M4 10l0 11' /%3E %3Cpath d='M20 10l0 11' /%3E %3Cpath d='M8 14l0 3' /%3E %3Cpath d='M12 14l0 3' /%3E %3Cpath d='M16 14l0 3' /%3E %3C/svg%3E")}
+.ti-certificate{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M15 15m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0' /%3E %3Cpath d='M13 17.5v4.5l2 -1.5l2 1.5v-4.5' /%3E %3Cpath d='M10 19h-5a2 2 0 0 1 -2 -2v-10c0 -1.1 .9 -2 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -1 1.73' /%3E %3Cpath d='M6 9l12 0' /%3E %3Cpath d='M6 12l3 0' /%3E %3Cpath d='M6 15l2 0' /%3E %3C/svg%3E")}
+.ti-checklist{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M9.615 20h-2.615a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8' /%3E %3Cpath d='M14 19l2 2l4 -4' /%3E %3Cpath d='M9 8h4' /%3E %3Cpath d='M9 12h2' /%3E %3C/svg%3E")}
+.ti-clock-hour-4{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0' /%3E %3Cpath d='M12 12l3 2' /%3E %3Cpath d='M12 7v5' /%3E %3C/svg%3E")}
+.ti-coin{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0' /%3E %3Cpath d='M14.8 9a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1' /%3E %3Cpath d='M12 7v10' /%3E %3C/svg%3E")}
+.ti-device-laptop{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M3 19l18 0' /%3E %3Cpath d='M5 6m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z' /%3E %3C/svg%3E")}
+.ti-external-link{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6' /%3E %3Cpath d='M11 13l9 -9' /%3E %3Cpath d='M15 4h5v5' /%3E %3C/svg%3E")}
+.ti-files{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M15 3v4a1 1 0 0 0 1 1h4' /%3E %3Cpath d='M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z' /%3E %3Cpath d='M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2' /%3E %3C/svg%3E")}
+.ti-info-circle{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0' /%3E %3Cpath d='M12 9h.01' /%3E %3Cpath d='M11 12h1v4h1' /%3E %3C/svg%3E")}
+.ti-list-check{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M3.5 5.5l1.5 1.5l2.5 -2.5' /%3E %3Cpath d='M3.5 11.5l1.5 1.5l2.5 -2.5' /%3E %3Cpath d='M3.5 17.5l1.5 1.5l2.5 -2.5' /%3E %3Cpath d='M11 6l9 0' /%3E %3Cpath d='M11 12l9 0' /%3E %3Cpath d='M11 18l9 0' /%3E %3C/svg%3E")}
+.ti-microscope{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M5 21h14' /%3E %3Cpath d='M6 18h2' /%3E %3Cpath d='M7 18v3' /%3E %3Cpath d='M9 11l3 3l6 -6l-3 -3z' /%3E %3Cpath d='M10.5 12.5l-1.5 1.5' /%3E %3Cpath d='M17 3l3 3' /%3E %3Cpath d='M12 21a6 6 0 0 0 3.715 -10.712' /%3E %3C/svg%3E")}
+.ti-school{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M22 9l-10 -4l-10 4l10 4l10 -4v6' /%3E %3Cpath d='M6 10.6v5.4a6 3 0 0 0 12 0v-5.4' /%3E %3C/svg%3E")}
+.ti-shield-check{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M11.46 20.846a12 12 0 0 1 -7.96 -14.846a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.09 7.06' /%3E %3Cpath d='M15 19l2 2l4 -4' /%3E %3C/svg%3E")}
+.ti-user-plus{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0' /%3E %3Cpath d='M16 19h6' /%3E %3Cpath d='M19 16v6' /%3E %3Cpath d='M6 21v-2a4 4 0 0 1 4 -4h4' /%3E %3C/svg%3E")}
+.ti-users-group{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0' /%3E %3Cpath d='M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1' /%3E %3Cpath d='M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0' /%3E %3Cpath d='M17 10h2a2 2 0 0 1 2 2v1' /%3E %3Cpath d='M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0' /%3E %3Cpath d='M3 13v-1a2 2 0 0 1 2 -2h2' /%3E %3C/svg%3E")}
+.ti-video{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4z' /%3E %3Cpath d='M3 6m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z' /%3E %3C/svg%3E")}
+</style>
+<style id="pg-refresh">
+/* PAGES-REFRESH v1 — shared presentation layer for sub-pages. Delete this <style id="pg-refresh"> to revert. */
+@media screen {
+  :root { --sp-shadow: 0 1px 2px rgba(11,31,53,.06), 0 6px 20px rgba(11,31,53,.07); --sp-shadow-hi: 0 2px 4px rgba(11,31,53,.08), 0 14px 34px rgba(11,31,53,.13); }
+  body { text-rendering: optimizeLegibility; letter-spacing: .005em; }
+  :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline: 2px solid var(--g500); outline-offset: 3px; border-radius: 6px; }
+  .hdr :focus-visible, .nb :focus-visible, .ftr :focus-visible, .pg-hero :focus-visible, .pg-head :focus-visible { outline-color: var(--g400); }
+
+  /* ── Page hero: richer ground, readable copy ── */
+  .pg-hero, .pg-head {
+    background: radial-gradient(820px 340px at 92% -30%, rgba(181,138,42,.24), transparent 62%),
+                radial-gradient(640px 360px at -5% 130%, rgba(30,64,104,.62), transparent 60%), var(--n900);
+  }
+  .pg-hero-in { padding-block: 52px 58px; }
+  .pg-head { padding-block: 3.6rem 3.4rem; }
+  .pg-title, .pg-ttl { font-size: clamp(1.6rem, 3.3vw, 2.4rem); line-height: 1.38; letter-spacing: -.005em; text-wrap: balance; }
+  .pg-desc, .pg-dsc { font-size: 1rem; color: rgba(255,255,255,.80); line-height: 1.85; max-width: 68ch; }
+  .crumb { font-size: .84rem; color: rgba(255,255,255,.62); margin-bottom: 1.15rem; }
+  .crumb a { color: rgba(255,255,255,.82); }
+  .eyebrow { font-size: .74rem; letter-spacing: .13em; padding: .32rem .8rem; border: 1px solid rgba(201,160,55,.45); border-radius: 999px; background: rgba(201,160,55,.10); margin-bottom: 1.2rem; }
+  .eyebrow::before, .eyebrow::after { display: none; }
+  .pg-back { font-size: .86rem; color: rgba(255,255,255,.78); }
+
+  /* ── Section rhythm & headings ── */
+  .sec { padding-block: 4rem; }
+  .sec-eye { font-size: .74rem; letter-spacing: .1em; color: var(--g700); }
+  .sec-ttl { font-size: clamp(1.4rem, 2.4vw, 1.85rem); color: var(--n900); text-wrap: balance; }
+  .sec-dsc { font-size: .98rem; max-width: 66ch; }
+
+  /* ── Buttons ── */
+  .btn { border-radius: 8px; min-height: 40px; justify-content: center; font-size: .88rem; }
+  .btn-gold { box-shadow: 0 1px 2px rgba(0,0,0,.22); }
+  .btn-gold:hover { background: var(--g400); border-color: var(--g400); box-shadow: 0 6px 18px rgba(201,160,55,.32); }
+  .btn-ghost, .btn-guide { background: rgba(255,255,255,.06); color: rgba(255,255,255,.92); border-color: rgba(255,255,255,.30); }
+  .btn-ghost:hover, .btn-guide:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.55); color: #fff; }
+  .doc-btn, .line-btn, .btn-dm-open, .trk-search-btn { border-radius: 8px; min-height: 40px; justify-content: center; }
+  .line-btn { font-size: .84rem; }
+
+  /* ── Cards: one radius (12) and one elevation across all pages ── */
+  .tc, .dc, .trn-card, .stp, .stf-card, .an-box, .map-box, .trk-card, .pp-toc, .doc-item, .pt-cta, .req-panel, .dl-panel, .dm-panel { border-radius: 12px; }
+  .tc, .dc, .trn-card, .stp, .stf-card, .an-box, .map-box, .trk-card, .doc-item { box-shadow: var(--sp-shadow); }
+  .tc:hover, .dc:hover, .trn-card:hover, .doc-item:hover { box-shadow: var(--sp-shadow-hi); }
+  .dm-item { border-radius: 10px; }
+  .dm-item:hover { border-color: var(--g500); box-shadow: var(--sp-shadow); }
+  .pt-circ { box-shadow: var(--sp-shadow); }
+
+  /* ── Forms, tabs ── */
+  .trk-inp { border-radius: 8px; min-height: 46px; font-size: .95rem; }
+  .trk-inp:focus { border-color: var(--g500); box-shadow: 0 0 0 3px rgba(181,138,42,.28); outline: none; }
+  .trk-search-btn { min-height: 46px; }
+  .trk-tab, .dm-tab { min-height: 46px; font-size: .9rem; }
+  .trk-tab:hover { background: var(--n50); }
+
+  /* ── Tables & numbers ── */
+  .pp-table th, .pp-table td { font-size: .88rem; }
+  .pp-table th { font-size: .82rem; }
+  .at-table td, .at-table th, .an-stat-val, .dl-stat, .at-count { font-variant-numeric: tabular-nums; }
+
+  /* ── Footer legibility ── */
+  .fcol a { color: rgba(255,255,255,.80); font-size: .88rem; }
+  .fcol a:hover { color: var(--g400); }
+  .fbot { color: rgba(255,255,255,.66); }
+
+  @media (max-width: 600px) {
+    .sec { padding-block: 2.75rem; }
+    .pg-hero-in { padding-block: 32px 38px; }
+    .pg-head { padding-block: 2.4rem 2.2rem; }
+    .pg-title, .pg-ttl { font-size: 1.55rem; }
+    .pg-desc, .pg-dsc { font-size: .95rem; }
+    .btn { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+}
+</style>
+<style id="modern">
+/* MODERN v1 — public pages. Delete this block (id=modern) to revert. */
+@media screen {
+  :root {
+    --ffs: var(--ff);
+    --canvas: #f6f8fc;
+    --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px; --radius-2xl: 32px;
+    --shadow-sm: 0 1px 2px rgba(11,31,53,.06), 0 6px 20px rgba(11,31,53,.07);
+    --shadow-md: 0 2px 4px rgba(11,31,53,.08), 0 14px 34px rgba(11,31,53,.13);
+    --shadow-lg: 0 4px 12px rgba(11,31,53,.10), 0 24px 56px rgba(11,31,53,.22);
+    --card-ring: 0 0 0 1px rgba(11,31,53,.06);
+  }
+  body { background: var(--canvas); }
+  h1, h2, h3, h4, .hero-title, .pg-title, .pg-ttl, .sec-ttl, .ann-title { font-family: var(--ff); letter-spacing: -.012em; font-weight: 700; }
+  .hdr { background: rgba(11,31,53,.96); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px); box-shadow: 0 6px 24px -12px rgba(11,31,53,.5); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .nb { background: rgba(17,40,68,.97); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px); border-top: 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .nb-link { border-radius: 999px; padding: .5rem .95rem; margin: .38rem .08rem; font-size: .86rem; transition: background .16s, color .16s; }
+  .nb-link:hover { background: rgba(255,255,255,.09); color: #fff; }
+  .nb-link.is-active { background: rgba(201,160,55,.20); color: #fff; box-shadow: inset 0 0 0 1px rgba(201,160,55,.45); }
+  .nb-panel { border-radius: 16px; border: 1px solid rgba(11,31,53,.08); box-shadow: var(--shadow-lg); padding: .5rem; top: calc(100% + 4px); }
+  .nb-panel a { border-radius: 10px; }
+  .lang-switch { border-radius: 999px; overflow: hidden; }
+  .hero, .pg-hero, .pg-head { border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); }
+  .eyebrow { backdrop-filter: blur(6px); }
+  .btn { border-radius: 999px; padding-inline: 1.25rem; }
+  .btn-gold-lg, .hero-cta .btn-wht { padding-inline: 1.6rem; }
+  .doc-btn, .line-btn, .btn-dm-open, .trk-search-btn, .ann-btn-ok, .ann-btn-later, #ck-banner button { border-radius: 999px; }
+  .hero-quick { border-radius: 24px; background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.20); }
+  .hq-item { border-radius: 14px; }
+  .hq-ico { border-radius: 12px; }
+  .sec { background: transparent; }
+  .sec-alt, #tracking, #news { background: #fff; }
+  .sec-eye { display: inline-flex; padding: .28rem .8rem; border-radius: 999px; background: var(--g50); border: 1px solid var(--g100); color: var(--g700); font-size: .74rem; letter-spacing: .06em; margin-bottom: 1rem; gap: 0; }
+  .sec-eye::after, .sec-eye::before { display: none; }
+  .sec-ttl { font-size: clamp(1.55rem, 2.8vw, 2.2rem); line-height: 1.3; }
+  .sec-head { margin-bottom: 2.25rem; }
+  .tc, .dc, .trn-card, .stp, .an-box, .map-box, .trk-card, .pp-toc, .doc-item, .pt-cta, .req-panel, .dl-panel, .trk-cta, .cal-widget, .meeting-list-box { border-radius: 20px; }
+  .stf-card, .dm-item, .news-item, .dm-panel { border-radius: 14px; }
+  .tc, .dc, .trn-card, .stp, .an-box, .map-box, .trk-card, .doc-item, .trk-cta, .cal-widget, .meeting-list-box, .stf-card { border-color: rgba(11,31,53,.06); box-shadow: var(--card-ring), var(--shadow-sm); }
+  .tc:hover, .dc:hover, .trn-card:hover, .doc-item:hover, .trk-cta:hover { box-shadow: var(--card-ring), var(--shadow-md); transform: translateY(-4px); }
+  .rs-card, .rs-summary-card { background: #fff; border-radius: 16px; box-shadow: var(--card-ring), var(--shadow-sm); border-color: rgba(11,31,53,.06); }
+  .tc { border-top-width: 3px; }
+  .cal-day { border-radius: 10px; }
+  .news-date { border-radius: 12px; }
+  .trk-inp { border-radius: 14px; }
+  .trk-tab { border-radius: 12px 12px 0 0; }
+  .ftr { border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; margin-top: 2rem; }
+  .ann-card { border-radius: 24px; }
+  .ann-header { border-bottom: 0; }
+  .ann-action-btn, .ann-info { border-radius: 14px; }
+  .ann-icon-wrap { border-radius: 12px; }
+  @media (max-width: 600px) {
+    .hero, .pg-hero, .pg-head { border-radius: 0 0 24px 24px; }
+    .ftr { border-radius: 24px 24px 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tc:hover, .dc:hover, .trn-card:hover, .doc-item:hover, .trk-cta:hover { transform: none; } }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon" aria-hidden="true"></div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <img class="hdr-logo"
+         src="https://lh3.googleusercontent.com/d/1qIREbhnqt9n4xWbdqe5V8lnypb4DKtVS"
+         alt="ตราสัญลักษณ์โรงพยาบาลสันทราย"
+         onerror="this.style.display='none'">
+    <div class="hdr-sep" aria-hidden="true"></div>
+    <div class="hdr-id">
+      <h1>คณะกรรมการจริยธรรมการวิจัยในมนุษย์ โรงพยาบาลสันทราย</h1>
+      <p>Human Research Ethics Committee · Sansai Hospital · เขตสุขภาพที่ 1 จ.เชียงใหม่</p>
+    </div>
+    <div class="hdr-util">
+      <button class="btn btn-gold" onclick="SITE.goLogin()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        เข้าสู่ระบบ
+      </button>
+      <button class="nb-toggle" id="nbToggleBtn" onclick="nbMobileToggle()"
+              aria-label="เปิดเมนูหลัก" aria-expanded="false" aria-controls="nbList">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="13" x2="20" y2="13"/><line x1="4" y1="19" x2="20" y2="19"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIN MENU — เมนูหลักแนวนอน พร้อมเมนูย่อยแบบ dropdown
+══════════════════════════════════════════════════════════════ -->
+<nav class="nb" aria-label="เมนูหลัก" id="nbBar">
+  <div class="nb-in">
+    <ul class="nb-list" id="nbList" role="menubar">
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="./">หน้าแรก</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="process.html">ขั้นตอนการยื่นขอ</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="documents.html">เตรียมเอกสาร</a>
+      </li>
+      <li class="nb-item has-drop" role="none">
+        <button class="nb-link is-active" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                onclick="nbToggle(event,this)">
+          <span>มาตรฐานการวิจัย</span>
+          <svg class="nb-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nb-panel" role="menu">
+          <a role="menuitem" href="standards.html">มาตรฐานและ SOP คณะกรรมการ</a>
+          <a role="menuitem" href="training.html">อบรมจริยธรรมการวิจัย</a>
+        </div>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="tracking.html">ติดตามสถานะโครงการ</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="showcase.html" data-en="Ethics Showcase">ผลงานจริยธรรมการวิจัย</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="contact.html">ติดต่อเรา</a>
+      </li>
+      <li class="nb-item has-drop" role="none">
+        <button class="nb-link" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                onclick="nbToggle(event,this)">
+          <span>ระบบออนไลน์</span>
+          <svg class="nb-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nb-panel" role="menu">
+          <a role="menuitem" href="#" onclick="SITE.goRegister();return false;">สมัครสมาชิก</a>
+          <a role="menuitem" href="https://drive.google.com/file/d/1x6n0d6hTxsVtbENyd1L_UzOV4s2UXL-w/view" target="_blank" rel="noopener noreferrer">คู่มือการใช้งานระบบ</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE BANNER -->
+<section class="pg-hero" aria-labelledby="pg-h">
+  <div class="container">
+    <div class="pg-hero-in">
+      <div class="crumb"><a href="./">หน้าแรก</a><span>／</span><span>อบรมจริยธรรมการวิจัย</span></div>
+      <div class="eyebrow">EC Online Submission System</div>
+      <h1 class="pg-title" id="pg-h">อบรมจริยธรรมการวิจัยในมนุษย์</h1>
+      <p class="pg-desc">รวมแหล่งอบรมออนไลน์ที่ผู้วิจัยและผู้สนใจสามารถเลือกเรียนเพื่อรับประกาศนียบัตรผ่านการอบรมจริยธรรมการวิจัยในมนุษย์ สำหรับใช้แนบประกอบการยื่นขอรับการพิจารณา</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY IT'S REQUIRED -->
+<section class="sec" aria-labelledby="why-h">
+  <div class="container">
+    <div class="sec-head rev">
+      <div class="sec-eye"><i class="ti ti-info-circle" aria-hidden="true"></i> ก่อนเริ่มอบรม</div>
+      <h2 class="sec-ttl" id="why-h">เหตุใดผู้วิจัยจึงต้องผ่านการอบรม</h2>
+    </div>
+    <div class="req-panel rev">
+      <div class="req-ico" aria-hidden="true"><i class="ti ti-shield-check"></i></div>
+      <div class="req-txt">
+        <h3>หลักฐานผ่านการอบรมเป็นส่วนหนึ่งของเอกสารบังคับ</h3>
+        <p>ตามแนวทาง <strong>ICH-GCP</strong> และมาตรฐานสากลด้านการคุ้มครองผู้เข้าร่วมวิจัย ผู้วิจัยหลักและผู้ร่วมวิจัยทุกคนควรมีหลักฐานผ่านการอบรมด้านจริยธรรมการวิจัยในมนุษย์ก่อนเริ่มดำเนินโครงการ โดยแนบไฟล์ประกาศนียบัตรไปพร้อมกับประวัติผู้วิจัย (CV) ในขั้นตอน <a href="documents.html">เตรียมเอกสาร</a> — สามารถเลือกอบรมกับหลักสูตรใดหลักสูตรหนึ่งด้านล่างนี้ได้ตามความสะดวก</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAINING COURSES -->
+<section class="sec sec-gold" aria-labelledby="trn-h">
+  <div class="container">
+    <div class="sec-head rev">
+      <div class="sec-eye"><i class="ti ti-certificate" aria-hidden="true"></i> หลักสูตรแนะนำ</div>
+      <h2 class="sec-ttl" id="trn-h">หลักสูตรอบรมออนไลน์ที่แนะนำ</h2>
+      <p class="sec-dsc">คัดเลือกจากหน่วยงานที่น่าเชื่อถือ เรียนออนไลน์ได้ด้วยตนเอง และมีใบประกาศนียบัตรเมื่อผ่านเกณฑ์การประเมิน</p>
+    </div>
+
+    <div class="trn-grid">
+
+      <!-- NECAST -->
+      <a class="trn-card rev" style="transition-delay:.05s" href="https://elearning-necast.nrct.go.th/" target="_blank" rel="noopener noreferrer">
+        <div class="trn-cover-wrap"><img class="trn-cover" src="images/training-necast.jpg" alt="ระบบ E-Learning จริยธรรมการวิจัยในมนุษย์ (NECAST) — สำนักงานการวิจัยแห่งชาติ" loading="lazy"></div>
+        <div class="trn-bar trn-bar-navy" aria-hidden="true"></div>
+        <div class="trn-body">
+          <div class="trn-top">
+            <div class="trn-org">
+              <div class="trn-org-ico navy" aria-hidden="true"><i class="ti ti-building-bank"></i></div>
+              <div class="trn-org-name">สำนักงานการวิจัยแห่งชาติ (วช.)</div>
+            </div>
+            <span class="trn-badge">แนะนำ</span>
+          </div>
+          <h3 class="trn-ttl">ระบบ E-Learning จริยธรรมการวิจัยในมนุษย์ (NECAST)</h3>
+          <p class="trn-dsc">หลักสูตรกลางระดับประเทศที่พัฒนาโดยสำนักงานการวิจัยแห่งชาติ ครอบคลุมหลักจริยธรรมการวิจัยในมนุษย์ตามมาตรฐานสากล เป็นหลักสูตรที่คณะกรรมการจริยธรรมการวิจัยส่วนใหญ่ในประเทศไทยให้การยอมรับอย่างกว้างขวาง</p>
+          <div class="trn-meta">
+            <span class="trn-tag"><i class="ti ti-device-laptop" aria-hidden="true"></i>เรียนด้วยตนเอง</span>
+            <span class="trn-tag"><i class="ti ti-coin" aria-hidden="true"></i>ไม่มีค่าใช้จ่าย</span>
+            <span class="trn-tag"><i class="ti ti-award" aria-hidden="true"></i>มีใบประกาศนียบัตร</span>
+          </div>
+          <span class="trn-go"><i class="ti ti-external-link" aria-hidden="true"></i> ไปที่หลักสูตร</span>
+        </div>
+      </a>
+
+      <!-- Chula MOOC -->
+      <a class="trn-card rev" style="transition-delay:.11s" href="https://www.mycourseville.com/?q=onlinecourse%2Fcourse%2F34723" target="_blank" rel="noopener noreferrer">
+        <div class="trn-cover-wrap"><img class="trn-cover" src="images/training-chulamooc.jpg" alt="จริยธรรมการวิจัยในคน รุ่นที่ 2 — Chula MOOC จุฬาลงกรณ์มหาวิทยาลัย" loading="lazy"></div>
+        <div class="trn-bar trn-bar-gold" aria-hidden="true"></div>
+        <div class="trn-body">
+          <div class="trn-top">
+            <div class="trn-org">
+              <div class="trn-org-ico gold" aria-hidden="true"><i class="ti ti-school"></i></div>
+              <div class="trn-org-name">จุฬาลงกรณ์มหาวิทยาลัย · Chula MOOC</div>
+            </div>
+          </div>
+          <h3 class="trn-ttl">จริยธรรมการวิจัยในคน รุ่นที่ 2</h3>
+          <p class="trn-dsc">สอนโดยคณะกรรมการพิจารณาจริยธรรมการวิจัยในคน กลุ่มสหสถาบัน ครอบคลุมหลักการพื้นฐานของจริยธรรมการวิจัย การประเมินความเสี่ยงและประโยชน์ และการคุ้มครองสิทธิของผู้เข้าร่วมวิจัย เหมาะสำหรับทั้งผู้วิจัยและผู้สนใจทั่วไป</p>
+          <div class="trn-meta">
+            <span class="trn-tag"><i class="ti ti-device-laptop" aria-hidden="true"></i>เรียนผ่าน MyCourseVille</span>
+            <span class="trn-tag"><i class="ti ti-users-group" aria-hidden="true"></i>สอนโดยกรรมการจริยธรรมสหสถาบัน</span>
+            <span class="trn-tag"><i class="ti ti-award" aria-hidden="true"></i>มีใบประกาศนียบัตร</span>
+          </div>
+          <span class="trn-go"><i class="ti ti-external-link" aria-hidden="true"></i> ไปที่หลักสูตร</span>
+        </div>
+      </a>
+
+      <!-- Thai MOOC -->
+      <a class="trn-card rev" style="transition-delay:.17s" href="https://thaimooc.ac.th/courses/NU00442" target="_blank" rel="noopener noreferrer">
+        <div class="trn-cover-wrap"><img class="trn-cover" src="images/training-thaimooc.jpg" alt="จริยธรรมการวิจัยในมนุษย์เบื้องต้น (NU00442) — Thai MOOC มหาวิทยาลัยนเรศวร" loading="lazy"></div>
+        <div class="trn-bar trn-bar-green" aria-hidden="true"></div>
+        <div class="trn-body">
+          <div class="trn-top">
+            <div class="trn-org">
+              <div class="trn-org-ico green" aria-hidden="true"><i class="ti ti-school"></i></div>
+              <div class="trn-org-name">มหาวิทยาลัยนเรศวร · Thai MOOC</div>
+            </div>
+          </div>
+          <h3 class="trn-ttl">จริยธรรมการวิจัยในมนุษย์เบื้องต้น (NU00442)</h3>
+          <p class="trn-dsc">หลักสูตรพื้นฐานที่ครอบคลุมวิวัฒนาการของจริยธรรมการวิจัย การประเมินความเสี่ยง-ประโยชน์ การคุ้มครองกลุ่มเปราะบาง ความเป็นส่วนตัวและการรักษาความลับ ตลอดจนกระบวนการขอความยินยอมและการพิจารณาโครงร่างการวิจัย</p>
+          <div class="trn-meta">
+            <span class="trn-tag"><i class="ti ti-clock-hour-4" aria-hidden="true"></i>5 ชั่วโมง</span>
+            <span class="trn-tag"><i class="ti ti-checklist" aria-hidden="true"></i>เกณฑ์ผ่าน 70%</span>
+            <span class="trn-tag"><i class="ti ti-award" aria-hidden="true"></i>มีใบประกาศนียบัตร</span>
+          </div>
+          <span class="trn-go"><i class="ti ti-external-link" aria-hidden="true"></i> ไปที่หลักสูตร</span>
+        </div>
+      </a>
+
+      <!-- Mahidol e-learning -->
+      <a class="trn-card rev" style="transition-delay:.23s" href="https://sp.mahidol.ac.th/e-learning/course.php" target="_blank" rel="noopener noreferrer">
+        <div class="trn-cover-wrap"><img class="trn-cover" src="images/training-mahidol.jpg" alt="ชุดวิดีโอบรรยาย Human Subjects Research — มหาวิทยาลัยมหิดล ศูนย์ส่งเสริมจริยธรรมการวิจัย" loading="lazy"></div>
+        <div class="trn-bar trn-bar-slate" aria-hidden="true"></div>
+        <div class="trn-body">
+          <div class="trn-top">
+            <div class="trn-org">
+              <div class="trn-org-ico slate" aria-hidden="true"><i class="ti ti-microscope"></i></div>
+              <div class="trn-org-name">มหาวิทยาลัยมหิดล · ศูนย์ส่งเสริมจริยธรรมการวิจัย</div>
+            </div>
+          </div>
+          <h3 class="trn-ttl">ชุดวิดีโอบรรยาย Human Subjects Research</h3>
+          <p class="trn-dsc">คลังวิดีโอบรรยายโดยคณาจารย์ผู้เชี่ยวชาญ ครอบคลุม 4 หัวข้อสำคัญ ได้แก่ ขอบข่ายของการวิจัยในคน การวิจัยในกลุ่มเปราะบาง จริยธรรมและการประพฤติมิชอบทางการวิจัย และการวิจัยด้านเครื่องมือแพทย์ เหมาะสำหรับทบทวนความรู้เชิงลึกเป็นรายหัวข้อ</p>
+          <div class="trn-meta">
+            <span class="trn-tag"><i class="ti ti-video" aria-hidden="true"></i>วิดีโอบรรยาย 4 ตอน</span>
+            <span class="trn-tag"><i class="ti ti-clock-hour-4" aria-hidden="true"></i>ตอนละ 30–48 นาที</span>
+            <span class="trn-tag"><i class="ti ti-device-laptop" aria-hidden="true"></i>ดูออนไลน์ได้ทันที</span>
+          </div>
+          <span class="trn-go"><i class="ti ti-external-link" aria-hidden="true"></i> ไปที่หลักสูตร</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- AFTER TRAINING -->
+<section class="sec" aria-labelledby="stp-h">
+  <div class="container">
+    <div class="sec-head rev">
+      <div class="sec-eye">ขั้นตอนถัดไป</div>
+      <h2 class="sec-ttl" id="stp-h">หลังผ่านการอบรมแล้วทำอย่างไรต่อ</h2>
+      <p class="sec-dsc">เมื่อเรียนจบและได้รับใบประกาศนียบัตรจากหลักสูตรที่เลือกแล้ว ให้ดำเนินการดังนี้</p>
+    </div>
+    <div class="stp-track">
+      <div class="stp rev" style="transition-delay:.05s">
+        <div class="stp-num">1</div>
+        <h4>เรียนจนจบและผ่านแบบทดสอบ</h4>
+        <p>เลือกหลักสูตรที่สะดวก เรียนออนไลน์ด้วยตนเองให้ครบตามที่กำหนด แล้วทำแบบทดสอบท้ายหลักสูตรให้ผ่านเกณฑ์ของแต่ละแห่ง</p>
+      </div>
+      <div class="stp rev" style="transition-delay:.12s">
+        <div class="stp-num">2</div>
+        <h4>บันทึกไฟล์ใบประกาศนียบัตร</h4>
+        <p>ดาวน์โหลดหรือพิมพ์ใบประกาศนียบัตรฉบับ PDF จากระบบของหลักสูตรทันทีที่ผ่านเกณฑ์ เก็บไฟล์ไว้เพื่อใช้แนบในระบบ</p>
+      </div>
+      <div class="stp rev" style="transition-delay:.19s">
+        <div class="stp-num">3</div>
+        <h4>แนบไฟล์พร้อมเอกสารยื่นขอ</h4>
+        <p>แนบใบประกาศนียบัตรพร้อมกับ CV ผู้วิจัยในขั้นตอน <a href="documents.html">เตรียมเอกสาร</a> ก่อนเริ่มยื่นขอรับการพิจารณาในระบบ</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RELATED LINKS -->
+<section class="sec sec-alt" aria-labelledby="rel-h">
+  <div class="container">
+    <div class="sec-head rev">
+      <div class="sec-eye">ดูเพิ่มเติม</div>
+      <h2 class="sec-ttl" id="rel-h">ขั้นตอนและเอกสารที่เกี่ยวข้อง</h2>
+      <p class="sec-dsc">ลิงก์ไปยังหน้าอื่นที่เกี่ยวข้องกับการยื่นขอรับการพิจารณาจริยธรรมการวิจัย</p>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap" class="rev">
+      <button class="btn btn-ghost" style="border-color:var(--u200);color:var(--n700)" onclick="location.href='documents.html'">
+        <i class="ti ti-files" aria-hidden="true"></i> เตรียมเอกสาร
+      </button>
+      <button class="btn btn-ghost" style="border-color:var(--u200);color:var(--n700)" onclick="location.href='process.html'">
+        <i class="ti ti-list-check" aria-hidden="true"></i> ดูขั้นตอนการยื่น
+      </button>
+      <button class="btn btn-gold" onclick="SITE.goRegister()">
+        <i class="ti ti-user-plus" aria-hidden="true"></i> ลงทะเบียนเริ่มยื่น
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="ftr">
+  <div class="container">
+    <div class="ftr-g">
+      <div class="fcol"><h4>โรงพยาบาลสันทราย</h4>
+        <p>เลขที่ 201 หมู่ 11 ตำบลหนองหาร</p>
+        <p>อำเภอสันทราย จังหวัดเชียงใหม่ 50290</p>
+        <p style="margin-top:.5rem">โทรศัพท์: 053-921-199 ต่อ 168</p>
+        <p>เขตสุขภาพที่ 1 · กระทรวงสาธารณสุข</p>
+      </div>
+      <div class="fcol"><h4>ระบบ EC Online</h4>
+        <a href="#" onclick="SITE.goLogin()">เข้าสู่ระบบ</a>
+        <a href="#" onclick="SITE.goRegister()">ลงทะเบียนผู้ใช้ใหม่</a>
+        <a href="process.html">ขั้นตอนการยื่นขอ</a>
+        <a href="documents.html">เตรียมเอกสาร</a>
+        <a href="standards.html">มาตรฐานการวิจัย</a>
+        <a href="training.html">อบรมจริยธรรมการวิจัย</a>
+        <a href="./#calendar">ปฏิทินการประชุม</a>
+        <a href="./#news">ประกาศและข่าวสาร</a>
+        <a href="contact.html">ติดต่อเรา</a>
+      </div>
+      <div class="fcol"><h4>นโยบายและกฎระเบียบ</h4>
+        <a href="privacy-policy.html">นโยบายความเป็นส่วนตัว (PDPA)</a>
+        <a href="#">เงื่อนไขการใช้งาน</a>
+        <a href="#">มาตรฐาน ICH-GCP</a>
+        <a href="#">แนวทาง NECAST</a>
+      </div>
+    </div>
+    <div class="fbot">
+      <span>© พ.ศ. 2568 โรงพยาบาลสันทราย · ระบบ EC Online Submission v1.0 · พัฒนาโดยกลุ่มงานพัฒนาคุณภาพและมาตรฐาน</span>
+      <span class="pdpa">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        PDPA Compliant · พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+var APP_URL = 'app.html';
+var SITE = {
+  goLogin:    function() { window.location.href = APP_URL; },
+  goRegister: function() { window.location.href = APP_URL + '?action=register'; }
+};
+
+/* reveal on scroll */
+(function() {
+  var els = document.querySelectorAll('.rev');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold:.08, rootMargin:'0px 0px -24px 0px' });
+  els.forEach(function(el) { io.observe(el); });
+})();
+
+/* เมนูหลักแนวนอน + dropdown ย่อย */
+function nbCloseAll(except) {
+  document.querySelectorAll('.nb-item.has-drop.open').forEach(function(li) {
+    if (li === except) return;
+    li.classList.remove('open');
+    var btn = li.querySelector('.nb-link');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  });
+}
+function nbToggle(e, btn) {
+  if (e) e.stopPropagation();
+  var li = btn.closest('.nb-item');
+  if (!li) return;
+  var willOpen = !li.classList.contains('open');
+  nbCloseAll(willOpen ? li : null);
+  li.classList.toggle('open', willOpen);
+  btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nb-item.has-drop')) nbCloseAll();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') nbCloseAll();
+});
+
+/* เปิด/ปิด dropdown ด้วยเมาส์ hover เฉพาะจอที่มีเมาส์จริง (desktop) */
+(function() {
+  if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  document.querySelectorAll('.nb-item.has-drop').forEach(function(li) {
+    var closeTimer = null;
+    li.addEventListener('mouseenter', function() {
+      clearTimeout(closeTimer);
+      nbCloseAll(li);
+      li.classList.add('open');
+      var btn = li.querySelector('.nb-link');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    });
+    li.addEventListener('mouseleave', function() {
+      closeTimer = setTimeout(function() {
+        li.classList.remove('open');
+        var btn = li.querySelector('.nb-link');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }, 150);
+    });
+  });
+})();
+
+/* ปุ่มแฮมเบอร์เกอร์ — เปิด/ปิดเมนูบนมือถือ */
+function nbMobileToggle() {
+  var bar = document.getElementById('nbBar');
+  var btn = document.getElementById('nbToggleBtn');
+  if (!bar) return;
+  var willOpen = !bar.classList.contains('mobile-open');
+  bar.classList.toggle('mobile-open', willOpen);
+  if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  if (!willOpen) nbCloseAll();
+}
+</script>
+</body>
+</html>

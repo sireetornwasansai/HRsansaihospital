@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+   <script src="config.js"></script>
+<script src="consent-gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ขั้นตอนการยื่นขอรับการพิจารณาจริยธรรมการวิจัยในมนุษย์ โรงพยาบาลสันทราย">
+<title>ขั้นตอนการยื่นขอ — คณะกรรมการจริยธรรมการวิจัยในมนุษย์ โรงพยาบาลสันทราย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — Navy + Gold  (unified with index.html theme)
+══════════════════════════════════════════════════════════════ */
+:root {
+  --n900:#0b1f35; --n800:#112844; --n700:#173454; --n600:#1e4068;
+  --n400:#3d6491; --n100:#dce7f3; --n50:#eef3f9;
+  --g700:#7c5c18; --g600:#9a7220; --g500:#b58a2a; --g400:#c9a037;
+  --g100:#f0e3c0; --g50:#f8f2e1;
+  --gr800:#164d34; --gr700:#1b5e3e; --gr100:#d6ede3; --gr50:#eaf4ee;
+  --r700:#b91c1c; --r50:#fef2f2;
+  --u900:#151e28; --u700:#344255; --u500:#5a6e85;
+  --u300:#a8b8cb; --u200:#d0dae6; --u100:#e8edf5; --u50:#f4f6fa;
+  --white:#ffffff;
+  --ff:'Sarabun','Helvetica Neue',Arial,sans-serif;
+  --ffs:'Noto Serif Thai',Georgia,serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:clip}
+*{min-width:0}
+body{font-family:var(--ff);color:var(--u700);background:var(--white);
+     line-height:1.65;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button{font-family:inherit;cursor:pointer}
+.container{max-width:1440px;margin-inline:auto;padding-inline:2rem}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+.rev{opacity:0;transform:translateY(14px);
+  transition:opacity .55s var(--ease),transform .55s var(--ease)}
+.rev.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .rev{opacity:1!important;transform:none!important;transition:none!important}
+}
+
+.ribbon{height:4px;background:linear-gradient(90deg,
+  var(--n800) 0% 33.33%,var(--g500) 33.33% 66.66%,var(--gr700) 66.66% 100%)}
+
+/* ══════════════════════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════════════════════ */
+.hdr{position:sticky;top:0;z-index:300;background:var(--n900);box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.hdr-in{display:flex;align-items:center;gap:1.2rem;padding-block:11px;
+  max-width:1440px;margin-inline:auto;padding-inline:2rem}
+.hdr-logo{height:48px;width:auto;object-fit:contain;flex-shrink:0}
+.hdr-sep{width:1px;height:38px;background:rgba(255,255,255,.16);flex-shrink:0}
+.hdr-id{flex:1;min-width:0}
+.hdr-id h1{font-family:var(--ffs);font-size:.875rem;font-weight:600;color:#fff;
+  line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-id p{font-size:.72rem;color:rgba(255,255,255,.42);letter-spacing:.02em;margin-top:2px}
+.hdr-util{display:flex;align-items:center;gap:.6rem;flex-shrink:0;margin-left:auto}
+.hdr-util>*{flex-shrink:0}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--ff);
+  font-size:.84rem;font-weight:600;padding:.5rem 1.1rem;border-radius:4px;
+  border:1.5px solid transparent;
+  transition:background .18s var(--ease),border-color .18s,color .18s,
+             transform .18s,box-shadow .18s;white-space:nowrap;line-height:1}
+.btn svg{flex-shrink:0}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.72);
+  border-color:rgba(255,255,255,.22)}
+.btn-ghost:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.4);color:#fff}
+.btn-gold{background:var(--g500);color:var(--n900);border-color:var(--g500)}
+.btn-guide{position:relative;background:rgba(255,255,255,.1);color:rgba(255,255,255,.9);
+  border-color:rgba(255,255,255,.25);gap:.4rem}
+.btn-guide:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.5);color:#fff}
+.btn-gold:hover{background:var(--g400);border-color:var(--g400);
+  transform:translateY(-1px);box-shadow:0 4px 14px rgba(181,138,42,.35)}
+
+/* ══════════════════════════════════════════════════════════════
+   MAIN MENU BAR — เมนูแนวนอนใต้แถบชื่อหน่วยงาน
+══════════════════════════════════════════════════════════════ */
+.nb{position:sticky;top:70px;z-index:290;background:var(--n800);
+  border-top:1px solid rgba(255,255,255,.07);border-bottom:2px solid var(--g500)}
+.nb-in{max-width:1440px;margin-inline:auto;padding-inline:1.4rem}
+.nb-list{display:flex;align-items:stretch;flex-wrap:wrap}
+.nb-item{position:relative;display:flex}
+.nb-link{display:flex;align-items:center;gap:.32rem;padding:.78rem .85rem;
+  font-size:.83rem;font-weight:500;color:rgba(255,255,255,.66);
+  background:none;border:none;font-family:var(--ff);white-space:nowrap;
+  position:relative;transition:color .16s}
+.nb-link::after{content:'';position:absolute;left:.85rem;right:.85rem;bottom:0;height:2px;
+  background:var(--g500);transform:scaleX(0);transform-origin:center;
+  transition:transform .18s var(--ease)}
+.nb-link:hover,.nb-link.is-active{color:#fff}
+.nb-link:hover::after,.nb-link.is-active::after{transform:scaleX(1)}
+.nb-caret{width:9px;height:9px;flex-shrink:0;transition:transform .18s var(--ease)}
+.nb-item.open .nb-caret{transform:rotate(180deg)}
+.nb-panel{position:absolute;top:100%;left:0;min-width:236px;background:var(--white);
+  border:1px solid var(--u200);border-radius:0 0 8px 8px;box-shadow:0 14px 30px rgba(11,31,53,.24);
+  padding:.4rem;z-index:295;opacity:0;visibility:hidden;transform:translateY(-6px);
+  transition:opacity .16s var(--ease),transform .16s var(--ease),visibility .16s}
+.nb-item.open .nb-panel{opacity:1;visibility:visible;transform:none}
+.nb-panel a{display:block;padding:.62rem .75rem;border-radius:6px;font-size:.82rem;
+  color:var(--n800);font-weight:500;transition:background .14s}
+.nb-panel a:hover{background:var(--u50)}
+@media(hover:hover) and (pointer:fine){
+  .nb-item.has-drop:hover .nb-panel{opacity:1;visibility:visible;transform:none}
+  .nb-item.has-drop:hover .nb-caret{transform:rotate(180deg)}
+}
+.nb-toggle{display:none;background:none;border:1.5px solid rgba(255,255,255,.22);
+  border-radius:5px;color:#fff;width:34px;height:34px;align-items:center;
+  justify-content:center;flex-shrink:0}
+@media(max-width:900px){
+  .nb{position:static}
+  .nb-toggle{display:inline-flex}
+  .nb-in{padding-block:.2rem}
+  .nb-list{display:none;flex-direction:column;width:100%;padding-block:.3rem .5rem}
+  .nb.mobile-open .nb-list{display:flex}
+  .nb-item{width:100%}
+  .nb-link{width:100%;padding:.78rem .1rem;justify-content:space-between}
+  .nb-link::after{display:none}
+  .nb-panel{position:static;box-shadow:none;border:none;border-radius:6px;
+    background:rgba(255,255,255,.05);opacity:1;visibility:visible;transform:none;
+    display:none;margin:0 0 .3rem;padding:.15rem}
+  .nb-item.open .nb-panel{display:block}
+  .nb-panel a{color:rgba(255,255,255,.7)}
+  .nb-panel a:hover{background:rgba(255,255,255,.08)}
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PAGE BANNER (mini-hero)
+══════════════════════════════════════════════════════════════ */
+.pg-hero{background:var(--n900);position:relative;overflow:hidden}
+.pg-hero::before{content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(90deg,transparent 0,transparent 95px,
+    rgba(255,255,255,.018) 95px,rgba(255,255,255,.018) 96px);pointer-events:none}
+.pg-hero-in{position:relative;z-index:1;padding-block:44px 46px}
+.crumb{display:flex;align-items:center;gap:.5rem;font-size:.76rem;
+  color:rgba(255,255,255,.45);margin-bottom:1rem}
+.crumb a{color:rgba(255,255,255,.7);transition:color .15s}
+.crumb a:hover{color:var(--g400)}
+.eyebrow{display:inline-flex;align-items:center;gap:.75rem;
+  font-size:.65rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--g400);margin-bottom:1rem}
+.eyebrow::before,.eyebrow::after{content:'';display:block;height:1px;
+  width:18px;background:var(--g500);opacity:.7}
+.pg-title{font-family:var(--ffs);font-size:clamp(1.35rem,3vw,2rem);
+  font-weight:700;color:#fff;line-height:1.4;margin-bottom:.85rem}
+.pg-desc{font-size:.92rem;color:rgba(255,255,255,.55);line-height:1.85;max-width:64ch}
+
+/* ══════════════════════════════════════════════════════════════
+   SECTIONS
+══════════════════════════════════════════════════════════════ */
+.sec{padding-block:4rem}
+.sec-head{margin-bottom:3rem}
+.sec-eye{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--g600);display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.sec-eye::after{content:'';height:1px;width:36px;background:var(--u200)}
+.sec-ttl{font-family:var(--ffs);font-size:1.4rem;font-weight:700;
+  color:var(--n800);line-height:1.4}
+.sec-dsc{font-size:.875rem;color:var(--u500);margin-top:.75rem;
+  line-height:1.8;max-width:60ch}
+
+/* ══════════════════════════════════════════════════════════════
+   PROCESS STEPS (detailed, vertical timeline for its own page)
+══════════════════════════════════════════════════════════════ */
+.proc-timeline{position:relative;max-width:820px}
+.proc-timeline::before{content:'';position:absolute;left:25px;top:8px;bottom:8px;
+  width:2px;background:repeating-linear-gradient(180deg,var(--u200) 0,var(--u200) 6px,
+    transparent 6px,transparent 12px)}
+.pt-item{display:flex;gap:1.5rem;position:relative;padding-bottom:2.5rem}
+.pt-item:last-child{padding-bottom:0}
+.pt-circ{width:52px;height:52px;border-radius:50%;background:var(--white);
+  border:1.5px solid var(--u200);display:flex;align-items:center;justify-content:center;
+  color:var(--u400);flex-shrink:0;position:relative;z-index:1;
+  box-shadow:0 1px 4px rgba(11,31,53,.07)}
+.pt-circ.act{border-color:var(--g500);color:var(--g600);box-shadow:0 0 0 5px var(--g100)}
+.pt-body{flex:1;min-width:0;padding-top:6px}
+.pt-num{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--g600);margin-bottom:.35rem}
+.pt-ttl{font-family:var(--ffs);font-size:1.05rem;font-weight:700;color:var(--n800);
+  margin-bottom:.5rem;line-height:1.4}
+.pt-dsc{font-size:.85rem;color:var(--u500);line-height:1.85;max-width:56ch}
+.pt-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+.pt-tag{font-size:.68rem;font-weight:600;color:var(--u700);background:var(--u50);
+  border:1px solid var(--u100);border-radius:20px;padding:3px 10px}
+
+/* CTA banner */
+.pt-cta{margin-top:3rem;display:flex;align-items:center;justify-content:space-between;
+  gap:1.5rem;flex-wrap:wrap;background:var(--g50);border:1px solid var(--g100);
+  border-radius:8px;padding:1.5rem 1.75rem}
+.pt-cta h3{font-family:var(--ffs);font-size:1rem;font-weight:700;color:var(--n800);margin-bottom:.4rem}
+.pt-cta p{font-size:.8rem;color:var(--u500);line-height:1.7}
+
+/* ══════════════════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════════════════ */
+.ftr{background:var(--n900);border-top:2px solid var(--g500);padding-block:3rem 2rem;position:relative;overflow:hidden}
+.ftr::before{content:'';position:absolute;inset:-20px;
+  background:url('images/footer-bg.jpg') center/cover no-repeat;
+  filter:blur(9px) saturate(1.1) brightness(.85);
+  transform:scale(1.08);z-index:0;pointer-events:none}
+.ftr::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(11,31,53,.55) 0%,rgba(11,31,53,.72) 100%);
+  z-index:1;pointer-events:none}
+.ftr .container{position:relative;z-index:2}
+.ftr-g{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:3rem;
+  padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:1.5rem}
+.fcol h4{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--g400);margin-bottom:1rem}
+.fcol p,.fcol a{font-size:.78rem;color:rgba(255,255,255,.62);line-height:1.9;display:block;transition:color .15s}
+.fcol a:hover{color:var(--g400)}
+.fbot{display:flex;justify-content:space-between;align-items:center;
+  font-size:.72rem;color:rgba(255,255,255,.48);flex-wrap:wrap;gap:.75rem}
+.pdpa{display:inline-flex;align-items:center;gap:.5rem;
+  border:1px solid rgba(255,255,255,.1);border-radius:20px;
+  padding:4px 12px;font-size:.68rem;color:rgba(255,255,255,.55)}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════ */
+@media(max-width:1080px){
+  .hdr-in{gap:.8rem}
+  .hdr-id p{display:none}
+}
+@media(max-width:960px){
+  .hdr-in{padding-inline:1.2rem}
+  .container{padding-inline:1.2rem}
+  .ftr-g{grid-template-columns:1fr;gap:1.5rem}
+  .pt-item{gap:1rem}
+}
+@media(max-width:600px){
+  .container{padding-inline:1rem}
+  .sec{padding-block:2.75rem}
+  .pg-hero-in{padding-block:34px 36px}
+  .proc-timeline::before{left:21px}
+  .pt-circ{width:44px;height:44px}
+  .pt-cta{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:480px){
+  .hdr-logo{height:38px}
+  .hdr-sep{height:30px}
+  .hdr-id h1{font-size:.72rem;line-height:1.35}
+  .btn{padding:.42rem .8rem;font-size:.78rem}
+  .pg-title{font-size:1.1rem}
+  .pg-desc{font-size:.85rem}
+  .sec-ttl{font-size:1.15rem}
+  .pt-ttl{font-size:.95rem}
+}
+</style>
+<style id="icons-local">
+.ti{display:inline-block;width:1em;height:1em;flex:none;vertical-align:-.125em;background-color:currentColor;-webkit-mask:var(--ti) center/contain no-repeat;mask:var(--ti) center/contain no-repeat;font-style:normal;line-height:1}
+.ti-ok{color:#1b5e3e}.ti-warn{color:#b7791f}.ti-err{color:#b91c1c}
+.ti-files{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3E %3Cpath d='M15 3v4a1 1 0 0 0 1 1h4' /%3E %3Cpath d='M18 17h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h4l5 5v7a2 2 0 0 1 -2 2z' /%3E %3Cpath d='M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h2' /%3E %3C/svg%3E")}
+</style>
+<style id="pg-refresh">
+/* PAGES-REFRESH v1 — shared presentation layer for sub-pages. Delete this <style id="pg-refresh"> to revert. */
+@media screen {
+  :root { --sp-shadow: 0 1px 2px rgba(11,31,53,.06), 0 6px 20px rgba(11,31,53,.07); --sp-shadow-hi: 0 2px 4px rgba(11,31,53,.08), 0 14px 34px rgba(11,31,53,.13); }
+  body { text-rendering: optimizeLegibility; letter-spacing: .005em; }
+  :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline: 2px solid var(--g500); outline-offset: 3px; border-radius: 6px; }
+  .hdr :focus-visible, .nb :focus-visible, .ftr :focus-visible, .pg-hero :focus-visible, .pg-head :focus-visible { outline-color: var(--g400); }
+
+  /* ── Page hero: richer ground, readable copy ── */
+  .pg-hero, .pg-head {
+    background: radial-gradient(820px 340px at 92% -30%, rgba(181,138,42,.24), transparent 62%),
+                radial-gradient(640px 360px at -5% 130%, rgba(30,64,104,.62), transparent 60%), var(--n900);
+  }
+  .pg-hero-in { padding-block: 52px 58px; }
+  .pg-head { padding-block: 3.6rem 3.4rem; }
+  .pg-title, .pg-ttl { font-size: clamp(1.6rem, 3.3vw, 2.4rem); line-height: 1.38; letter-spacing: -.005em; text-wrap: balance; }
+  .pg-desc, .pg-dsc { font-size: 1rem; color: rgba(255,255,255,.80); line-height: 1.85; max-width: 68ch; }
+  .crumb { font-size: .84rem; color: rgba(255,255,255,.62); margin-bottom: 1.15rem; }
+  .crumb a { color: rgba(255,255,255,.82); }
+  .eyebrow { font-size: .74rem; letter-spacing: .13em; padding: .32rem .8rem; border: 1px solid rgba(201,160,55,.45); border-radius: 999px; background: rgba(201,160,55,.10); margin-bottom: 1.2rem; }
+  .eyebrow::before, .eyebrow::after { display: none; }
+  .pg-back { font-size: .86rem; color: rgba(255,255,255,.78); }
+
+  /* ── Section rhythm & headings ── */
+  .sec { padding-block: 4rem; }
+  .sec-eye { font-size: .74rem; letter-spacing: .1em; color: var(--g700); }
+  .sec-ttl { font-size: clamp(1.4rem, 2.4vw, 1.85rem); color: var(--n900); text-wrap: balance; }
+  .sec-dsc { font-size: .98rem; max-width: 66ch; }
+
+  /* ── Buttons ── */
+  .btn { border-radius: 8px; min-height: 40px; justify-content: center; font-size: .88rem; }
+  .btn-gold { box-shadow: 0 1px 2px rgba(0,0,0,.22); }
+  .btn-gold:hover { background: var(--g400); border-color: var(--g400); box-shadow: 0 6px 18px rgba(201,160,55,.32); }
+  .btn-ghost, .btn-guide { background: rgba(255,255,255,.06); color: rgba(255,255,255,.92); border-color: rgba(255,255,255,.30); }
+  .btn-ghost:hover, .btn-guide:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.55); color: #fff; }
+  .doc-btn, .line-btn, .btn-dm-open, .trk-search-btn { border-radius: 8px; min-height: 40px; justify-content: center; }
+  .line-btn { font-size: .84rem; }
+
+  /* ── Cards: one radius (12) and one elevation across all pages ── */
+  .tc, .dc, .trn-card, .stp, .stf-card, .an-box, .map-box, .trk-card, .pp-toc, .doc-item, .pt-cta, .req-panel, .dl-panel, .dm-panel { border-radius: 12px; }
+  .tc, .dc, .trn-card, .stp, .stf-card, .an-box, .map-box, .trk-card, .doc-item { box-shadow: var(--sp-shadow); }
+  .tc:hover, .dc:hover, .trn-card:hover, .doc-item:hover { box-shadow: var(--sp-shadow-hi); }
+  .dm-item { border-radius: 10px; }
+  .dm-item:hover { border-color: var(--g500); box-shadow: var(--sp-shadow); }
+  .pt-circ { box-shadow: var(--sp-shadow); }
+
+  /* ── Forms, tabs ── */
+  .trk-inp { border-radius: 8px; min-height: 46px; font-size: .95rem; }
+  .trk-inp:focus { border-color: var(--g500); box-shadow: 0 0 0 3px rgba(181,138,42,.28); outline: none; }
+  .trk-search-btn { min-height: 46px; }
+  .trk-tab, .dm-tab { min-height: 46px; font-size: .9rem; }
+  .trk-tab:hover { background: var(--n50); }
+
+  /* ── Tables & numbers ── */
+  .pp-table th, .pp-table td { font-size: .88rem; }
+  .pp-table th { font-size: .82rem; }
+  .at-table td, .at-table th, .an-stat-val, .dl-stat, .at-count { font-variant-numeric: tabular-nums; }
+
+  /* ── Footer legibility ── */
+  .fcol a { color: rgba(255,255,255,.80); font-size: .88rem; }
+  .fcol a:hover { color: var(--g400); }
+  .fbot { color: rgba(255,255,255,.66); }
+
+  @media (max-width: 600px) {
+    .sec { padding-block: 2.75rem; }
+    .pg-hero-in { padding-block: 32px 38px; }
+    .pg-head { padding-block: 2.4rem 2.2rem; }
+    .pg-title, .pg-ttl { font-size: 1.55rem; }
+    .pg-desc, .pg-dsc { font-size: .95rem; }
+    .btn { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+}
+</style>
+<style id="modern">
+/* MODERN v1 — public pages. Delete this block (id=modern) to revert. */
+@media screen {
+  :root {
+    --ffs: var(--ff);
+    --canvas: #f6f8fc;
+    --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px; --radius-2xl: 32px;
+    --shadow-sm: 0 1px 2px rgba(11,31,53,.06), 0 6px 20px rgba(11,31,53,.07);
+    --shadow-md: 0 2px 4px rgba(11,31,53,.08), 0 14px 34px rgba(11,31,53,.13);
+    --shadow-lg: 0 4px 12px rgba(11,31,53,.10), 0 24px 56px rgba(11,31,53,.22);
+    --card-ring: 0 0 0 1px rgba(11,31,53,.06);
+  }
+  body { background: var(--canvas); }
+  h1, h2, h3, h4, .hero-title, .pg-title, .pg-ttl, .sec-ttl, .ann-title { font-family: var(--ff); letter-spacing: -.012em; font-weight: 700; }
+  .hdr { background: rgba(11,31,53,.96); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px); box-shadow: 0 6px 24px -12px rgba(11,31,53,.5); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .nb { background: rgba(17,40,68,.97); -webkit-backdrop-filter: saturate(1.5) blur(16px); backdrop-filter: saturate(1.5) blur(16px); border-top: 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .nb-link { border-radius: 999px; padding: .5rem .95rem; margin: .38rem .08rem; font-size: .86rem; transition: background .16s, color .16s; }
+  .nb-link:hover { background: rgba(255,255,255,.09); color: #fff; }
+  .nb-link.is-active { background: rgba(201,160,55,.20); color: #fff; box-shadow: inset 0 0 0 1px rgba(201,160,55,.45); }
+  .nb-panel { border-radius: 16px; border: 1px solid rgba(11,31,53,.08); box-shadow: var(--shadow-lg); padding: .5rem; top: calc(100% + 4px); }
+  .nb-panel a { border-radius: 10px; }
+  .lang-switch { border-radius: 999px; overflow: hidden; }
+  .hero, .pg-hero, .pg-head { border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); }
+  .eyebrow { backdrop-filter: blur(6px); }
+  .btn { border-radius: 999px; padding-inline: 1.25rem; }
+  .btn-gold-lg, .hero-cta .btn-wht { padding-inline: 1.6rem; }
+  .doc-btn, .line-btn, .btn-dm-open, .trk-search-btn, .ann-btn-ok, .ann-btn-later, #ck-banner button { border-radius: 999px; }
+  .hero-quick { border-radius: 24px; background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.20); }
+  .hq-item { border-radius: 14px; }
+  .hq-ico { border-radius: 12px; }
+  .sec { background: transparent; }
+  .sec-alt, #tracking, #news { background: #fff; }
+  .sec-eye { display: inline-flex; padding: .28rem .8rem; border-radius: 999px; background: var(--g50); border: 1px solid var(--g100); color: var(--g700); font-size: .74rem; letter-spacing: .06em; margin-bottom: 1rem; gap: 0; }
+  .sec-eye::after, .sec-eye::before { display: none; }
+  .sec-ttl { font-size: clamp(1.55rem, 2.8vw, 2.2rem); line-height: 1.3; }
+  .sec-head { margin-bottom: 2.25rem; }
+  .tc, .dc, .trn-card, .stp, .an-box, .map-box, .trk-card, .pp-toc, .doc-item, .pt-cta, .req-panel, .dl-panel, .trk-cta, .cal-widget, .meeting-list-box { border-radius: 20px; }
+  .stf-card, .dm-item, .news-item, .dm-panel { border-radius: 14px; }
+  .tc, .dc, .trn-card, .stp, .an-box, .map-box, .trk-card, .doc-item, .trk-cta, .cal-widget, .meeting-list-box, .stf-card { border-color: rgba(11,31,53,.06); box-shadow: var(--card-ring), var(--shadow-sm); }
+  .tc:hover, .dc:hover, .trn-card:hover, .doc-item:hover, .trk-cta:hover { box-shadow: var(--card-ring), var(--shadow-md); transform: translateY(-4px); }
+  .rs-card, .rs-summary-card { background: #fff; border-radius: 16px; box-shadow: var(--card-ring), var(--shadow-sm); border-color: rgba(11,31,53,.06); }
+  .tc { border-top-width: 3px; }
+  .cal-day { border-radius: 10px; }
+  .news-date { border-radius: 12px; }
+  .trk-inp { border-radius: 14px; }
+  .trk-tab { border-radius: 12px 12px 0 0; }
+  .ftr { border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; margin-top: 2rem; }
+  .ann-card { border-radius: 24px; }
+  .ann-header { border-bottom: 0; }
+  .ann-action-btn, .ann-info { border-radius: 14px; }
+  .ann-icon-wrap { border-radius: 12px; }
+  @media (max-width: 600px) {
+    .hero, .pg-hero, .pg-head { border-radius: 0 0 24px 24px; }
+    .ftr { border-radius: 24px 24px 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .tc:hover, .dc:hover, .trn-card:hover, .doc-item:hover, .trk-cta:hover { transform: none; } }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon" aria-hidden="true"></div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <img class="hdr-logo"
+         src="https://lh3.googleusercontent.com/d/1qIREbhnqt9n4xWbdqe5V8lnypb4DKtVS"
+         alt="ตราสัญลักษณ์โรงพยาบาลสันทราย"
+         onerror="this.style.display='none'">
+    <div class="hdr-sep" aria-hidden="true"></div>
+    <div class="hdr-id">
+      <h1>คณะกรรมการจริยธรรมการวิจัยในมนุษย์ โรงพยาบาลสันทราย</h1>
+      <p>Human Research Ethics Committee · Sansai Hospital · เขตสุขภาพที่ 1 จ.เชียงใหม่</p>
+    </div>
+    <div class="hdr-util">
+      <button class="btn btn-gold" onclick="SITE.goLogin()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        เข้าสู่ระบบ
+      </button>
+      <button class="nb-toggle" id="nbToggleBtn" onclick="nbMobileToggle()"
+              aria-label="เปิดเมนูหลัก" aria-expanded="false" aria-controls="nbList">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="13" x2="20" y2="13"/><line x1="4" y1="19" x2="20" y2="19"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIN MENU — เมนูหลักแนวนอน พร้อมเมนูย่อยแบบ dropdown
+══════════════════════════════════════════════════════════════ -->
+<nav class="nb" aria-label="เมนูหลัก" id="nbBar">
+  <div class="nb-in">
+    <ul class="nb-list" id="nbList" role="menubar">
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="./">หน้าแรก</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link is-active" role="menuitem" href="process.html">ขั้นตอนการยื่นขอ</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="documents.html">เตรียมเอกสาร</a>
+      </li>
+      <li class="nb-item has-drop" role="none">
+        <button class="nb-link" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                onclick="nbToggle(event,this)">
+          <span>มาตรฐานการวิจัย</span>
+          <svg class="nb-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nb-panel" role="menu">
+          <a role="menuitem" href="standards.html">มาตรฐานและ SOP คณะกรรมการ</a>
+          <a role="menuitem" href="training.html">อบรมจริยธรรมการวิจัย</a>
+        </div>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="tracking.html">ติดตามสถานะโครงการ</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="showcase.html" data-en="Ethics Showcase">ผลงานจริยธรรมการวิจัย</a>
+      </li>
+      <li class="nb-item" role="none">
+        <a class="nb-link" role="menuitem" href="contact.html">ติดต่อเรา</a>
+      </li>
+      <li class="nb-item has-drop" role="none">
+        <button class="nb-link" role="menuitem" aria-haspopup="true" aria-expanded="false"
+                onclick="nbToggle(event,this)">
+          <span>ระบบออนไลน์</span>
+          <svg class="nb-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nb-panel" role="menu">
+          <a role="menuitem" href="#" onclick="SITE.goRegister();return false;">สมัครสมาชิก</a>
+          <a role="menuitem" href="https://drive.google.com/file/d/1x6n0d6hTxsVtbENyd1L_UzOV4s2UXL-w/view" target="_blank" rel="noopener noreferrer">คู่มือการใช้งานระบบ</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- PAGE BANNER -->
+<section class="pg-hero" aria-labelledby="pg-h">
+  <div class="container">
+    <div class="pg-hero-in">
+      <div class="crumb"><a href="./">หน้าแรก</a><span>／</span><span>ขั้นตอนการยื่นขอ</span></div>
+      <div class="eyebrow">EC Online Submission System</div>
+      <h1 class="pg-title" id="pg-h">ขั้นตอนการยื่นขอรับการพิจารณาจริยธรรมการวิจัยในมนุษย์</h1>
+      <p class="pg-desc">กระบวนการพิจารณาดำเนินการตามมาตรฐานสากล ICH-GCP และแนวทางของสำนักงานคณะกรรมการวิจัยแห่งชาติ (วช.)
+        ตั้งแต่การลงทะเบียนจนถึงการได้รับผลการรับรอง</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS TIMELINE -->
+<section class="sec" aria-labelledby="proc-h">
+  <div class="container">
+    <div class="sec-head rev">
+      <div class="sec-eye">ขั้นตอนโดยละเอียด</div>
+      <h2 class="sec-ttl" id="proc-h">5 ขั้นตอนสู่การรับรองจริยธรรมการวิจัย</h2>
+      <p class="sec-dsc">ควรยื่นเอกสารล่วงหน้าอย่างน้อย 15 วันทำการก่อนวันประชุม เพื่อให้เจ้าหน้าที่มีเวลาตรวจสอบความครบถ้วน</p>
+    </div>
+
+    <div class="proc-timeline">
+      <div class="pt-item rev" style="transition-delay:.05s">
+        <div class="pt-circ act">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="pt-body">
+          <div class="pt-num">ขั้นตอนที่ 1</div>
+          <div class="pt-ttl">ลงทะเบียน / เข้าสู่ระบบ</div>
+          <p class="pt-dsc">ผู้วิจัยสมัครบัญชีผู้ใช้ในระบบ EC Online Submission และรอการอนุมัติจากเจ้าหน้าที่ก่อนเริ่มใช้งาน โดยปกติใช้เวลาอนุมัติ 1–2 วันทำการ</p>
+          <div class="pt-tags"><span class="pt-tag">ใช้เวลา 1–2 วันทำการ</span></div>
+        </div>
+      </div>
+      <div class="pt-item rev" style="transition-delay:.13s">
+        <div class="pt-circ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="pt-body">
+          <div class="pt-num">ขั้นตอนที่ 2</div>
+          <div class="pt-ttl">กรอกข้อมูลและแนบเอกสาร</div>
+          <p class="pt-dsc">กรอกรายละเอียดโครงการวิจัยในระบบให้ครบถ้วน และอัพโหลดเอกสารประกอบตามรายการที่กำหนด
+            (ดูรายละเอียดได้ที่หน้า <a href="documents.html" style="color:var(--g600);font-weight:600;text-decoration:underline">เตรียมเอกสาร</a>)</p>
+          <div class="pt-tags"><span class="pt-tag">เอกสารบังคับ 9 รายการ</span><span class="pt-tag">เอกสารเพิ่มเติม 9 รายการ</span></div>
+        </div>
+      </div>
+      <div class="pt-item rev" style="transition-delay:.21s">
+        <div class="pt-circ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="pt-body">
+          <div class="pt-num">ขั้นตอนที่ 3</div>
+          <div class="pt-ttl">เจ้าหน้าที่ตรวจสอบความครบถ้วน</div>
+          <p class="pt-dsc">เจ้าหน้าที่กลุ่มงานพัฒนาคุณภาพและมาตรฐานตรวจสอบความครบถ้วนของเอกสาร ก่อนนำส่งให้คณะกรรมการพิจารณาต่อไป หากเอกสารไม่ครบจะแจ้งกลับผ่านระบบและอีเมล</p>
+        </div>
+      </div>
+      <div class="pt-item rev" style="transition-delay:.29s">
+        <div class="pt-circ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="pt-body">
+          <div class="pt-num">ขั้นตอนที่ 4</div>
+          <div class="pt-ttl">คณะกรรมการพิจารณา</div>
+          <p class="pt-dsc">คณะกรรมการจริยธรรมการวิจัยประเมินและลงมติตามประเภทการพิจารณาที่กำหนด — ยกเว้น เร่งด่วน หรือเต็มรูปแบบ ตามระดับความเสี่ยงของโครงการ</p>
+          <div class="pt-tags"><span class="pt-tag">Exempt</span><span class="pt-tag">Expedited</span><span class="pt-tag">Full Board</span></div>
+        </div>
+      </div>
+      <div class="pt-item rev" style="transition-delay:.37s">
+        <div class="pt-circ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="pt-body">
+          <div class="pt-num">ขั้นตอนที่ 5</div>
+          <div class="pt-ttl">รับผลการพิจารณา</div>
+          <p class="pt-dsc">ผู้วิจัยรับผลการพิจารณาผ่านระบบออนไลน์และทางอีเมล พร้อมเอกสารรับรองอย่างเป็นทางการจากคณะกรรมการจริยธรรมการวิจัย</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-cta rev">
+      <div>
+        <h3>พร้อมเตรียมเอกสารแล้วหรือยัง?</h3>
+        <p>ดูรายการเอกสารที่ต้องเตรียมทั้งหมด พร้อมลิงก์ดาวน์โหลดแบบฟอร์มโดยตรง</p>
+      </div>
+      <button class="btn btn-gold" onclick="location.href='documents.html'">
+        <i class="ti ti-files" aria-hidden="true"></i> ไปหน้าเตรียมเอกสาร
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="ftr">
+  <div class="container">
+    <div class="ftr-g">
+      <div class="fcol"><h4>โรงพยาบาลสันทราย</h4>
+        <p>เลขที่ 201 หมู่ 11 ตำบลหนองหาร</p>
+        <p>อำเภอสันทราย จังหวัดเชียงใหม่ 50290</p>
+        <p style="margin-top:.5rem">โทรศัพท์: 053-921-199 ต่อ 168</p>
+        <p>เขตสุขภาพที่ 1 · กระทรวงสาธารณสุข</p>
+      </div>
+      <div class="fcol"><h4>ระบบ EC Online</h4>
+        <a href="#" onclick="SITE.goLogin()">เข้าสู่ระบบ</a>
+        <a href="#" onclick="SITE.goRegister()">ลงทะเบียนผู้ใช้ใหม่</a>
+        <a href="process.html">ขั้นตอนการยื่นขอ</a>
+        <a href="documents.html">เตรียมเอกสาร</a>
+        <a href="standards.html">มาตรฐานการวิจัย</a>
+        <a href="training.html">อบรมจริยธรรมการวิจัย</a>
+        <a href="./#calendar">ปฏิทินการประชุม</a>
+        <a href="./#news">ประกาศและข่าวสาร</a>
+        <a href="contact.html">ติดต่อเรา</a>
+      </div>
+      <div class="fcol"><h4>นโยบายและกฎระเบียบ</h4>
+        <a href="privacy-policy.html">นโยบายความเป็นส่วนตัว (PDPA)</a>
+        <a href="#">เงื่อนไขการใช้งาน</a>
+        <a href="#">มาตรฐาน ICH-GCP</a>
+        <a href="#">แนวทาง NECAST</a>
+      </div>
+    </div>
+    <div class="fbot">
+      <span>© พ.ศ. 2568 โรงพยาบาลสันทราย · ระบบ EC Online Submission v1.0 · พัฒนาโดยกลุ่มงานพัฒนาคุณภาพและมาตรฐาน</span>
+      <span class="pdpa">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        PDPA Compliant · พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+var APP_URL = 'app.html';
+var SITE = {
+  goLogin:    function() { window.location.href = APP_URL; },
+  goRegister: function() { window.location.href = APP_URL + '?action=register'; }
+};
+
+/* reveal on scroll */
+(function() {
+  var els = document.querySelectorAll('.rev');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold:.08, rootMargin:'0px 0px -24px 0px' });
+  els.forEach(function(el) { io.observe(el); });
+})();
+
+/* เมนูหลักแนวนอน + dropdown ย่อย */
+function nbCloseAll(except) {
+  document.querySelectorAll('.nb-item.has-drop.open').forEach(function(li) {
+    if (li === except) return;
+    li.classList.remove('open');
+    var btn = li.querySelector('.nb-link');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  });
+}
+function nbToggle(e, btn) {
+  if (e) e.stopPropagation();
+  var li = btn.closest('.nb-item');
+  if (!li) return;
+  var willOpen = !li.classList.contains('open');
+  nbCloseAll(willOpen ? li : null);
+  li.classList.toggle('open', willOpen);
+  btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nb-item.has-drop')) nbCloseAll();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') nbCloseAll();
+});
+
+/* เปิด/ปิด dropdown ด้วยเมาส์ hover เฉพาะจอที่มีเมาส์จริง (desktop) */
+(function() {
+  if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  document.querySelectorAll('.nb-item.has-drop').forEach(function(li) {
+    var closeTimer = null;
+    li.addEventListener('mouseenter', function() {
+      clearTimeout(closeTimer);
+      nbCloseAll(li);
+      li.classList.add('open');
+      var btn = li.querySelector('.nb-link');
+      if (btn) btn.setAttribute('aria-expanded', 'true');
+    });
+    li.addEventListener('mouseleave', function() {
+      closeTimer = setTimeout(function() {
+        li.classList.remove('open');
+        var btn = li.querySelector('.nb-link');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }, 150);
+    });
+  });
+})();
+
+/* ปุ่มแฮมเบอร์เกอร์ — เปิด/ปิดเมนูบนมือถือ */
+function nbMobileToggle() {
+  var bar = document.getElementById('nbBar');
+  var btn = document.getElementById('nbToggleBtn');
+  if (!bar) return;
+  var willOpen = !bar.classList.contains('mobile-open');
+  bar.classList.toggle('mobile-open', willOpen);
+  if (btn) btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  if (!willOpen) nbCloseAll();
+}
+</script>
+</body>
+</html>
