@@ -583,8 +583,46 @@ function lineCall_(method, path, body, retryKey) {
   return { ok: !err, status: code, err: err, data: j };
 }
 function linePush_(uid, messages) { return lineCall_('post', '/v2/bot/message/push', { to: uid, messages: messages }, Utilities.getUuid()); }
+/* ===== คู่มือเชื่อมต่อ LINE: ส่งอัตโนมัติ 3 กรณี =====
+ *  1) เพิ่มเพื่อนครั้งแรก (follow)                      → แนบคู่มือพร้อมข้อความต้อนรับ
+ *  2) ผู้ใช้พิมพ์ "ช่วยเหลือ" / "คู่มือ" / help           → ส่งคำสั่งที่ใช้ได้ + คู่มือ
+ *  3) บัญชีที่ยังไม่เชื่อมต่อ ส่งข้อความมาแล้วยังไม่สำเร็จ ครบ NOLINK_MANUAL_AT ครั้ง → แนบคู่มือท้ายข้อความตอบกลับ
+ *     (นับเป็นรายบัญชี LINE · ไม่ส่งซ้ำภายใน NOLINK_MANUAL_COOLDOWN วินาที · เชื่อมต่อสำเร็จแล้วรีเซ็ตตัวนับ)
+ *  ตั้ง Script Property MANUAL_URL เพื่อเปลี่ยนลิงก์คู่มือ (ค่าเริ่มต้น = SITE_URL + /manual/line.html) */
+var NOLINK_MANUAL_AT = 2;
+var NOLINK_MANUAL_COOLDOWN = 21600;   // วินาที (CacheService เก็บได้สูงสุด 6 ชม.)
+var NUDGE_UID_ = '';                   // uid ที่ต้องแนบคู่มือในการตอบกลับครั้งนี้ (ตั้งใน lineEvent_)
+function manualUrl_() { return prop_('MANUAL_URL') || (siteUrl_().replace(/\/+$/, '') + '/manual/line.html'); }
+function manualMsg_() {
+  var u = manualUrl_();
+  return { type: 'flex', altText: 'คู่มือเชื่อมต่อ LINE (ภาพประกอบ): ' + u, contents: { type: 'bubble', size: 'kilo',
+    body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: [
+      { type: 'text', text: '📖 คู่มือเชื่อมต่อ LINE', weight: 'bold', size: 'md', color: '#0b5a54' },
+      { type: 'text', text: 'ภาพประกอบชี้ทุกขั้นตอน อ่านไม่ถึง 1 นาที\nวิธี ก: พิมพ์เลขบัตร 13 หลักในแชท\nวิธี ข: รับรหัส 6 หลักที่เว็บ', wrap: true, size: 'sm', color: '#51676f' }] },
+    footer: { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#0f766e', height: 'sm', action: { type: 'uri', label: 'เปิดอ่านคู่มือ', uri: u } }] } } };
+}
+function noLinkTick_(uid) {           // นับครั้งที่บัญชีที่ยังไม่เชื่อมต่อส่งข้อความมา
+  try {
+    var c = CacheService.getScriptCache(), n = (parseInt(c.get('nl_' + uid), 10) || 0) + 1;
+    c.put('nl_' + uid, String(n), 21600);
+    if (n >= NOLINK_MANUAL_AT && !c.get('nm_' + uid)) NUDGE_UID_ = uid;
+  } catch (e) {}
+}
+function withManual_(messages) {      // แนบคู่มือท้ายข้อความ ถ้าเข้าเงื่อนไข (เชื่อมต่อสำเร็จ = ไม่แนบ + รีเซ็ตตัวนับ)
+  if (!NUDGE_UID_) return messages;
+  var uid = NUDGE_UID_, j = JSON.stringify(messages);
+  try {
+    var c = CacheService.getScriptCache();
+    if (j.indexOf('เชื่อมต่อสำเร็จ') >= 0) { c.remove('nl_' + uid); NUDGE_UID_ = ''; return messages; }
+    if (j.indexOf('/manual/line') >= 0 || messages.length >= 5) { NUDGE_UID_ = ''; return messages; }
+    c.put('nm_' + uid, '1', NOLINK_MANUAL_COOLDOWN); c.remove('nl_' + uid);
+  } catch (e) {}
+  NUDGE_UID_ = '';
+  return messages.concat([manualMsg_()]);
+}
 function lineReply_(token, messages) {
   if (!token) return;
+  messages = withManual_(messages);
   var r = lineCall_('post', '/v2/bot/message/reply', { replyToken: token, messages: messages });
   if (!r.ok) log_('line_reply', '', 'fail', (r.err || ('HTTP ' + r.status)).slice(0, 150));   // เดิมกลืน error ทำให้ไม่รู้ว่าตอบกลับไม่สำเร็จ
 }
@@ -847,11 +885,13 @@ function lineEvent_(ev) {
   var uid = ev.source && ev.source.userId; if (!uid) return;
   var rows = lnuRows_().filter(function (r) { return r.uid === uid; }), mine = rows.filter(function (r) { return r.active; })[0];
   var s = sheet_('LNU'), c = CacheService.getScriptCache();
+  NUDGE_UID_ = '';
+  if (ev.type === 'message' && !mine && ev.source.type === 'user') noLinkTick_(uid);   // ยังไม่เชื่อมต่อ: นับ ครบ NOLINK_MANUAL_AT → แนบคู่มือ
   if (ev.type === 'unfollow') { rows.forEach(function (r) { s.getRange(r.row, 6).setValue('N'); }); pendUpsert_(uid, '', null, 'unfollow', ''); lineLog_('', mine ? mine.cid : '', 'link', '', 'ผู้ใช้บล็อก/เลิกติดตาม LINE OA', null, 'info', ''); return; }
   if (ev.type === 'follow') { lineLog_('', mine ? mine.cid : '', 'link', '', 'เพิ่มเพื่อน LINE OA', null, 'info', 'userId=' + uid);
     pendUpsert_(uid, '', null, mine ? 'linked' : 'pending', mine ? mine.cid : '');
     var back = rows.filter(function (r) { return !r.active; })[0];
-    lineReply_(ev.replyToken, [helpMsg_('ยินดีต้อนรับสู่ระบบแจ้งเตือน อวช. ' + ORG + '\n\nเชื่อมต่อได้ 2 วิธี\n1) พิมพ์เลขบัตรประชาชน 13 หลักที่นี่ ระบบเชื่อมต่อและส่งสถานะปัจจุบันให้ทันที ไม่ต้องยืนยันอะไรเพิ่ม\n2) ถ้าพิมพ์เลขบัตรไม่ได้หรือไม่สำเร็จ: เปิดเว็บติดตามสถานะ → "เชื่อมต่อ LINE" → รับรหัส 6 หลักด้วยตนเอง แล้วพิมพ์รหัสที่นี่\n\nหากเชื่อมต่อไม่ได้ เจ้าหน้าที่ HR สามารถผูกบัญชีให้ได้' + (back ? '\n\n(พิมพ์ "สถานะ" เพื่อดูสถานะล่าสุด)' : ''))]);
+    lineReply_(ev.replyToken, [helpMsg_('ยินดีต้อนรับสู่ระบบแจ้งเตือน อวช. ' + ORG + '\n\nเชื่อมต่อได้ 2 วิธี\n1) พิมพ์เลขบัตรประชาชน 13 หลักที่นี่ ระบบเชื่อมต่อและส่งสถานะปัจจุบันให้ทันที ไม่ต้องยืนยันอะไรเพิ่ม\n2) ถ้าพิมพ์เลขบัตรไม่ได้หรือไม่สำเร็จ: เปิดเว็บติดตามสถานะ → "เชื่อมต่อ LINE" → รับรหัส 6 หลักด้วยตนเอง แล้วพิมพ์รหัสที่นี่\n\nหากเชื่อมต่อไม่ได้ เจ้าหน้าที่ HR สามารถผูกบัญชีให้ได้' + (back ? '\n\n(พิมพ์ "สถานะ" เพื่อดูสถานะล่าสุด)' : ''))].concat(mine || back ? [] : [manualMsg_()]));   // เพิ่มเพื่อนครั้งแรก: แนบคู่มือให้อ่านทันที
     return;
   }
   /* Rich Menu แบบ Postback: ตั้ง data = action=status */
@@ -885,7 +925,9 @@ function lineEvent_(ev) {
     unlinkLine_(cid, uid); pendUpsert_(uid, '', null, 'pending', ''); lineLog_('', cid, 'link', '', 'ผู้ใช้ยกเลิกการผูกเอง', null, 'info', '');
     return lineReply_(ev.replyToken, [{ type: 'text', text: 'ยกเลิกการเชื่อมต่อแล้ว จะไม่ได้รับแจ้งเตือนอีก หากต้องการกลับมาใช้ ให้พิมพ์เลขบัตรประชาชนที่นี่หรือเชื่อมต่อใหม่จากหน้าเว็บ' }]);
   }
-  lineReply_(ev.replyToken, [helpMsg_(cid ? 'คำสั่งที่ใช้ได้:\n• สถานะ (หรือ แจ้งสถานะปัจจุบัน) — ดูความคืบหน้าปัจจุบัน (หรือพิมพ์เลขบัตร/รหัสเอกสาร AWC-… เพื่อค้นหา)\n• ระยะเวลารวมปัจจุบัน — ดูระยะเวลาของเล่ม 1 / เล่ม 2 และรวมตั้งแต่เริ่มต้น\n• ถาม <ข้อความ> — ส่งคำถามถึงเจ้าหน้าที่ HR (เฉพาะเรื่องสำคัญ)\n• ยกเลิกการผูก — หยุดรับแจ้งเตือน' : 'ยังไม่ได้เชื่อมต่อบัญชี พิมพ์เลขบัตรประชาชน 13 หลักที่นี่เพื่อเชื่อมต่อ หรือขอรหัส 6 หลักที่หน้าเว็บแล้วพิมพ์รหัสที่นี่')]);
+  var helpTxt_ = (cid ? 'คำสั่งที่ใช้ได้:\n• สถานะ (หรือ แจ้งสถานะปัจจุบัน) — ดูความคืบหน้าปัจจุบัน (หรือพิมพ์เลขบัตร/รหัสเอกสาร AWC-… เพื่อค้นหา)\n• ระยะเวลารวมปัจจุบัน — ดูระยะเวลาของเล่ม 1 / เล่ม 2 และรวมตั้งแต่เริ่มต้น\n• ถาม <ข้อความ> — ส่งคำถามถึงเจ้าหน้าที่ HR (เฉพาะเรื่องสำคัญ)\n• ยกเลิกการผูก — หยุดรับแจ้งเตือน' : 'ยังไม่ได้เชื่อมต่อบัญชี พิมพ์เลขบัตรประชาชน 13 หลักที่นี่เพื่อเชื่อมต่อ หรือขอรหัส 6 หลักที่หน้าเว็บแล้วพิมพ์รหัสที่นี่');
+  if (/^(ช่วยเหลือ|ช่วยด้วย|วิธีใช้|วิธีเชื่อมต่อ|คู่มือ|help|manual|\?)$/i.test(t)) { NUDGE_UID_ = ''; return lineReply_(ev.replyToken, [helpMsg_(helpTxt_), manualMsg_()]); }   // ขอความช่วยเหลือ → ส่งคู่มือเสมอ
+  lineReply_(ev.replyToken, [helpMsg_(helpTxt_)]);
 }
 /* โหมดผูกเมื่อพิมพ์เลขบัตร: 'cid' (ค่าเริ่มต้น) = บันทึก LINE userId ทันที | 'phone' = ต้องยืนยันเลข 4 ตัวท้ายเบอร์โทรก่อน (ตั้งที่ Script Properties: LINE_BIND_MODE) */
 function bindMode_() { return prop_('LINE_BIND_MODE') === 'phone' ? 'phone' : 'cid'; }

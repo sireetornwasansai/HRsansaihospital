@@ -7,6 +7,8 @@
 | `manual/line.html` | `manual/line.html` | คู่มือภาพประกอบ ขั้นที่ 1–20 |
 | `README.md` | `README.md` | อัปเดตโครงสร้าง + ฟีเจอร์ LINE |
 
+หลังวาง Code.gs รัน `setupLine()` ไม่ต้อง · แค่ Deploy → New version แล้วลองเพิ่มเพื่อนด้วยบัญชี LINE ทดสอบ (บล็อกแล้วเพิ่มใหม่ ระบบจะนับเป็นเพื่อนเก่า ไม่ส่งคู่มือ)
+
 ไม่ต้องแตะ: `config.js`, `assets/`, `manual/ch1-9.html`, `backend/appsscript.json`
 
 ```
