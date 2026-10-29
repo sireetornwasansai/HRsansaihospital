@@ -98,6 +98,13 @@ img{max-width:100%}
 .chat .inp .box{flex:1;border:1.5px solid #b7c9cc;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:600;letter-spacing:.08em;color:#111;background:#f4f7f8}
 .chat .inp .go{width:38px;height:38px;border-radius:50%;background:var(--ln);display:grid;place-items:center;flex:none}
 .chat .inp svg{width:19px;height:19px;fill:#fff}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 4px}
+.pick>div{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 16px;font-size:16px;line-height:1.5}
+.pick>div.pk-a{border-color:var(--ln);background:#f1fbf5}
+.pick b{display:block;font-size:18px}
+.pick .tag{display:inline-block;background:var(--ln-d);color:#fff;border-radius:999px;padding:1px 10px;font-size:14px;font-weight:700;margin-right:6px}
+.pick>div.pk-b .tag{background:var(--pri)}
+@media(max-width:700px){.pick{grid-template-columns:1fr}}
 .ok{display:flex;gap:10px;align-items:center;background:#e6f5ea;border:1.5px solid #86d3a0;border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.45;color:#0d4d24}
 .ok i{flex:none;width:32px;height:32px;border-radius:50%;background:#15803d;color:#fff;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:19px}
 
@@ -165,21 +172,27 @@ img{max-width:100%}
       <p>ทำครั้งเดียว ใช้เวลาประมาณ 2 นาที — หลังจากนั้น LINE จะแจ้งให้ทราบทุกครั้งที่สถานะผลงานเปลี่ยน</p>
     </div>
     <div class="prep">
-      <b>เตรียมให้พร้อม 3 อย่าง</b>
+      <b>เตรียมให้พร้อม (เลือกวิธีใดวิธีหนึ่ง)</b>
       <ul>
         <li>มือถือที่ติดตั้งแอป LINE แล้ว</li>
-        <li>เลขบัตรประชาชน 13 หลัก</li>
-        <li>เบอร์โทรศัพท์ที่แจ้งไว้กับ HR (ใช้เลข 4 ตัวท้าย)</li>
+        <li>วิธี ก: เลขบัตรประชาชน 13 หลัก</li>
+        <li>วิธี ข: เบอร์โทรที่แจ้งไว้กับ HR (ใช้เลข 4 ตัวท้าย)</li>
       </ul>
     </div>
   </header>
+
+  <!-- ===== เลือกวิธีเชื่อมต่อ (เลือกวิธีใดวิธีหนึ่ง) ===== -->
+  <div class="pick" aria-label="เลือกวิธีเชื่อมต่อ 1 วิธี">
+    <div class="pk-a"><b><span class="tag">วิธี ก</span>เร็วสุด: เพิ่มเพื่อน แล้วพิมพ์เลขบัตร</b>เพิ่มเพื่อน LINE ของกลุ่มงาน แล้วพิมพ์เลขบัตรประชาชน 13 หลักในแชท เชื่อมต่อทันที ไม่ต้องใช้รหัสหรือเบอร์โทร → ดูกล่อง <b style="display:inline">“วิธี ก”</b> หมายเลข 10–11 (แผ่นที่ 2)</div>
+    <div class="pk-b"><b><span class="tag">วิธี ข</span>ไม่ได้ผล หรือไม่มีเลขบัตร: รับรหัสที่เว็บเอง</b>เปิดเว็บ → กด “เชื่อมต่อ LINE” → รับรหัส 6 หลักด้วยตนเอง แล้วพิมพ์รหัสในแชท → ทำตาม “วิธี ข” ขั้น 1–3 ด้านล่าง</div>
+  </div>
 
   <!-- ===== 3 ขั้นตอน ===== -->
   <section class="steps" aria-label="ขั้นตอนการเชื่อมต่อ LINE">
 
     <!-- ขั้นที่ 1 -->
     <article class="step">
-      <h2><span class="sn">ขั้นที่ 1</span>เปิดเว็บ แล้วค้นหาด้วยเลขบัตร</h2>
+      <h2><span class="sn">วิธี ข · 1</span>เปิดเว็บ แล้วค้นหาด้วยเลขบัตร</h2>
       <div class="shot">
         <div class="scr" role="img" aria-label="ภาพตัวอย่างหน้าเว็บ ติดตามสถานะ">
           <div class="tp"><img src="../assets/logo.png" alt="">ระบบติดตามสถานะการประเมินผลงาน (อวช.)</div>
@@ -212,7 +225,7 @@ img{max-width:100%}
 
     <!-- ขั้นที่ 2 -->
     <article class="step">
-      <h2><span class="sn">ขั้นที่ 2</span>กด “เชื่อมต่อ LINE” แล้วขอรหัส</h2>
+      <h2><span class="sn">วิธี ข · 2</span>กด “เชื่อมต่อ LINE” แล้วขอรหัส</h2>
       <div class="shot">
         <div class="scr" role="img" aria-label="ภาพตัวอย่างกรอบแจ้งเตือนทาง LINE พร้อมปุ่มเชื่อมต่อ LINE">
           <div class="lc">
@@ -244,7 +257,7 @@ img{max-width:100%}
 
     <!-- ขั้นที่ 3 -->
     <article class="step">
-      <h2><span class="sn">ขั้นที่ 3</span>เปิด LINE แล้วส่งรหัส 6 หลัก</h2>
+      <h2><span class="sn">วิธี ข · 3</span>เปิด LINE แล้วส่งรหัส 6 หลัก</h2>
       <div class="shot">
         <div class="dim" role="img" aria-label="ภาพตัวอย่างหน้าต่างแสดงรหัส 6 หลัก และปุ่มเปิดแชท LINE">
           <div class="dlg code">
@@ -288,7 +301,7 @@ img{max-width:100%}
 
     <!-- ทางลัด -->
     <article class="step">
-      <h2><span class="sn s2">ทางลัด</span>ไม่อยากเปิดเว็บ ใช้แชทอย่างเดียว</h2>
+      <h2><span class="sn s2">วิธี ก</span>ไม่ต้องเปิดเว็บ ใช้แชทอย่างเดียว</h2>
       <div class="shot">
         <div class="scr" role="img" aria-label="ภาพตัวอย่างกรอบ QR เพิ่มเพื่อน LINE ที่หน้ายื่นเอกสาร">
           <div class="tp"><img src="../assets/logo.png" alt="">หน้า “ยื่นเอกสาร” (กรอบบนสุด)</div>
@@ -300,26 +313,23 @@ img{max-width:100%}
           </div>
         </div>
 
-        <div class="chat" role="img" aria-label="ภาพตัวอย่างแชท LINE ที่พิมพ์เลขบัตรแล้วระบบถามเลข 4 ตัวท้ายเบอร์โทร">
+        <div class="chat" role="img" aria-label="ภาพตัวอย่างแชท LINE ที่พิมพ์เลขบัตรแล้วเชื่อมต่อสำเร็จทันที">
           <div class="ch"><img src="../assets/logo.png" alt="">กลุ่มงานทรัพยากรบุคคล รพ.สันทราย</div>
           <div class="msgs">
             <div class="bub me">1234567890123</div>
-            <div class="bub t see" style="margin-bottom:6px">ขั้นต่อไป: พิมพ์เลข 4 ตัวท้ายของเบอร์โทรศัพท์ที่ลงทะเบียนไว้กับ HR<i class="mk">12</i></div>
-            <div class="bub me">5678</div>
-            <div class="bub">เชื่อมต่อสำเร็จ ✅ ต่อไปนี้ท่านจะได้รับแจ้งเตือน…</div>
+            <div class="bub t see">เชื่อมต่อสำเร็จ ✅ ต่อไปนี้ท่านจะได้รับแจ้งเตือน…<i class="mk">ดู</i></div>
           </div>
           <div class="inp">
             <div class="box t hl" style="font-weight:500;letter-spacing:0;color:#6b7f86">พิมพ์เลขบัตร 13 หลัก<i class="mk">11</i><i class="tg l">พิมพ์ที่นี่ แล้วกดส่ง</i></div>
             <div class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></div>
           </div>
         </div>
-        <p class="note">เลขบัตรและเบอร์ในภาพเป็นตัวอย่างสมมติ</p>
+        <p class="note">เลขบัตรในภาพเป็นตัวอย่างสมมติ</p>
       </div>
       <ol class="cap">
         <li><span class="n">10</span><span>เมนู <b>“ยื่นเอกสาร”</b> กรอบบนสุดมี QR ให้ <b>สแกน</b> หรือกดปุ่ม <span class="btnw">เพิ่มเพื่อน</span> ก็ได้</span></li>
         <li><span class="n">11</span><span>ในแชท LINE พิมพ์ <b>เลขบัตรประชาชน 13 หลัก</b> ที่ช่องข้อความ แล้วกด<b>ปุ่มส่ง</b></span></li>
-        <li><span class="n">12</span><span>ถ้า LINE ถามหา <b>เลข 4 ตัวท้ายเบอร์โทร</b> ให้พิมพ์ตอบภายใน 10 นาที แล้วกดส่ง</span></li>
-        <li><span class="n eye">ดู</span><span>เมื่อขึ้น <b>“เชื่อมต่อสำเร็จ ✅”</b> เป็นอันเสร็จ ไม่ต้องกลับมาที่หน้าเว็บ</span></li>
+        <li><span class="n eye">ดู</span><span>เมื่อขึ้น <b>“เชื่อมต่อสำเร็จ ✅”</b> เป็นอันเสร็จทันที ไม่ต้องตอบเบอร์โทร ไม่ต้องกลับมาที่หน้าเว็บ</span></li>
       </ol>
     </article>
 
@@ -330,27 +340,27 @@ img{max-width:100%}
         <div class="chat" role="img" aria-label="ภาพตัวอย่างแชท LINE ที่พิมพ์คำสั่ง สถานะ ระยะเวลารวมปัจจุบัน และ ถาม">
           <div class="ch"><img src="../assets/logo.png" alt="">กลุ่มงานทรัพยากรบุคคล รพ.สันทราย</div>
           <div class="msgs" style="gap:14px;padding-top:20px">
-            <div class="bub me t hl">สถานะ<i class="mk">13</i></div>
+            <div class="bub me t hl">สถานะ<i class="mk">12</i></div>
             <div class="bub st">
               <b>สถานะผลงาน (ตัวอย่าง)</b>
               <span>ขั้นตอนปัจจุบัน: ผอ.โรงพยาบาลลงนาม (เล่ม 1)</span>
               <span>อยู่ในขั้นนี้ 2 วัน</span>
             </div>
-            <div class="bub me t hl">ระยะเวลารวมปัจจุบัน<i class="mk">14</i></div>
-            <div class="bub me t hl">ถาม ขอเลื่อนวันแก้ไขได้ไหม<i class="mk">15</i></div>
+            <div class="bub me t hl">ระยะเวลารวมปัจจุบัน<i class="mk">13</i></div>
+            <div class="bub me t hl">ถาม ขอเลื่อนวันแก้ไขได้ไหม<i class="mk">14</i></div>
           </div>
           <div class="inp">
-            <div class="box t hl" style="font-weight:500;letter-spacing:0;color:#6b7f86">ยกเลิกการผูก<i class="mk">16</i><i class="tg l">พิมพ์เมื่ออยากหยุดรับแจ้ง</i></div>
+            <div class="box t hl" style="font-weight:500;letter-spacing:0;color:#6b7f86">ยกเลิกการผูก<i class="mk">15</i><i class="tg l">พิมพ์เมื่ออยากหยุดรับแจ้ง</i></div>
             <div class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></div>
           </div>
         </div>
         <p class="note">ทุกคำสั่งพิมพ์ในช่องข้อความของแชท แล้วกดส่ง ไม่ต้องพิมพ์เครื่องหมายอื่น</p>
       </div>
       <ol class="cap">
-        <li><span class="n">13</span><span>พิมพ์ <span class="k">สถานะ</span> → LINE ตอบว่าผลงานอยู่<b>ขั้นตอนไหน</b></span></li>
-        <li><span class="n">14</span><span>พิมพ์ <span class="k">ระยะเวลารวมปัจจุบัน</span> → ดูว่าผ่านมา<b>กี่วัน</b>แล้ว</span></li>
-        <li><span class="n">15</span><span>พิมพ์ <span class="k">ถาม</span> แล้วเว้นวรรค ตามด้วยคำถาม → ส่งถึง<b>เจ้าหน้าที่ HR</b> (เฉพาะเรื่องสำคัญ)</span></li>
-        <li><span class="n">16</span><span>พิมพ์ <span class="k">ยกเลิกการผูก</span> → <b>หยุดรับแจ้งเตือน</b> (กลับมาใช้ใหม่ได้ โดยทำตามขั้นที่ 1–3)</span></li>
+        <li><span class="n">12</span><span>พิมพ์ <span class="k">สถานะ</span> → LINE ตอบว่าผลงานอยู่<b>ขั้นตอนไหน</b></span></li>
+        <li><span class="n">13</span><span>พิมพ์ <span class="k">ระยะเวลารวมปัจจุบัน</span> → ดูว่าผ่านมา<b>กี่วัน</b>แล้ว</span></li>
+        <li><span class="n">14</span><span>พิมพ์ <span class="k">ถาม</span> แล้วเว้นวรรค ตามด้วยคำถาม → ส่งถึง<b>เจ้าหน้าที่ HR</b> (เฉพาะเรื่องสำคัญ)</span></li>
+        <li><span class="n">15</span><span>พิมพ์ <span class="k">ยกเลิกการผูก</span> → <b>หยุดรับแจ้งเตือน</b> (กลับมาใช้ใหม่ได้ โดยทำตามขั้นที่ 1–3)</span></li>
         <li><span class="n eye">ดู</span><span>LINE แจ้งเตือนให้เอง<b>ทุกครั้งที่สถานะเปลี่ยน</b> ไม่ต้องพิมพ์</span></li>
       </ol>
     </article>
@@ -363,7 +373,7 @@ img{max-width:100%}
           <div class="dlg code">
             <div class="hd"><span>เชื่อมต่อ LINE</span><span class="x">ปิด</span></div>
             <div class="exp"><span>รหัสหมดอายุแล้ว กรุณากดขอรหัสใหม่</span>
-              <div class="b out t hl" style="min-height:36px;padding:0 12px;font-size:13.5px">ขอรหัสใหม่<i class="mk">17</i><i class="tg r">กดที่นี่</i></div>
+              <div class="b out t hl" style="min-height:36px;padding:0 12px;font-size:13.5px">ขอรหัสใหม่<i class="mk">16</i><i class="tg r">กดที่นี่</i></div>
             </div>
             <div style="height:30px"></div>
           </div>
@@ -372,17 +382,17 @@ img{max-width:100%}
         <div class="chat" role="img" aria-label="ภาพตัวอย่างข้อความตอบกลับจาก LINE เมื่อเกิดปัญหา">
           <div class="ch"><img src="../assets/logo.png" alt="">กลุ่มงานทรัพยากรบุคคล รพ.สันทราย</div>
           <div class="msgs" style="gap:12px;padding-bottom:16px">
-            <div class="bub t see">ไม่พบเลขบัตรนี้ในระบบ … หากยังไม่เคยยื่นเอกสาร ให้ยื่นเอกสารที่หน้าเว็บก่อน<i class="mk">18</i></div>
-            <div class="bub t see">เลข 4 ตัวท้ายไม่ตรงกับในระบบ … หรือแจ้งเจ้าหน้าที่ HR ให้ผูกให้<i class="mk">19</i></div>
-            <div class="bub t see">ลองหลายครั้งเกินไป กรุณารอ 15 นาที …<i class="mk">20</i></div>
+            <div class="bub t see">ไม่พบเลขบัตรนี้ในระบบ … หากยังไม่เคยยื่นเอกสาร ให้ยื่นเอกสารที่หน้าเว็บก่อน<i class="mk">17</i></div>
+            <div class="bub t see">เลข 4 ตัวท้ายไม่ตรงกับในระบบ … หรือแจ้งเจ้าหน้าที่ HR ให้ผูกให้<i class="mk">18</i></div>
+            <div class="bub t see">ลองหลายครั้งเกินไป กรุณารอ 15 นาที …<i class="mk">19</i></div>
           </div>
         </div>
       </div>
       <ol class="cap">
-        <li><span class="n">17</span><span><b>รหัสหมดอายุ</b> (เกิน 10 นาที) → กดปุ่ม <b>“ขอรหัสใหม่”</b> บนหน้าเว็บ แล้วทำขั้นที่ 2–3 อีกครั้ง</span></li>
-        <li><span class="n">18</span><span><b>ไม่พบเลขบัตร</b> → ยังไม่เคยยื่นเอกสาร ให้กดเมนู <b>“ยื่นเอกสาร”</b> ยื่นก่อน แล้วค่อยเชื่อมต่อ</span></li>
-        <li><span class="n">19</span><span><b>เลข 4 ตัวท้ายไม่ตรง / ไม่มีเบอร์ในระบบ</b> → แจ้ง<b>เจ้าหน้าที่ HR</b> ให้ผูกบัญชีให้ ไม่ต้องลองซ้ำ</span></li>
-        <li><span class="n">20</span><span><b>พิมพ์ผิดหลายครั้ง</b> → รอ 10–15 นาที แล้วลองใหม่</span></li>
+        <li><span class="n">16</span><span><b>รหัสหมดอายุ</b> (เกิน 10 นาที) → กดปุ่ม <b>“ขอรหัสใหม่”</b> บนหน้าเว็บ แล้วทำขั้นที่ 2–3 อีกครั้ง</span></li>
+        <li><span class="n">17</span><span><b>ไม่พบเลขบัตร</b> → ยังไม่เคยยื่นเอกสาร ให้กดเมนู <b>“ยื่นเอกสาร”</b> ยื่นก่อน แล้วค่อยเชื่อมต่อ</span></li>
+        <li><span class="n">18</span><span><b>LINE ถามเลข 4 ตัวท้ายเบอร์โทร</b> (เลขบัตรนี้เคยผูกกับ LINE อื่นแล้ว) → พิมพ์ตอบภายใน 10 นาที ถ้าไม่ตรงหรือไม่มีเบอร์ในระบบ แจ้ง<b>เจ้าหน้าที่ HR</b> ให้ผูกให้</span></li>
+        <li><span class="n">19</span><span><b>พิมพ์ผิดหลายครั้ง</b> → รอ 10–15 นาที แล้วลองใหม่</span></li>
         <li><span class="n eye">ดู</span><span><b>ไม่ได้รับข้อความ</b> → ตรวจว่าไม่ได้ปิดแจ้งเตือนหรือบล็อก LINE ของกลุ่มงาน</span></li>
       </ol>
     </article>
