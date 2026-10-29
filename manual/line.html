@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>คู่มือเชื่อมต่อ LINE รับแจ้งสถานะ อวช. · โรงพยาบาลสันทราย</title>
+<link rel="icon" href="../assets/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  คู่มือเชื่อมต่อ LINE (1 หน้า) — ไฟล์เดียว ไม่ต้องใช้ไฟล์อื่น (ยกเว้นโลโก้ ../assets/logo.png)
+  เปิดจากเว็บที่ /manual/line  (หรือ /manual/line.html)  ·  พิมพ์ได้ 1 แผ่น A4 แนวตั้ง
+  ตัวเลขสีแดงในภาพ = ลำดับที่ต้องกด/พิมพ์ ตรงกับข้อความใต้ภาพ
+-->
+<style>
+:root{--pri:#0f766e;--pri-d:#0b5a54;--ink:#12303a;--mut:#4b6169;--bg:#eaf3f3;--line:#cfdfe1;--red:#c81e1e;--ln:#06c755;--ln-d:#04883c;--yel:#fde68a;--yel-d:#6b4a00}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "IBM Plex Sans Thai","Sarabun",Tahoma,sans-serif}
+img{max-width:100%}
+:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.page{max-width:1180px;margin:0 auto;padding:16px 16px 28px}
+
+/* ---------- หัวเรื่อง ---------- */
+.head{background:var(--pri-d);color:#fff;border-radius:18px;padding:20px 24px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.head img{width:68px;height:68px;border-radius:50%;background:#fff;object-fit:cover;flex:none}
+.head h1{margin:0;font-size:clamp(24px,3.4vw,36px);line-height:1.25;font-weight:700}
+.head p{margin:4px 0 0;font-size:17px;color:#d3efec}
+.head .who{flex:1 1 420px}
+.prep{flex:1 1 300px;background:#ffffff1f;border:1px solid #ffffff3d;border-radius:14px;padding:12px 16px}
+.prep b{display:block;font-size:17px;margin-bottom:2px}
+.prep ul{margin:0;padding:0;list-style:none}
+.prep li{padding-left:26px;position:relative;font-size:16px}
+.prep li::before{content:"✓";position:absolute;left:2px;top:0;font-weight:700;color:#86efac}
+
+/* ---------- 3 ขั้นตอน ---------- */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0}
+.step{background:#fff;border:1.5px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.step>h2{margin:0;padding:12px 16px;display:flex;gap:12px;align-items:center;font-size:21px;line-height:1.3;background:#e1f1ef;border-bottom:1.5px solid var(--line)}
+.step>h2 .sn{flex:none;background:var(--pri);color:#fff;border-radius:10px;padding:2px 12px;font-size:16px;font-weight:700;white-space:nowrap}
+.shot{padding:14px 14px 18px;background:#f4f8f8;display:flex;flex-direction:column;gap:14px;flex:1}
+.cap{margin:0;padding:14px 16px 16px;list-style:none;display:grid;gap:10px;border-top:1.5px dashed var(--line)}
+.cap li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;font-size:17px;line-height:1.5}
+.cap .n{width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-weight:700;font-size:16px;margin-top:1px}
+.cap .eye{background:var(--yel);color:var(--yel-d);font-size:13px;font-weight:700;border-radius:8px;height:auto;width:auto;padding:2px 6px;margin-top:3px;line-height:1.3}
+.cap b{font-weight:700}
+.cap .btnw{display:inline-block;padding:0 8px;border-radius:7px;background:var(--ln);color:#fff;font-weight:700}
+.cap .btnt{display:inline-block;padding:0 8px;border-radius:7px;background:var(--pri);color:#fff;font-weight:700}
+
+/* ---------- ภาพจำลองหน้าจอ ---------- */
+.scr{background:#fff;border:1px solid #bccfd2;border-radius:12px;overflow:visible;font-size:14px;line-height:1.4;position:relative}
+.scr .tp{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:600;font-size:13px}
+.scr .tp img{width:26px;height:26px;border-radius:50%}
+.mnav{display:flex;gap:4px;flex-wrap:wrap;padding:8px 8px 36px}
+.mnav span{padding:4px 10px;border-radius:999px;font-size:13px;border:1.5px solid var(--line);color:var(--ink)}
+.mnav span.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
+.hero{background:linear-gradient(120deg,#0f766e,#0e7490 55%,#4f46e5);padding:14px 12px 44px;border-radius:0 0 11px 11px;display:flex;flex-wrap:wrap;gap:12px 8px;align-items:flex-start}
+.fld{flex:1 1 150px;background:#fff;border-radius:10px;padding:10px 12px;color:#6b7f86;min-height:42px}
+.b{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:0 16px;border-radius:10px;font-weight:600;background:var(--pri);color:#fff;border:2px solid #ffffffb3;white-space:nowrap}
+.b.ln{background:var(--ln);border-color:var(--ln)}
+.b.out{background:#fff;color:var(--pri-d);border-color:var(--pri)}
+.lico{width:18px;height:18px;flex:none}.lico .b1{fill:#fff}.lico .t1{fill:var(--ln)}
+.lc{padding:14px 12px 46px}
+.lc h3{margin:0 0 4px;font-size:15px}
+.lc p{margin:0 0 12px;color:var(--mut);font-size:13px}
+.lc .b{width:100%}
+.dim{background:#9db3b7;padding:12px 10px 18px;border-radius:12px}
+.dlg{background:#fff;border-radius:12px;padding:12px 12px 48px;box-shadow:0 6px 18px #0b2a3055}
+.dlg .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-weight:700;font-size:15px}
+.dlg .hd span.x{font-size:12px;font-weight:600;border:1.5px solid var(--pri);color:var(--pri-d);border-radius:8px;padding:1px 10px}
+.dlg p{margin:0 0 8px;font-size:12.5px;color:var(--mut)}
+.dlg label{display:block;font-weight:600;font-size:13px;margin-bottom:16px}
+.dlg .fld{border:1.5px solid #b7c9cc;flex:none;width:100%;color:#8a9ba1}
+.dlg .b{width:100%;margin-top:12px}
+.dlg.code{padding-bottom:16px}
+.dlg.code .cd{margin:6px 0 2px;text-align:center;font-size:36px;font-weight:700;letter-spacing:.14em;color:var(--pri-d);background:#eef7f6;border:2px dashed var(--pri);border-radius:12px;padding:8px 4px 8px 14px}
+.dlg.code .tm{text-align:center;font-size:12.5px;color:var(--mut);margin:4px 0 10px}
+.dlg.code .two{display:flex;gap:8px;flex-wrap:wrap}.dlg.code .two .b{flex:1 1 130px;width:auto;margin-top:0;padding:0 10px;font-size:13.5px}
+
+.res{padding:12px 12px 8px;font-size:14px}
+.res .sk{height:10px;border-radius:6px;background:#e1ebed;margin:8px 0}
+.res .chip{display:inline-block;margin-top:4px;background:#fff0dc;color:#9a4a00;border-radius:999px;padding:1px 12px;font-weight:600;font-size:13px}
+.scrl{margin:10px 12px 4px;text-align:center;font-weight:700;font-size:14px;color:#6b4a00;background:#fff8d6;border-radius:10px;padding:8px 6px}
+.scrl::after{content:" ▼";color:var(--red)}
+.peek{margin:8px 12px 12px;border:1.5px dashed #9fb6ba;border-radius:10px;padding:8px 10px;display:grid;gap:2px;font-size:13px;color:var(--mut)}
+.peek b{color:var(--ink)}
+/* ---------- จำลองแชท LINE ---------- */
+.chat{background:#7494c0;border-radius:14px;overflow:visible;position:relative;font-size:14px}
+.chat .ch{background:#fff;border-radius:14px 14px 0 0;padding:8px 12px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
+.chat .ch img{width:28px;height:28px;border-radius:50%}
+.chat .add{background:#fff;border-top:1px solid #e3ebef;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--mut)}
+.chat .add .b{min-height:34px;padding:0 14px;font-size:13.5px;border-color:var(--ln)}
+.chat .msgs{padding:12px 10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.bub{max-width:82%;padding:8px 11px;border-radius:14px;background:#fff;color:#222;font-size:13px;line-height:1.45}
+.bub.me{align-self:flex-end;background:#8de055}
+.chat .inp{background:#fff;border-radius:0 0 14px 14px;padding:10px 10px 44px;display:flex;gap:8px;align-items:center}
+.chat .inp .box{flex:1;border:1.5px solid #b7c9cc;border-radius:999px;padding:7px 14px;font-size:15px;font-weight:600;letter-spacing:.08em;color:#111;background:#f4f7f8}
+.chat .inp .go{width:38px;height:38px;border-radius:50%;background:var(--ln);display:grid;place-items:center;flex:none}
+.chat .inp svg{width:19px;height:19px;fill:#fff}
+.ok{display:flex;gap:10px;align-items:center;background:#e6f5ea;border:1.5px solid #86d3a0;border-radius:12px;padding:10px 12px;font-size:16px;line-height:1.45;color:#0d4d24}
+.ok i{flex:none;width:32px;height:32px;border-radius:50%;background:#15803d;color:#fff;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:19px}
+
+/* ---------- จุดชี้ ---------- */
+.t{position:relative}
+.hl{outline:3.5px solid var(--red);outline-offset:3px}
+.mk{position:absolute;left:-14px;top:-16px;width:30px;height:30px;border-radius:50%;background:var(--red);color:#fff;font:700 16px/30px "IBM Plex Sans Thai",sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 3px #fff;z-index:4}
+.mk.r{left:auto;right:-12px}
+.tg{letter-spacing:0;position:absolute;top:calc(100% + 11px);left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font:700 13.5px/1.2 "IBM Plex Sans Thai",sans-serif;font-style:normal;padding:4px 10px;border-radius:7px;white-space:nowrap;z-index:4}
+.tg::before{content:"";position:absolute;left:50%;top:-6px;margin-left:-6px;border:6px solid transparent;border-top:0;border-bottom:7px solid var(--red)}
+.tg.l{left:0;transform:none}.tg.l::before{left:22px}
+.tg.r{left:auto;right:0;transform:none}.tg.r::before{left:auto;right:22px;margin-left:0}
+.tg.y{background:var(--yel);color:var(--yel-d);border:1.5px solid #d9a800}
+.tg.y::before{border-bottom-color:#d9a800}
+.see{outline:3.5px dashed #d9a800;outline-offset:3px}
+
+/* ---------- แถวล่าง ---------- */
+.more{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.box{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:16px 18px}
+.box h2{margin:0 0 8px;font-size:19px;line-height:1.35}
+.box ol,.box ul{margin:0;padding-left:22px}
+.box li{margin:0 0 6px;font-size:16.5px;line-height:1.5}
+.box dl{margin:0}.box dt{font-weight:700;font-size:16.5px;color:var(--pri-d)}.box dd{margin:0 0 8px;font-size:16.5px;line-height:1.45}
+.box.warn{border-color:#f1c27a;background:#fffaf0}
+.k{display:inline-block;background:#eef7f6;border:1px solid #b6d9d5;color:var(--pri-d);font-weight:700;border-radius:8px;padding:0 8px}
+.foot{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;color:var(--mut);font-size:15px}
+.pbtn{font:inherit;font-weight:600;min-height:44px;padding:0 20px;border-radius:10px;border:1.5px solid var(--pri);background:#fff;color:var(--pri-d);cursor:pointer}
+.pbtn:hover{background:#eef7f6}
+.note{font-size:14px;color:var(--mut);margin:8px 2px 0}
+
+/* ---------- มือถือ ---------- */
+@media(max-width:980px){.steps,.more{grid-template-columns:1fr}.step,.box{max-width:560px;width:100%;margin-inline:auto}.cap li{font-size:18px}}
+@media(max-width:520px){.page{padding:10px 10px 24px}.head{padding:16px}.head img{width:56px;height:56px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+/* ---------- พิมพ์ 1 แผ่น A4 แนวนอน ---------- */
+@page{size:A4 portrait;margin:5mm}
+@media print{
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .noprint{display:none!important}
+  .page{max-width:1180px;width:1180px;padding:0;zoom:.64}
+  .steps,.more{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .step,.box,.head{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <!-- ===== หัวเรื่อง ===== -->
+  <header class="head">
+    <img src="../assets/logo.png" alt="" width="68" height="68">
+    <div class="who">
+      <h1>วิธีเชื่อมต่อ LINE เพื่อรับแจ้งสถานะ อวช.</h1>
+      <p>ทำครั้งเดียว ใช้เวลาประมาณ 2 นาที — หลังจากนั้น LINE จะแจ้งให้ทราบทุกครั้งที่สถานะผลงานเปลี่ยน</p>
+    </div>
+    <div class="prep">
+      <b>เตรียมให้พร้อม 3 อย่าง</b>
+      <ul>
+        <li>มือถือที่ติดตั้งแอป LINE แล้ว</li>
+        <li>เลขบัตรประชาชน 13 หลัก</li>
+        <li>เบอร์โทรศัพท์ที่แจ้งไว้กับ HR (ใช้เลข 4 ตัวท้าย)</li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ===== 3 ขั้นตอน ===== -->
+  <section class="steps" aria-label="ขั้นตอนการเชื่อมต่อ LINE">
+
+    <!-- ขั้นที่ 1 -->
+    <article class="step">
+      <h2><span class="sn">ขั้นที่ 1</span>เปิดเว็บ แล้วค้นหาด้วยเลขบัตร</h2>
+      <div class="shot">
+        <div class="scr" role="img" aria-label="ภาพตัวอย่างหน้าเว็บ ติดตามสถานะ">
+          <div class="tp"><img src="../assets/logo.png" alt="">ระบบติดตามสถานะการประเมินผลงาน (อวช.)</div>
+          <div class="mnav">
+            <span class="on t hl"><i class="mk">1</i>ติดตามสถานะ<i class="tg">กดที่นี่</i></span>
+            <span>ยื่นเอกสาร</span><span>คำถามที่พบบ่อย</span>
+          </div>
+          <div class="hero">
+            <div class="fld t hl">เลขบัตรประชาชน 13 หลัก<i class="mk">2</i><i class="tg l">พิมพ์ที่นี่</i></div>
+            <div class="b t hl">ติดตาม<i class="mk r">3</i><i class="tg r">กดที่นี่</i></div>
+          </div>
+        </div>
+        <div class="scr" role="img" aria-label="ภาพตัวอย่างหน้าผลการติดตาม และกรอบแจ้งเตือนทาง LINE ที่อยู่ด้านล่าง">
+          <div class="res">
+            <b>ผลการติดตามของท่าน</b>
+            <div class="sk" style="width:80%"></div><div class="sk" style="width:60%"></div>
+            <span class="chip">อยู่ระหว่างดำเนินการ</span>
+          </div>
+          <div class="scrl t see">เลื่อนหน้าจอลงมาทางนี้<i class="mk">ดู</i></div>
+          <div class="peek"><b>แจ้งเตือนทาง LINE</b><span>กรอบนี้อยู่ใต้ผลการติดตาม → ไปขั้นที่ 2</span></div>
+        </div>
+        <p class="note">ภาพนี้เป็นตัวอย่างหน้าจอ · เว็บไซต์: <b>hrsansaihospital.vercel.app</b></p>
+      </div>
+      <ol class="cap">
+        <li><span class="n">1</span><span>กดเมนู <b>“ติดตามสถานะ”</b> ที่แถบด้านบนของหน้าเว็บ</span></li>
+        <li><span class="n">2</span><span>พิมพ์ <b>เลขบัตรประชาชน 13 หลัก</b> ในช่องสีขาว</span></li>
+        <li><span class="n">3</span><span>กดปุ่ม <span class="btnt">ติดตาม</span> แล้ว<b>เลื่อนหน้าจอลง</b>จนเจอกรอบ <b>“แจ้งเตือนทาง LINE”</b></span></li>
+      </ol>
+    </article>
+
+    <!-- ขั้นที่ 2 -->
+    <article class="step">
+      <h2><span class="sn">ขั้นที่ 2</span>กด “เชื่อมต่อ LINE” แล้วขอรหัส</h2>
+      <div class="shot">
+        <div class="scr" role="img" aria-label="ภาพตัวอย่างกรอบแจ้งเตือนทาง LINE พร้อมปุ่มเชื่อมต่อ LINE">
+          <div class="lc">
+            <h3>แจ้งเตือนทาง LINE</h3>
+            <p>เชื่อมต่อ LINE เพื่อรับข้อความทันทีที่สถานะ อวช. เปลี่ยน ไม่ต้องเปิดเว็บมาตรวจเอง</p>
+            <div class="b ln t hl">
+              <svg class="lico" viewBox="0 0 24 24" aria-hidden="true"><path class="b1" d="M12 2C6.5 2 2 5.6 2 10c0 3.9 3.5 7.2 8.2 7.9.4.1.9.2 1 .6.1.3.1.7 0 1l-.1.9c0 .3-.2 1.1 1 .6 1.2-.5 6.4-3.8 8.7-6.5C22.3 12.8 22 11.5 22 10c0-4.4-4.5-8-10-8z"/></svg>
+              เชื่อมต่อ LINE<i class="mk">4</i><i class="tg">กดปุ่มสีเขียวนี้</i>
+            </div>
+          </div>
+        </div>
+
+        <div class="dim" role="img" aria-label="ภาพตัวอย่างหน้าต่างเชื่อมต่อ LINE ให้กรอกเลข 4 ตัวท้ายเบอร์โทร">
+          <div class="dlg">
+            <div class="hd"><span>เชื่อมต่อ LINE</span><span class="x">ปิด</span></div>
+            <p>เพื่อป้องกันผู้อื่นผูก LINE แทนท่าน กรุณายืนยันตัวตนด้วยเลข 4 ตัวท้ายของเบอร์โทรศัพท์ที่ลงทะเบียนไว้กับ HR</p>
+            <label>เลข 4 ตัวท้ายของเบอร์โทรศัพท์</label>
+            <div class="fld t hl" style="max-width:150px">เช่น 5678<i class="mk">5</i><i class="tg l">พิมพ์ที่นี่</i></div>
+            <div class="b ln t hl" style="margin-top:46px">ขอรหัสเชื่อมต่อ<i class="mk">6</i><i class="tg">กดปุ่มสีเขียวนี้</i></div>
+          </div>
+        </div>
+      </div>
+      <ol class="cap">
+        <li><span class="n">4</span><span>ในกรอบ <b>“แจ้งเตือนทาง LINE”</b> กดปุ่มสีเขียว <span class="btnw">เชื่อมต่อ LINE</span></span></li>
+        <li><span class="n">5</span><span>หน้าต่างเล็กจะเด้งขึ้นมา พิมพ์ <b>เลข 4 ตัวท้ายของเบอร์โทรศัพท์</b> ของท่าน</span></li>
+        <li><span class="n">6</span><span>กดปุ่มสีเขียว <span class="btnw">ขอรหัสเชื่อมต่อ</span></span></li>
+      </ol>
+    </article>
+
+    <!-- ขั้นที่ 3 -->
+    <article class="step">
+      <h2><span class="sn">ขั้นที่ 3</span>เปิด LINE แล้วส่งรหัส 6 หลัก</h2>
+      <div class="shot">
+        <div class="dim" role="img" aria-label="ภาพตัวอย่างหน้าต่างแสดงรหัส 6 หลัก และปุ่มเปิดแชท LINE">
+          <div class="dlg code">
+            <div class="hd"><span>เชื่อมต่อ LINE</span><span class="x">ปิด</span></div>
+            <div class="cd t see">482 951<i class="mk">ดู</i><i class="tg y">รหัสของท่าน (ตัวอย่าง)</i></div>
+            <div class="tm" style="margin-top:34px">รหัสหมดอายุใน 9:42 นาที</div>
+            <div class="two">
+              <div class="b ln t hl">เปิดแชท LINE<i class="mk">7</i><i class="tg l">กดที่นี่</i></div>
+              <div class="b out">คัดลอกรหัส</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat" role="img" aria-label="ภาพตัวอย่างแชท LINE ของกลุ่มงานทรัพยากรบุคคล มีปุ่มเพิ่มเพื่อน และช่องพิมพ์ข้อความ">
+          <div class="ch"><img src="../assets/logo.png" alt="">กลุ่มงานทรัพยากรบุคคล รพ.สันทราย</div>
+          <div class="add"><span>ยังไม่ได้เป็นเพื่อน</span><div class="b ln t hl">เพิ่มเพื่อน<i class="mk">8</i><i class="tg r">กดที่นี่ (ครั้งแรก)</i></div></div>
+          <div class="msgs" style="padding-top:34px">
+            <div class="bub">ยินดีต้อนรับสู่ระบบแจ้งเตือน อวช. …</div>
+          </div>
+          <div class="inp">
+            <div class="box t hl">482951<i class="mk">9</i><i class="tg l">พิมพ์รหัส 6 หลัก</i></div>
+            <div class="go t hl"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg><i class="tg r">แล้วกดส่ง</i></div>
+          </div>
+        </div>
+      </div>
+      <ol class="cap">
+        <li><span class="n eye">ดู</span><span>หน้าเว็บจะแสดง <b>รหัส 6 หลัก</b> ตัวใหญ่ (ใช้ได้ 10 นาที)</span></li>
+        <li><span class="n">7</span><span>กดปุ่ม <span class="btnw">เปิดแชท LINE</span> แอป LINE จะเปิดขึ้นเอง</span></li>
+        <li><span class="n">8</span><span>ใน LINE กด <b>“เพิ่มเพื่อน”</b> (ทำครั้งแรกครั้งเดียว)</span></li>
+        <li><span class="n">9</span><span>พิมพ์ <b>รหัส 6 หลัก</b> ในช่องข้อความ แล้วกด<b>ปุ่มส่ง</b> (หรือกด “คัดลอกรหัส” แล้ววางในช่องข้อความ)</span></li>
+      </ol>
+    </article>
+  </section>
+
+  <!-- ===== สำเร็จ ===== -->
+  <div class="ok" role="status"><i aria-hidden="true">✓</i><span><b>เชื่อมต่อสำเร็จเมื่อ:</b> LINE ตอบกลับว่า <b>“เชื่อมต่อสำเร็จ ✅”</b> และหน้าเว็บขึ้นเครื่องหมายถูก <b>“เชื่อมต่อ LINE สำเร็จ”</b> — กดปุ่ม <b>“ตกลง”</b> เป็นอันเสร็จ</span></div>
+
+  <!-- ===== แถวล่าง ===== -->
+  <section class="more" style="margin-top:16px">
+    <div class="box">
+      <h2>ทางลัด: ไม่อยากเปิดเว็บ</h2>
+      <ol>
+        <li>เพิ่มเพื่อน LINE ของกลุ่มงานทรัพยากรบุคคล (สแกน QR หรือกดปุ่ม <b>“เพิ่มเพื่อน”</b> ที่เมนู <b>“ยื่นเอกสาร”</b>)</li>
+        <li>พิมพ์ <b>เลขบัตรประชาชน 13 หลัก</b> ส่งในแชท</li>
+        <li>ถ้าระบบถามเลข 4 ตัวท้ายเบอร์โทร ให้พิมพ์ตอบ แล้วรอข้อความ “เชื่อมต่อสำเร็จ”</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h2>หลังเชื่อมต่อแล้ว พิมพ์ในแชทได้เลย</h2>
+      <dl>
+        <dt><span class="k">สถานะ</span></dt><dd>ดูว่าผลงานอยู่ขั้นตอนไหน</dd>
+        <dt><span class="k">ระยะเวลารวมปัจจุบัน</span></dt><dd>ดูว่าผ่านมากี่วันแล้ว</dd>
+        <dt><span class="k">ถาม</span> แล้วตามด้วยข้อความ</dt><dd>ส่งคำถามถึงเจ้าหน้าที่ (เฉพาะเรื่องสำคัญ)</dd>
+        <dt><span class="k">ยกเลิกการผูก</span></dt><dd>หยุดรับแจ้งเตือน</dd>
+      </dl>
+    </div>
+    <div class="box warn">
+      <h2>ถ้าทำแล้วไม่สำเร็จ</h2>
+      <ul>
+        <li><b>รหัสหมดอายุ</b> (เกิน 10 นาที) → กด <b>“ขอรหัสใหม่”</b> บนหน้าเว็บ</li>
+        <li><b>ขึ้นว่าไม่พบเลขบัตร</b> → ยังไม่เคยยื่นเอกสาร ให้ยื่นที่เมนู <b>“ยื่นเอกสาร”</b> ก่อน</li>
+        <li><b>เลข 4 ตัวท้ายไม่ตรง / ไม่มีเบอร์ในระบบ</b> → แจ้งเจ้าหน้าที่ HR ให้ผูกบัญชีให้</li>
+        <li><b>พิมพ์ผิดหลายครั้ง</b> → รอ 10–15 นาที แล้วลองใหม่</li>
+        <li><b>ไม่ได้รับข้อความ</b> → ตรวจว่าไม่ได้ปิดแจ้งเตือนหรือบล็อก LINE ของกลุ่มงาน</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span>กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่ · ตัวเลขและข้อความในภาพเป็นตัวอย่าง</span>
+    <span class="noprint"><button class="pbtn" type="button" onclick="window.print()">พิมพ์คู่มือ / บันทึกเป็น PDF</button></span>
+  </footer>
+</main>
+</body>
+</html>
