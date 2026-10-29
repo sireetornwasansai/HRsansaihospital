@@ -168,7 +168,7 @@ var HEAD = {
   LOG: ['เวลา', 'กิจกรรม', 'ผู้ใช้', 'ผลลัพธ์', 'รายละเอียด'],
   LNU: ['เลขบัตรประชาชน', 'LINE userId', 'ชื่อ LINE', 'ผูกเมื่อ', 'วิธีผูก', 'active'],
   LNL: ['เวลา', 'รหัส', 'เลขบัตรประชาชน', 'ประเภท', 'ผู้ส่ง', 'ข้อความ', 'ชื่อไฟล์', 'ลิงก์ไฟล์', 'ผลลัพธ์', 'รายละเอียด'],
-  LNP: ['LINE userId', 'ชื่อ LINE', 'เพิ่มเพื่อนเมื่อ', 'ข้อความล่าสุด', 'สถานะ', 'ผูกกับเลขบัตร'],
+  LNP: ['LINE userId', 'ชื่อ LINE', 'เพิ่มเพื่อนเมื่อ', 'ข้อความล่าสุด', 'สถานะ', 'ผูกกับเลขบัตร', 'เตือนล่าสุด', 'จำนวนครั้งที่เตือน'],
   QA: ['รหัส', 'เวลา', 'จาก', 'ชื่อ', 'ข้อความ', 'อ่านแล้ว', 'ช่องทาง'],
   FAQ: ['รหัส', 'หมวด', 'คำถาม', 'คำตอบ', 'เผยแพร่', 'ปักหมุด', 'ลำดับ', 'เป็นประโยชน์', 'ไม่เป็นประโยชน์', 'อัปเดตล่าสุด', 'โดย'],
   ATT: ['รหัส', 'เวลา', 'ชนิด', 'ครั้งที่แก้ไข', 'ชื่อไฟล์', 'ลิงก์ไฟล์', 'ผู้ส่ง', 'หมายเหตุ', 'เจ้าหน้าที่อ่านแล้ว']
@@ -234,8 +234,31 @@ function sheet_(key) {
   return s;
 }
 /* อัปเดตหัวคอลัมน์ของแท็บที่ระบบสร้างเอง (เพิ่มคอลัมน์ใหม่/เปลี่ยนชื่อหัว) ทำครั้งเดียวต่อ 6 ชม. — ไม่แตะข้อมูลแถวอื่น และไม่ใช้กับชีท allstaff */
+/* คอลัมน์เวลาของแต่ละแท็บ (เลขคอลัมน์เริ่มที่ 1) — ต้องเก็บเป็น "ข้อความ" เท่านั้น
+ * ถ้าปล่อยให้ Google Sheets แปลงเป็นวันที่ เวลาที่แสดงอาจเพี้ยนตามเขตเวลาของชีท (เช่น 12:17 กลายเป็น 19:17) */
+var TIMECOLS = { QA: [2], ATT: [2], LOG: [1], NOT: [1], LNU: [4], LNL: [1], LNP: [3, 7], FAQ: [10] };
+function fixTimeCols_(s, key) {
+  var cols = TIMECOLS[key]; if (!cols) return 0;
+  var fixed = 0, n = s.getLastRow(), mx = Math.max(s.getMaxRows() - 1, 1);
+  cols.forEach(function (c) {
+    if (c > s.getMaxColumns()) return;
+    var all = s.getRange(2, c, mx, 1);
+    if (n >= 2) {
+      var data = s.getRange(2, c, n - 1, 1), vals = data.getValues();
+      if (vals.some(function (v) { return v[0] instanceof Date; })) {
+        data.setNumberFormat('yyyy-MM-dd HH:mm:ss');           // บังคับรูปแบบก่อน แล้วอ่าน "ข้อความที่ชีทแสดง" = เวลาตามที่บันทึกไว้จริง (ไม่ผ่านการคำนวณเขตเวลา)
+        var disp = data.getDisplayValues();
+        all.setNumberFormat('@'); data.setValues(disp);
+        fixed += vals.filter(function (v) { return v[0] instanceof Date; }).length; return;
+      }
+    }
+    all.setNumberFormat('@');                                   // แถวใหม่ที่ appendRow ต่อท้ายจะเป็นข้อความเสมอ
+  });
+  return fixed;
+}
 function migrateHead_(s, key) {
-  var c = CacheService.getScriptCache(), ck = 'hm2_' + key; if (c.get(ck)) return;
+  var c = CacheService.getScriptCache(), ck = 'hm3_' + key; if (c.get(ck)) return;
+  try { fixTimeCols_(s, key); } catch (e) {}
   var h = HEAD[key], cur = s.getRange(1, 1, 1, Math.max(h.length, s.getLastColumn())).getValues()[0], diff = false;
   for (var i = 0; i < h.length; i++) if (String(cur[i] || '') !== h[i]) diff = true;
   if (diff) { if (s.getMaxColumns() < h.length) s.insertColumnsAfter(s.getMaxColumns(), h.length - s.getMaxColumns()); s.getRange(1, 1, 1, h.length).setValues([h]).setFontWeight('bold'); }
@@ -1657,6 +1680,70 @@ function apiLinePending_(token) {
 }
 
 /* ======================================================================
+ *  ส่งข้อความเตือน "ผู้ที่เพิ่มเพื่อน LINE แล้วแต่ยังไม่ได้ผูก / ผูกไม่สำเร็จ" พร้อมแนบคู่มือ
+ *  ข้อความบอกว่า: 1) พิมพ์เลขบัตรประชาชน 13 หลักในแชทก่อน  2) ถ้าไม่ได้ ให้ไปรับรหัส 6 หลักที่เว็บ  (+ การ์ดคู่มือ)
+ *  ใช้งาน (รันจาก Apps Script editor):
+ *    remindUnlinkedDryRun()   ดูก่อนว่าจะส่งถึงกี่คน (ไม่ส่งจริง)
+ *    remindUnlinked()         ส่งจริง (ครั้งละไม่เกิน REMIND_MAX_PER_RUN คน)
+ *    installRemindTrigger()   ตั้งให้รันเองทุกวันจันทร์ 09:00 · removeRemindTrigger() ยกเลิก
+ *  หมายเหตุ: ข้อความแบบ Push นับโควตา LINE OA (แผนฟรีประมาณ 200 ข้อความ/เดือน) จึงจำกัดจำนวนครั้ง/คน และไม่ส่งซ้ำถี่
+ * ====================================================================== */
+var REMIND_MIN_HOURS = 2;       // เพิ่มเพื่อนแล้วอย่างน้อยกี่ชั่วโมงจึงเตือน (ให้เวลาทำตามข้อความต้อนรับก่อน)
+var REMIND_GAP_DAYS = 3;        // เตือนซ้ำได้ไม่ถี่กว่ากี่วัน
+var REMIND_MAX_TIMES = 2;       // เตือนได้มากสุดกี่ครั้งต่อบัญชี LINE
+var REMIND_MAX_PER_RUN = 50;    // ส่งสูงสุดกี่คนต่อการรัน 1 ครั้ง (กันโควตาหมด)
+function remindText_(tried) {
+  var site = siteUrl_().replace(/\/+$/, '');
+  return (tried ? 'ดูเหมือนการเชื่อมต่อ LINE ยังไม่สำเร็จ' : 'บัญชี LINE นี้ยังไม่ได้เชื่อมต่อกับระบบติดตามสถานะ อวช.') +
+    ' จึงยังไม่ได้รับแจ้งเตือนเมื่อสถานะผลงานเปลี่ยน\n\nวิธีเชื่อมต่อ (เลือกวิธีใดวิธีหนึ่ง)\n' +
+    '1) พิมพ์เลขบัตรประชาชน 13 หลักของท่านที่นี่ในแชทนี้ก่อน ระบบเชื่อมต่อให้ทันที (ต้องเคยยื่นเอกสารในระบบแล้ว)\n' +
+    '2) ถ้าเชื่อมต่อด้วยเลขบัตรไม่ได้ ให้ไปรับรหัสในระบบเอง: เปิด ' + site + ' → ติดตามสถานะ → กด "เชื่อมต่อ LINE" รับรหัส 6 หลัก แล้วพิมพ์รหัสที่นี่\n\n' +
+    'ดูคู่มือภาพประกอบได้ที่การ์ดด้านล่าง หากยังไม่สำเร็จ พิมพ์ "ช่วยเหลือ" หรือแจ้งเจ้าหน้าที่ HR ให้ผูกให้ได้';
+}
+function remindUnlinked_(dry) {
+  if (!lineEnabled_()) return { ok: false, err: 'ยังไม่ได้ตั้งค่า LINE (LINE_CHANNEL_ACCESS_TOKEN)' };
+  var lock = LockService.getScriptLock(); if (!lock.tryLock(10000)) return { ok: false, err: 'มีงานส่งข้อความเตือนกำลังทำงานอยู่' };
+  try {
+    var s = sheet_('LNP'), n = s.getLastRow(); if (n < 2) return { ok: true, eligible: 0, sent: 0, failed: 0, dry: !!dry };
+    var linked = {}; lnuRows_().forEach(function (r) { if (r.active) linked[r.uid] = 1; });
+    var v = s.getRange(2, 1, n - 1, 8).getValues(), now = Date.now(), todo = [];
+    v.forEach(function (r, i) {
+      var uid = str_(r[0]), st = str_(r[4]); if (!uid || st !== 'pending' || linked[uid]) return;     // เฉพาะที่ยังไม่ผูก (ไม่รวมผูกแล้ว/เลิกติดตาม)
+      var added = Date.parse(str_(r[2]).replace(' ', 'T') + '+07:00'), last = Date.parse(str_(r[6]).replace(' ', 'T') + '+07:00'), cnt = parseInt(r[7], 10) || 0;
+      if (cnt >= REMIND_MAX_TIMES) return;
+      if (!isNaN(added) && now - added < REMIND_MIN_HOURS * 36e5) return;
+      if (!isNaN(last) && now - last < REMIND_GAP_DAYS * 864e5) return;
+      todo.push({ row: i + 2, uid: uid, tried: !!str_(r[3]), cnt: cnt });
+    });
+    var out = { ok: true, eligible: todo.length, sent: 0, failed: 0, dry: !!dry, left: Math.max(0, todo.length - REMIND_MAX_PER_RUN) };
+    if (dry) return out;
+    todo.slice(0, REMIND_MAX_PER_RUN).forEach(function (t) {
+      var r = linePush_(t.uid, [{ type: 'text', text: remindText_(t.tried) }, manualMsg_()]);
+      if (r.ok) {
+        out.sent++;
+        var rg = s.getRange(t.row, 7, 1, 2); rg.setNumberFormat('@'); rg.setValues([[now_(), String(t.cnt + 1)]]);
+        lineLog_('', '', 'bot', 'ระบบ', 'ส่งข้อความเตือนให้เชื่อมต่อ LINE + คู่มือ (ครั้งที่ ' + (t.cnt + 1) + ')', null, 'sent', 'userId=' + t.uid);
+      } else {
+        out.failed++;
+        lineLog_('', '', 'bot', 'ระบบ', 'ส่งข้อความเตือนให้เชื่อมต่อ LINE ไม่สำเร็จ', null, 'fail', ((r.err || ('HTTP ' + r.status)) + '').slice(0, 150) + ' userId=' + t.uid);
+      }
+    });
+    log_('line_remind', '', 'success', 'ส่ง ' + out.sent + ' / ไม่สำเร็จ ' + out.failed + ' / ผู้มีสิทธิ์ ' + out.eligible);
+    return out;
+  } finally { lock.releaseLock(); }
+}
+function remindUnlinkedDryRun() { var r = remindUnlinked_(true); Logger.log('ทดสอบ (ยังไม่ส่งจริง): ' + JSON.stringify(r)); return r; }
+function remindUnlinked() { var r = remindUnlinked_(false); Logger.log('ผลการส่ง: ' + JSON.stringify(r)); return r; }
+function installRemindTrigger() {
+  removeRemindTrigger();
+  ScriptApp.newTrigger('remindUnlinked').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
+  Logger.log('ตั้งเวลาแล้ว: ส่งข้อความเตือนทุกวันจันทร์ 09:00 (ไทย)');
+}
+function removeRemindTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'remindUnlinked') ScriptApp.deleteTrigger(t); });
+}
+
+/* ======================================================================
  *  ติดตั้ง (รันจากตัวแก้ไข Apps Script ครั้งแรก)
  * ====================================================================== */
 /** 1) กดรันเพื่ออนุญาตสิทธิ์ + สร้างแท็บทั้งหมด */
@@ -1687,6 +1774,12 @@ function authorizeDrive() {
 
 /* ตรวจสอบเขตเวลา (รันใน Apps Script editor แล้วดู Execution log) — ใช้เมื่อเวลาในระบบไม่ตรงกับความจริง
  * ค่าที่ถูกต้อง: Script TZ และ Spreadsheet TZ ควรเป็น Asia/Bangkok (ตั้งชีทที่ ไฟล์ > การตั้งค่า > เขตเวลา) — โค้ดรุ่นนี้ทำงานถูกต้องแม้ชีทใช้เขตเวลาอื่น */
+/* รันครั้งเดียวจาก Apps Script editor เพื่อแก้เวลาที่เพี้ยนในแท็บเก่าทันที (ปกติระบบแก้ให้เองอัตโนมัติเมื่อเปิดแท็บ) */
+function fixTimeNow() {
+  var out = [];
+  Object.keys(TIMECOLS).forEach(function (k) { try { var s = ss_().getSheetByName(SH[k]); if (s) out.push(SH[k] + ': แปลงเวลาเป็นข้อความ ' + fixTimeCols_(s, k) + ' เซลล์'); } catch (e) { out.push(SH[k] + ': ' + e.message); } });
+  Logger.log(out.join('\n')); return out;
+}
 function diagTime() {
   var out = ['Script TZ (appsscript.json) = ' + Session.getScriptTimeZone() + '  |  ค่าที่ใช้ใน Code.gs = ' + TZ, 'Spreadsheet TZ = ' + ss_().getSpreadsheetTimeZone(), 'เวลาเซิร์ฟเวอร์ตอนนี้ (ไทย) = ' + now_()];
   var sh = sheet_('SUB'), n = sh.getLastRow();
