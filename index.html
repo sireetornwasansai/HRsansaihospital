@@ -784,7 +784,7 @@ button .thw,.btn .thw{white-space:normal}
 
 <dialog id="dc" aria-labelledby="dc-t"><div class="dc-ico" id="dc-ico"></div><h2 class="dc-t" id="dc-t"></h2><p class="dc-x" id="dc-p"></p><div id="dc-m" aria-live="polite"></div><div class="row" style="justify-content:flex-end"><button class="btn sec" type="button" id="dc-x">ยกเลิก</button><button class="btn" type="button" id="dc-ok">ยืนยัน</button></div></dialog>
 <style>
-#dsv{max-width:520px}.sv-sc{display:flex;gap:6px;margin-top:8px}.sv-sc button{flex:1;min-height:48px;border:1.5px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-weight:600;font-size:17px}.sv-sc button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+#dsv,#dsb{max-width:520px}#dsr{max-width:680px}.sr-i{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)}.sr-i .row{gap:6px}.sv-sc{display:flex;gap:6px;margin-top:8px}.sv-sc button{flex:1;min-height:48px;border:1.5px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-weight:600;font-size:17px}.sv-sc button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
 .sv-lg{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin-top:3px}.sv-q{padding:12px 0;border-top:1px solid var(--line)}.sv-q p{margin:0;font-weight:500;line-height:1.5}
 .sv-prog{display:flex;gap:4px;margin:12px 0 6px}.sv-prog i{flex:1;height:5px;border-radius:3px;background:var(--line)}.sv-prog i.on{background:var(--pri)}.sv-lock{margin:12px 0 0;text-align:center;font-size:13px}
 .rp-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}.rp-g .card{padding:14px}.rp-g b{display:block;font-size:26px;line-height:1.2}
@@ -794,6 +794,8 @@ button .thw,.btn .thw{white-space:normal}
 <div class="sv-prog" id="sv-prog" aria-hidden="true"></div><div id="sv-step"></div><div id="sv-m" aria-live="polite"></div>
 <div class="row" style="justify-content:space-between;margin-top:14px"><button class="btn sec" type="button" id="sv-back">ก่อนหน้า</button><button class="btn" type="button" id="sv-next">ถัดไป</button></div>
 <p class="meta sv-lock" id="sv-lock"><i class="ph ph-lock"></i> ต้องประเมินให้ครบจึงจะปิดเคสได้ · ผลนำเสนอในภาพรวมเท่านั้น</p></dialog>
+<dialog id="dsb" aria-labelledby="sb-ttl"><div class="hd"><div><h2 id="sb-ttl"><i class="ph-bold ph-clock-counter-clockwise"></i> บันทึกแบบประเมินย้อนหลัง</h2><div class="meta">ใช้กรอกแบบประเมินที่ได้รับมาก่อนมีระบบ (กระดาษ/ฟอร์มเดิม) · ไม่เปลี่ยนสถานะเคส ไม่ส่ง LINE</div></div><span class="dbadge" id="sb-role"></span></div><label for="sb-d">วันที่ประเมินจริง</label><input id="sb-d" type="date"><label for="sb-who" style="margin-top:10px">ชื่อผู้ประเมิน (ไม่บังคับ)</label><input id="sb-who" maxlength="80" placeholder="เว้นว่างได้"><label for="sb-mode" style="margin-top:10px">รูปแบบแบบประเมิน</label><select id="sb-mode"><option value="full">เต็มชุด 16 ข้อ</option><option value="quick">แบบสั้น (คะแนนโดยรวมข้อเดียว)</option></select><label for="sb-id" style="margin-top:10px">ผูกกับรหัสเคสที่ปิดแล้ว (ไม่บังคับ)</label><input id="sb-id" maxlength="40" placeholder="เช่น AWC-20260203-0091 · เว้นว่างได้"><div id="sb-m" aria-live="polite" style="margin-top:8px"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn sec" type="button" id="sb-x">ยกเลิก</button><button class="btn" type="button" id="sb-go">ถัดไป: ทำแบบประเมิน <i class="ph-bold ph-arrow-right"></i></button></div></dialog>
+<dialog id="dsr" aria-labelledby="sr-ttl"><div class="hd"><div><h2 id="sr-ttl"><i class="ph-bold ph-link"></i> ส่งลิงก์ให้ผู้ยื่นประเมินย้อนหลัง</h2><div class="meta">เคสที่ปิดแล้วและผู้ยื่นยังไม่ได้ประเมิน · ลิงก์ใช้ได้เฉพาะเคสนั้น ผู้ยื่นต้องกรอกเลขบัตรของตนเองก่อนทำแบบประเมิน · ไม่เปลี่ยนสถานะเคส</div></div></div><input id="sr-q" type="search" placeholder="ค้นหาชื่อ / รหัสเคส / ชื่อผลงาน" aria-label="ค้นหา" style="margin-top:10px"><div id="sr-m" aria-live="polite" style="margin-top:8px"></div><div id="sr-list" style="margin-top:6px;max-height:55vh;overflow:auto"></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec" type="button" id="sr-x">ปิด</button></div></dialog>
 <script src="config.js"></script>
 <script>
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -883,18 +885,18 @@ function confirmBox(o,run){return new Promise(res=>{const d=$('#dc'),ok=$('#dc-o
  ok.onclick=async()=>{busy(ok,1,'กำลังดำเนินการ...');cx.disabled=true;let good=false;try{if(run)await run();good=true}catch(er){msg(m,er.message||String(er))}busy(ok,0);cx.disabled=false;if(good){fin(true);d.close()}};
  cx.onclick=()=>d.close();d.addEventListener('close',()=>fin(false),{once:true});dlgOpen(d);setTimeout(()=>cx.focus(),30)})}
 /* ===================== แบบประเมินความพึงพอใจ (ผู้ยื่น + เจ้าหน้าที่) — บังคับก่อนปิดเคส ===================== */
-let PENDING_RATE='',RATE_SKIP={},SVS=null;
+let PENDING_RATE='',PENDING_RETRO=null,RATE_SKIP={},SVS=null,SRL=[];
 const SVQ=()=>(CFG.survey&&CFG.survey.q)||[],SVA=()=>(CFG.survey&&CFG.survey.aspects)||[],SVE=()=>(CFG.survey&&CFG.survey.exp)||[];
 function scaleHtml(key,val){return `<div class="sv-sc" role="radiogroup">${[1,2,3,4,5].map(n=>`<button type="button" role="radio" aria-checked="${val===n}" data-k="${key}" data-v="${n}" class="${val===n?'on':''}">${n}</button>`).join('')}</div><div class="sv-lg"><span>น้อยที่สุด</span><span>มากที่สุด</span></div>`}
 function svDraw(){const S=SVS,A=SVA(),Q=SVQ(),last=S.step===S.n-1;
  $('#sv-prog').innerHTML=Array.from({length:S.n},(_,i)=>`<i class="${i<=S.step?'on':''}"></i>`).join('');
  let h='';
- if(S.quick){h=`<p class="meta" style="margin:4px 0 0">เดือนนี้ท่านประเมินเต็มชุดไปแล้ว — ครั้งนี้ให้คะแนนโดยรวมข้อเดียว</p><div class="sv-q"><p>${esc(Q[14])}</p>${scaleHtml('x',S.quickV)}</div><label for="sv-c0" style="margin-top:6px">ความเห็นเพิ่มเติม (ไม่บังคับ)</label><textarea id="sv-c0" rows="2" maxlength="500" data-c="0">${esc(S.c[0])}</textarea>`}
+ if(S.quick){h=`<p class="meta" style="margin:4px 0 0">${S.o.retro?'แบบสั้น — ให้คะแนนโดยรวมข้อเดียว':'เดือนนี้ท่านประเมินเต็มชุดไปแล้ว — ครั้งนี้ให้คะแนนโดยรวมข้อเดียว'}</p><div class="sv-q"><p>${esc(Q[14])}</p>${scaleHtml('x',S.quickV)}</div><label for="sv-c0" style="margin-top:6px">ความเห็นเพิ่มเติม (ไม่บังคับ)</label><textarea id="sv-c0" rows="2" maxlength="500" data-c="0">${esc(S.c[0])}</textarea>`}
  else if(S.step===0){h=`<h3 style="margin:8px 0 4px;font-size:17px">ส่วนที่ 1 ข้อมูลทั่วไป</h3><p class="meta" style="margin:0 0 8px">ประเภทผู้ใช้งาน: <b>${S.o.role==='admin'?'ผู้ดูแลระบบ / เจ้าหน้าที่':'ผู้ยื่น อวช. (บุคลากรผู้ใช้งานทั่วไป)'}</b></p><p style="margin:12px 0 6px;font-weight:500">ประสบการณ์การใช้งานเว็บแอปพลิเคชัน</p><div class="seg">${SVE().map((t,i)=>`<button type="button" data-e="${i}" class="${S.exp===i?'on':''}">${esc(t)}</button>`).join('')}</div>`}
  else if(!last){const g=A[S.step-1];h=`<h3 style="margin:8px 0 2px;font-size:17px">ด้านที่ ${S.step} ${esc(g.t)}</h3><p class="meta" style="margin:0 0 4px">5 = มากที่สุด · 4 = มาก · 3 = ปานกลาง · 2 = น้อย · 1 = น้อยที่สุด</p>`+g.q.map(k=>`<div class="sv-q"><p>${k+1}. ${esc(Q[k])}</p>${scaleHtml(k,S.q[k])}</div>`).join('')}
  else{h=`<h3 style="margin:8px 0 8px;font-size:17px">ส่วนที่ 3 ข้อเสนอแนะเพิ่มเติม (ไม่บังคับ)</h3>`+['ท่านพบปัญหาหรืออุปสรรคใดในการใช้งานเว็บแอปพลิเคชัน','ท่านต้องการให้ปรับปรุงหรือเพิ่มเติมฟังก์ชันใด','ข้อเสนอแนะอื่น ๆ'].map((t,i)=>`<label for="sv-c${i}" style="margin-top:${i?10:0}px">${i+1}. ${t}</label><textarea id="sv-c${i}" rows="2" maxlength="500" data-c="${i}">${esc(S.c[i])}</textarea>`).join('')}
  $('#sv-step').innerHTML=h;
- const first=S.step===0;$('#sv-back').innerHTML=first?(S.o.role==='admin'?'ยกเลิก':'ไว้ทีหลัง'):'<i class="ph-bold ph-arrow-left"></i> ก่อนหน้า';
+ const first=S.step===0;$('#sv-back').innerHTML=first?(S.o.role==='admin'||S.o.retro?'ยกเลิก':'ไว้ทีหลัง'):'<i class="ph-bold ph-arrow-left"></i> ก่อนหน้า';
  $('#sv-next').innerHTML=last?esc(S.o.okLabel||'ส่งแบบประเมิน'):'ถัดไป <i class="ph-bold ph-arrow-right"></i>';
  $('#sv-sub').textContent=(S.o.sub||'')+(S.quick?'':' · ส่วนที่ '+(S.step+1)+' จาก '+S.n)}
 $('#sv-step').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!SVS)return;const S=SVS;
@@ -914,13 +916,13 @@ $('#sv-next').onclick=async()=>{const S=SVS,m=$('#sv-m'),A=SVA();if(!S)return;co
 function openSurvey(o){return new Promise(res=>{const quick=o.mode==='quick',n=quick?1:SVA().length+2;
  const S=SVS={o,quick,n,step:0,q:Array(16).fill(0),exp:-1,quickV:0,c:['','',''],res,done:false};
  $('#sv-role').className='dbadge '+(o.role==='admin'?'wait':'ok');$('#sv-role').textContent=o.role==='admin'?'เจ้าหน้าที่ (ผู้ใช้งานระบบ)':'ผู้ยื่น อวช.';msg($('#sv-m'),'');
- svDraw();$('#dsv').addEventListener('close',()=>{if(!S.done)res(false);if(SVS===S)SVS=null},{once:true});dlgOpen($('#dsv'))})}
+ $('#sv-lock').style.display=o.retro?'none':'';svDraw();$('#dsv').addEventListener('close',()=>{if(!S.done)res(false);if(SVS===S)SVS=null},{once:true});dlgOpen($('#dsv'))})}
 /* ผู้ยื่น: ประเมินเพื่อปิดเคส (เด้งอัตโนมัติเมื่อเปิดหน้าติดตามและมีเคสรอประเมิน / จากลิงก์ใน LINE) */
 function rateCase(id){const it=(LASTDATA&&LASTDATA.items||[]).find(x=>x.id===id);if(!it||it.status!=='closing')return;
  openSurvey({role:'applicant',mode:'full',id,sub:id+(it.title?' · '+it.title:''),okLabel:'ส่งแบบประเมินและปิดเคส',submit:p=>api('surveyApplicant',[LASTCID,id,p],{timeout:120000,write:true})})
   .then(d=>{if(d){toast('ขอบคุณสำหรับการประเมิน — ปิดเคสเรียบร้อยแล้ว','ok',8000);$('#t-go').click()}else RATE_SKIP[id]=1})}
 const rateBanner=it=>`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-star"></i><div><b>ขั้นตอนสุดท้าย: ประเมินความพึงพอใจเพื่อปิดเคส</b><br>เอกสารของท่านดำเนินการครบแล้ว กรุณาประเมินความพึงพอใจต่อระบบ (ประมาณ 2 นาที) เจ้าหน้าที่จึงจะปิดเคสได้<div style="margin-top:10px"><button class="btn" type="button" data-rate="${esc(it.id)}"><i class="ph-bold ph-star"></i> ประเมินความพึงพอใจ</button></div></div></div>`;
-function rateAuto(items){const t=items.find(i=>i.status==='closing'&&PENDING_RATE&&i.id===PENDING_RATE)||items.find(i=>i.status==='closing'&&!RATE_SKIP[i.id]);PENDING_RATE='';if(t)setTimeout(()=>rateCase(t.id),450)}
+function rateAuto(items){if(PENDING_RETRO){const R=PENDING_RETRO;PENDING_RETRO=null;const t=items.find(i=>i.id===R.id);if(t&&t.status==='promoted'){setTimeout(()=>retroCase(R,t),450);return}toast('ไม่พบรายการตามลิงก์ในเลขบัตรนี้ หรือรายการนี้ยังไม่ปิดเคส','warn',9000)}const t=items.find(i=>i.status==='closing'&&PENDING_RATE&&i.id===PENDING_RATE)||items.find(i=>i.status==='closing'&&!RATE_SKIP[i.id]);PENDING_RATE='';if(t)setTimeout(()=>rateCase(t.id),450)}
 /* เจ้าหน้าที่: ปิดเคส = ประเมิน → รอผู้ยื่นประเมิน → ระบบปิดเคสให้ */
 async function promote(id){const r0=ROWS.find(x=>x.id===id);
  if(r0&&r0.status==='closing')return toast('เจ้าหน้าที่ประเมินแล้ว — รอผู้ยื่นประเมินความพึงพอใจ ระบบจะปิดเคสให้อัตโนมัติ','info');
@@ -932,6 +934,32 @@ async function promote(id){const r0=ROWS.find(x=>x.id===id);
  if(inf.haveAdmin){let R=null;const ok=await confirmBox({title:'ส่งให้ผู้ยื่นประเมิน '+id+'?',text:'เจ้าหน้าที่ประเมินเคสนี้ไว้แล้ว — ระบบจะเปลี่ยนสถานะเป็น “รอผู้ยื่นประเมินเพื่อปิดเคส” และแจ้งผู้ยื่นให้ประเมิน เมื่อผู้ยื่นประเมินครบ ระบบจะปิดเคสให้อัตโนมัติ',ok:'ส่งให้ผู้ยื่นประเมิน',icon:'ph-star'},async()=>{R=await api('closeRequest',[TOKEN,id,null],{timeout:120000,write:true});if(!R.ok)throw new Error(R.message)});if(ok&&R)done(R);return}
  const d=await openSurvey({role:'admin',mode:inf.mode,id,sub:(r0?r0.prefix+r0.first+' '+r0.last+' · ':'')+id,okLabel:'ส่งแบบประเมิน แล้วให้ผู้ยื่นประเมินต่อ',submit:p=>api('closeRequest',[TOKEN,id,p],{timeout:120000,write:true})});
  if(d)done(d)}
+/* ผู้ยื่น: ประเมินย้อนหลังจากลิงก์เฉพาะเคส (#retro-รหัส.ลายเซ็น) — ตรวจลิงก์ก่อนเปิดแบบประเมิน กันกรอกจนจบแล้วเพิ่งรู้ว่าลิงก์ใช้ไม่ได้ */
+async function retroCase(R,it){const c=await api('surveyRetro',[LASTCID,R.id,R.sig,null]);if(!c.ok)return toast(c.message,'err',9000);
+ const d=await openSurvey({role:'applicant',mode:'full',retro:true,id:R.id,sub:R.id+(it&&it.title?' · '+it.title:'')+' · ประเมินย้อนหลัง',okLabel:'ส่งแบบประเมิน',submit:p=>api('surveyRetro',[LASTCID,R.id,R.sig,p],{timeout:120000,write:true})});
+ if(d){toast('ขอบคุณสำหรับการประเมินความพึงพอใจ','ok',8000);$('#t-go').click()}}
+/* เจ้าหน้าที่ (admin): รายการเคสที่ปิดแล้วแต่ผู้ยื่นยังไม่ประเมิน → คัดลอกลิงก์เฉพาะเคส / ส่งทาง LINE */
+function srDraw(){const q=$('#sr-q').value.trim().toLowerCase(),L=SRL.filter(x=>!q||(x.id+' '+x.name+' '+x.title).toLowerCase().includes(q)),ln=CFG.line&&CFG.line.enabled;
+ $('#sr-list').innerHTML=(L.length?`<div class="meta" style="margin:4px 0">${L.length} รายการ</div>`+L.map(x=>`<div class="sr-i"><div style="min-width:0;flex:1 1 220px"><b>${esc(x.name)}</b> <span class="meta">${esc(x.id)}</span><div class="meta">${esc(x.title)}${x.upd?' · ปิดเมื่อ '+esc(x.upd.slice(0,10)):''}</div></div><div class="row"><button class="btn sec" type="button" data-sr-c="${esc(x.id)}"><i class="ph-bold ph-copy"></i> คัดลอกลิงก์</button>${ln?`<button class="btn sec" type="button" data-sr-l="${esc(x.id)}"><i class="ph-bold ph-paper-plane-tilt"></i> ส่ง LINE</button>`:''}</div></div>`).join(''):'<div class="meta" style="padding:12px 0">ไม่มีรายการที่รอประเมินย้อนหลัง</div>')}
+$('#sr-q').addEventListener('input',srDraw);$('#sr-x').onclick=()=>$('#dsr').close();
+$('#sr-list').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.srC){const x=SRL.find(r=>r.id===b.dataset.srC);if(x)copy(x.uri,'คัดลอกลิงก์')}
+ else if(b.dataset.srL){const id=b.dataset.srL;busy(b,1,'กำลังส่ง...');const d=await api('surveyRetroSend',[TOKEN,id],{timeout:120000,write:true});busy(b,0);
+  if(!d.ok)return toast(d.message,'err');const L=d.line||{};
+  if(L.sent>0)toast('ส่งลิงก์ประเมินให้ผู้ยื่นทาง LINE แล้ว ('+id+')');else toast('ส่ง LINE ไม่ได้ (ผู้ยื่นยังไม่ผูก LINE หรือส่งไม่สำเร็จ) — กด “คัดลอกลิงก์” แล้วส่งให้เอง','warn',9000)}});
+async function srOpen(){$('#sr-q').value='';msg($('#sr-m'),'');$('#sr-list').innerHTML=skel(3);dlgOpen($('#dsr'));
+ const d=await api('surveyRetroList',[TOKEN]);if(!d.ok){$('#sr-list').innerHTML='';return msg($('#sr-m'),d.message)}SRL=d.items||[];srDraw()}
+/* บันทึกแบบประเมินย้อนหลัง (เฉพาะผู้ดูแลระบบ): กรอกวันที่/ผู้ประเมิน → ทำแบบประเมินในกล่องเดิม → บันทึกลงเดือนของวันที่ระบุ */
+function backfillOpen(role){const ym=RPM||bkk0().slice(0,7),today=bkk0().slice(0,10),end=ym+'-'+String(new Date(+ym.slice(0,4),+ym.slice(5,7),0).getDate()).padStart(2,'0'),mx=end>today?today:end;
+ const d=$('#sb-d');d.min=ym+'-01';d.max=mx;d.value=mx;$('#sb-who').value='';$('#sb-id').value='';$('#sb-mode').value='full';msg($('#sb-m'),'');
+ $('#sb-role').className='dbadge '+(role==='admin'?'wait':'ok');$('#sb-role').textContent=role==='admin'?'เจ้าหน้าที่ (ผู้ใช้งานระบบ)':'ผู้ยื่น อวช.';
+ $('#sb-x').onclick=()=>$('#dsb').close();
+ $('#sb-go').onclick=async()=>{const date=d.value,who=$('#sb-who').value.trim(),id=$('#sb-id').value.trim(),mode=$('#sb-mode').value;
+  if(!date||date<d.min||date>d.max)return msg($('#sb-m'),'วันที่ต้องอยู่ในเดือน '+thYM(ym)+' (และไม่เกินวันนี้) เพื่อให้นับเข้ารายงานเดือนที่กำลังดู');
+  $('#dsb').close();
+  const r=await openSurvey({role,mode,id:id||'',retro:true,sub:'บันทึกย้อนหลัง · '+date+(who?' · '+who:''),okLabel:'บันทึกย้อนหลัง',submit:p=>api('surveyBackfill',[TOKEN,{role,date,id,who,mode,sv:p}],{timeout:120000,write:true})});
+  if(r){toast('บันทึกแบบประเมินย้อนหลังแล้ว ('+(role==='admin'?'เจ้าหน้าที่':'ผู้ยื่น')+' · '+date+')');loadReport()}};
+ dlgOpen($('#dsb'))}
 /* ===================== รายงานประจำเดือน (แท็บเจ้าหน้าที่) ===================== */
 const THM=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];let RPM='';
 const thYM=ym=>THM[+ym.slice(5,7)-1]+' '+(+ym.slice(0,4)+543);
@@ -940,7 +968,7 @@ async function loadReport(ym){const el=$('#a-report');if(!RPM)RPM=bkk0().slice(0
  const R=d.report,cur=bkk0().slice(0,7);let y=+cur.slice(0,4),mo=+cur.slice(5,7);const opts=[];for(let i=0;i<12;i++){const v=y+'-'+String(mo).padStart(2,'0');opts.push(`<option value="${v}" ${v===RPM?'selected':''}>${thYM(v)}</option>`);mo--;if(mo<1){mo=12;y--}}
  const f=v=>v===null||v===undefined?'-':v,mt=(l,v,c)=>`<div class="card"><span class="meta">${l}</span><b style="${c?'color:'+c:''}">${v}</b></div>`;
  const pc=(R.calls!==null&&R.baseline)?Math.round((R.baseline-R.calls)/R.baseline*100):null;
- const svb=(role,t)=>{const o=R.sv[role];return `<div class="card"><h3 style="margin:0 0 4px;font-size:16px">${t}</h3><div class="meta">ตอบ ${o.n} ราย (เต็มชุด ${o.full}) · โดยรวม <b>${f(o.overall)}</b> / 5</div>${o.full?`<table class="rp-t" style="margin-top:6px">${o.aspects.map(a=>`<tr><td>${esc(a.t)}</td><td class="n" style="width:60px">${f(a.avg)}</td></tr>`).join('')}</table>`:''}</div>`};
+ const svb=(role,t)=>{const o=R.sv[role];return `<div class="card"><h3 style="margin:0 0 4px;font-size:16px">${t}</h3><div class="meta">ตอบ ${o.n} ราย (เต็มชุด ${o.full}) · โดยรวม <b>${f(o.overall)}</b> / 5</div>${o.full?`<table class="rp-t" style="margin-top:6px">${o.aspects.map(a=>`<tr><td>${esc(a.t)}</td><td class="n" style="width:60px">${f(a.avg)}</td></tr>`).join('')}</table>`:''}${USER&&USER.r==='admin'?`<button class="btn sec" type="button" data-bf="${role}" style="margin-top:10px"><i class="ph-bold ph-clock-counter-clockwise"></i> บันทึกย้อนหลัง</button>${role==='applicant'?`<button class="btn" type="button" data-sr style="margin:10px 0 0 8px"><i class="ph-bold ph-link"></i> ส่งลิงก์ให้ผู้ยื่นประเมินย้อนหลัง</button>`:''}`:''}</div>`};
  el.innerHTML=`<div class="hd" style="margin-bottom:6px"><div><h2 style="margin:0"><i class="ph-bold ph-chart-bar"></i> รายงานประจำเดือน</h2><div class="meta">ระบบส่งอัตโนมัติทุกวันสุดท้ายของเดือน เวลา 18:00 น. ถึง <b>${esc(R.to)}</b>${R.sent?' · เดือนนี้ส่งแล้วเมื่อ '+esc(thDT(R.sent)):''}</div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="rp-m" aria-label="เลือกเดือน" style="width:auto">${opts.join('')}</select>${USER&&USER.r==='admin'?'<button class="btn sec" id="rp-send" type="button"><i class="ph-bold ph-envelope-simple"></i> ส่งรายงานเข้าอีเมลตอนนี้</button>':''}</div></div>
   <div class="rp-g">${mt('ยื่นใหม่ในเดือน',R.submitted)}${mt('ปิดเคสสำเร็จ',R.closed,'#15803d')}${mt('ยกเลิก',R.cancelled)}${mt('งานค้างในระบบ (ขณะนี้)',R.active)}${mt('ค้างนานกว่าเกณฑ์',R.overdue,R.overdue?'#b91c1c':'')}${mt('ใกล้ครบ / เกิน 180 วัน',R.near180+' / '+R.over180,R.over180?'#b91c1c':'#a1480a')}${mt('รอผู้ยื่นประเมินเพื่อปิดเคส',R.waitingRate)}${mt('ถาม-ตอบในระบบ',R.qa)}</div>
@@ -949,7 +977,7 @@ async function loadReport(ym){const el=$('#a-report');if(!RPM)RPM=bkk0().slice(0
   <form id="rp-f" class="card"><h3 style="margin:0 0 4px;font-size:16px"><i class="ph ph-phone-call"></i> สายโทรสอบถามที่ยังเข้ามา</h3><p class="meta" style="margin:0 0 10px">ระบบนับสายโทรเองไม่ได้ — ให้กรอกจำนวนสายประจำเดือน และ “ฐานก่อนใช้ระบบ” (เฉลี่ยสายต่อเดือน) เพื่อคำนวณว่าลดลงเท่าไร${pc!==null?` · <b>${pc>=0?'ลดลง ':'เพิ่มขึ้น '}${Math.abs(pc)}%</b>`:''}</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px"><div><label for="rp-c">จำนวนสายเดือน ${thYM(RPM)}</label><input id="rp-c" type="number" min="0" max="99999" inputmode="numeric" value="${R.calls===null?'':R.calls}"></div><div><label for="rp-b">ฐานก่อนใช้ระบบ (สาย/เดือน)</label><input id="rp-b" type="number" min="0" max="99999" inputmode="numeric" value="${R.baseline===null?'':R.baseline}"></div></div>
   <label for="rp-n" style="margin-top:8px">หมายเหตุ</label><input id="rp-n" maxlength="200" value="${esc(R.callsNote||'')}"><div id="rp-msg" style="margin-top:8px"></div><button class="btn" type="submit" style="margin-top:10px"><i class="ph-bold ph-floppy-disk"></i> บันทึก</button></form>`;
- $('#rp-m').onchange=e=>loadReport(e.target.value);
+ $('#rp-m').onchange=e=>loadReport(e.target.value);$$('[data-bf]',el).forEach(b=>b.onclick=()=>backfillOpen(b.dataset.bf));$$('[data-sr]',el).forEach(b=>b.onclick=srOpen);
  const sb=$('#rp-send');if(sb)sb.onclick=()=>confirmBox({title:'ส่งรายงาน '+thYM(RPM)+' เข้าอีเมลตอนนี้?',text:'ส่งถึง '+R.to+' ทันที (นอกเหนือจากการส่งอัตโนมัติวันสุดท้ายของเดือน)',ok:'ส่งรายงาน',icon:'ph-envelope-simple'},async()=>{const x=await api('reportSend',[TOKEN,RPM],{timeout:120000,write:true});if(!x.ok)throw new Error(x.message)}).then(ok=>{if(ok)toast('ส่งรายงานเข้าอีเมลแล้ว')});
  $('#rp-f').onsubmit=async e=>{e.preventDefault();const b=$('button[type=submit]',e.target),m=$('#rp-msg'),c=$('#rp-c').value.trim(),bs=$('#rp-b').value.trim();busy(b,1,'กำลังบันทึก...');
   let x=await api('metSave',[TOKEN,{ym:RPM,calls:c,note:$('#rp-n').value}],{write:true});if(x.ok&&bs!==(R.baseline===null?'':String(R.baseline)))x=await api('metSave',[TOKEN,{ym:'baseline',calls:bs,note:'ฐานก่อนใช้ระบบ'}],{write:true});
@@ -969,7 +997,7 @@ const maskCid=c=>c?('x-xxxx-xxxxx-'+c.slice(-3,-1)+'-'+c.slice(-1)):'';
 const copy=async(t,label)=>{try{await navigator.clipboard.writeText(t);toast((label||'คัดลอก')+'แล้ว')}catch{toast('คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง','warn')}};
 const dlgOpen=d=>{if(!d.open)d.showModal()};
 /* กล่องโต้ตอบ: คลิกหรือลากเมาส์นอกกรอบ / กด Esc ไม่ถือเป็นการปิด (กันข้อมูลที่กรอกหาย) — ปิดได้เฉพาะปุ่ม "ปิด/ยกเลิก" ในกล่อง */
-['dlg','dn','dl','dc','dq','ds','da','df','du','dsv'].forEach(i=>{const d=$('#'+i);if(d)d.addEventListener('cancel',e=>e.preventDefault())});
+['dlg','dn','dl','dc','dq','ds','da','df','du','dsv','dsb'].forEach(i=>{const d=$('#'+i);if(d)d.addEventListener('cancel',e=>e.preventDefault())});
 $('#d-x').onclick=()=>$('#dlg').close();$('#n-x').onclick=()=>$('#dn').close();$('#l-x').onclick=()=>{$('#dl').close()};$('#du-x').onclick=()=>$('#du').close();$('#q-x').onclick=()=>$('#dq').close();
 $('#dl').addEventListener('close',()=>{clearInterval(LP);LP=null});
 /* ===== ตัวเลือกไฟล์ (ตรวจชนิด/ขนาด + ตัวอย่างรูป + บีบอัดรูป) ===== */
@@ -994,7 +1022,7 @@ function mkFile(el,{exts,max=8,hint}){
    if(f.size>max*1048576)throw new Error('ไฟล์ใหญ่เกิน '+max+' MB');
    return{name:f.name,mime:f.type,data:await b64(f)}}}}
 const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',faq:'คำถามที่พบบ่อย',admin:'เจ้าหน้าที่ HR'};
-function route(){let v=(location.hash||'#track').slice(1);if(/^rate-/.test(v)){try{PENDING_RATE=decodeURIComponent(v.slice(5))}catch(e){PENDING_RATE=''}v='track';history.replaceState(null,'','#track');setTimeout(()=>toast('กรอกเลขบัตรประชาชนแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RATE,'info',9000),700)}const id=['track','submit','faq','admin'].includes(v)?v:'track';
+function route(){let v=(location.hash||'#track').slice(1);if(/^retro-/.test(v)){const s=v.slice(6),k=s.lastIndexOf('.');try{PENDING_RETRO=k>0?{id:decodeURIComponent(s.slice(0,k)),sig:s.slice(k+1)}:null}catch(e){PENDING_RETRO=null}v='track';history.replaceState(null,'','#track');if(PENDING_RETRO)setTimeout(()=>toast('กรอกเลขบัตรประชาชนของท่านแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RETRO.id,'info',9000),700)}else if(/^rate-/.test(v)){try{PENDING_RATE=decodeURIComponent(v.slice(5))}catch(e){PENDING_RATE=''}v='track';history.replaceState(null,'','#track');setTimeout(()=>toast('กรอกเลขบัตรประชาชนแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RATE,'info',9000),700)}const id=['track','submit','faq','admin'].includes(v)?v:'track';
  document.body.classList.toggle('wide',id==='admin'&&!!USER);
  $$('main>section').forEach(s=>{const on=s.id==='v-'+id;s.hidden=!on;if(on){s.classList.remove('vin');void s.offsetWidth;s.classList.add('vin')}});
  $$('header nav a[data-v]').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});document.title=TITLES[id]+' · อวช. รพ.สันทราย';scrollTo(0,0);if(id==='faq')loadFaq()}
@@ -1681,7 +1709,7 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['surveyInfo','closeRequest','surveyApplicant','reportGet','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineLinkReq','lineLinkCheck','lineAdd','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineLinkReq','lineLinkCheck','lineAdd','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
@@ -1830,6 +1858,10 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   return ok({status:'closing',line:this.linked(r.cid)?{sent:1,failed:0}:{sent:0,failed:0,skipped:'none'}})}
  case 'surveyApplicant':{db.sv=db.sv||[];const cid=cidOf(a[0]),id=a[1],r=this.find(id);if(r.cid!==cid)this.err('ไม่พบรายการของท่าน');if(r.status!=='closing')this.err('รายการนี้ยังไม่ถึงขั้นตอนประเมินเพื่อปิดเคส');
   if(!db.sv.some(x=>x.id===id&&x.role==='applicant'))db.sv.push({id,role:'applicant',p:a[2]});r.status='promoted';r.note='ผู้ยื่นประเมินความพึงพอใจแล้ว — ปิดเคส';r.upd=bkkS(now);db.his.push({id,t:r.upd,s:'promoted',n:r.note,by:'ระบบ (ผู้ยื่นประเมินแล้ว)'});this.save();return ok({status:'promoted'})}
+ case 'surveyRetroList':{db.sv=db.sv||[];return ok({items:db.subs.filter(r=>r.status==='promoted'&&!db.sv.some(x=>x.id===r.id&&x.role==='applicant')).map(r=>({id:r.id,name:(r.prefix||'')+(r.first||'')+' '+(r.last||''),title:r.title||'',upd:r.upd||'',uri:location.origin+location.pathname+'#retro-'+r.id+'.demo'}))})}
+ case 'surveyRetroSend':{return ok({line:{sent:0,failed:0,skipped:'none'}})}
+ case 'surveyRetro':{db.sv=db.sv||[];const id=a[1];if(a[3]===null||a[3]===undefined)return ok({check:true});db.sv.push({id,role:'applicant',p:a[3]});this.save();return ok({id})}
+ case 'surveyBackfill':{db.sv=db.sv||[];const p=a[1]||{};db.sv.push({id:p.id||'RETRO-DEMO',role:p.role,p:p.sv});this.log('survey_backfill','success',p.id||'');this.save();return ok({id:p.id||'RETRO-DEMO',date:p.date})}
  case 'reportGet':{db.sv=db.sv||[];const ym=a[1],sv=role=>{const L=db.sv.filter(x=>x.role===role);return{n:L.length,full:L.length,overall:L.length?4.5:null,aspects:(CFG.survey&&CFG.survey.aspects||[]).map(g=>({t:g.t,avg:L.length?4.4:null}))}};
   return ok({report:{ym,generated:bkkS(now),submitted:db.subs.length,closed:db.subs.filter(r=>r.status==='promoted').length,cancelled:db.subs.filter(r=>r.status==='cancelled').length,active:db.subs.filter(r=>!stg(r.status).end).length,overdue:2,near180:1,over180:0,waitingRate:db.subs.filter(r=>r.status==='closing').length,qa:db.qa.length,calls:null,callsNote:'',baseline:null,stages:[{k:'b1_check',t:'ตรวจสอบเล่ม 1 (ตัวอย่าง)',ord:1,sla:5,n:4,avg:3.5}],sv:{applicant:sv('applicant'),admin:sv('admin')},to:'hrm@sansaihospital.go.th',sent:''}})}
  case 'metSave':return ok({ym:a[1]&&a[1].ym});
