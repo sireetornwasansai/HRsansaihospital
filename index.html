@@ -687,10 +687,10 @@ button .thw,.btn .thw{white-space:normal}
    <div><label for="s-start-d">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><div id="s-start-box"></div><div class="meta" id="s-ten" aria-live="polite"></div></div>
    <div class="full"><label class="req" for="s-edu">วุฒิการศึกษาสูงสุด</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่ามัธยมศึกษา</option><option>มัธยมศึกษา / ปวช.</option><option>ปวส. / อนุปริญญา</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>วุฒิบัตร / อนุมัติบัตรผู้เชี่ยวชาญเฉพาะทาง</option><option>อื่น ๆ</option></select></div>
   </div></div></div>
-  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">3</span><h2>ผลงาน</h2><span class="meta">แนบไฟล์หรือใส่ลิงก์ อย่างใดอย่างหนึ่ง</span></div><div class="fsec-b"><div class="grid">
+  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">3</span><h2>ผลงาน</h2><span class="meta">แนบไฟล์หรือใส่ลิงก์ก็ได้ (ไม่บังคับ)</span></div><div class="fsec-b"><div class="grid">
    <div class="full"><label class="req" for="s-title">ชื่อผลงาน</label><input id="s-title" maxlength="300" required autocomplete="off" placeholder="ระบุชื่อผลงานที่ยื่นประเมิน"><div class="meta">ชื่อเรื่องของผลงานตามเอกสารที่ยื่น (ไม่เกิน 300 ตัวอักษร) — เจ้าหน้าที่แก้ไขให้ภายหลังได้</div></div>
-   <div><label>แนบไฟล์ผลงาน</label><div id="s-file"></div></div>
-   <div><label for="s-link">หรือลิงก์ไฟล์ (Google Drive ฯลฯ)</label><input id="s-link" type="url" placeholder="https://"></div>
+   <div><label>แนบไฟล์ผลงาน <span class="meta">(ไม่บังคับ)</span></label><div id="s-file"></div></div>
+   <div><label for="s-link">หรือลิงก์ไฟล์ (Google Drive ฯลฯ) <span class="meta">(ไม่บังคับ)</span></label><input id="s-link" type="url" placeholder="https://"></div>
   </div>
   <div style="margin-top:18px"><div class="meta" style="margin-bottom:6px">หลังยื่นแล้ว ผลงานจะผ่านขั้นตอน</div><div class="rte" id="s-route"></div></div>
   <div id="s-msg" aria-live="polite"></div>
@@ -1182,7 +1182,7 @@ function timelineHtml(it,notes){const fnn=fixN(it.history||[]),ev=(it.history||[
 function renderTrack(d){const o=$('#t-out');
  let h=`<div class="card who"><div class="who-l">${avatar(d.name)}<div><div class="meta">ผู้ยื่น</div><h2>${esc(d.name)}</h2><div class="meta">${esc([d.position,d.group].filter(Boolean).join(' · '))}</div></div></div><div style="text-align:right"><button class="btn sec sm" id="t-re"><i class="ph-bold ph-arrows-clockwise"></i> ตรวจสอบอีกครั้ง</button><div class="checked" style="justify-content:flex-end;margin-top:4px"><i class="ph ph-clock"></i>ตรวจเมื่อ ${esc(hm(bkk0()))} น.</div></div></div>`;
  if(!d.items.length)h+=`<div class="card empty-s"><i class="ph-duotone ph-folder-open"></i><h2>ยังไม่พบรายการยื่นผลงานของท่าน</h2><p class="meta">หากยังไม่เคยยื่น สามารถยื่นเอกสารได้ที่ปุ่มด้านล่าง</p><a class="btn" href="#submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a></div>`;
- h+=d.items.map(it=>{const rows=[['ph-article','ชื่อผลงาน',it.title],['ph-briefcase','ตำแหน่ง',it.position],['ph-trend-up','ระดับตำแหน่งที่ขอเลื่อน',it.track],['ph-buildings','กลุ่มงาน',it.group],['ph-hash','ตำแหน่งเลขที่',it.posNo],['ph-hourglass-medium','อายุงาน',it.tenure],['ph-graduation-cap','วุฒิการศึกษา',it.edu],['ph-paperclip','ไฟล์ผลงาน',it.hasFile?'แนบไฟล์/ลิงก์แล้ว':'ยังไม่ได้แนบ'],['ph-clock','อัปเดตล่าสุด',thDT(it.upd)]];
+ h+=d.items.map(it=>{const rows=[['ph-article','ชื่อผลงาน',it.title],['ph-briefcase','ตำแหน่ง',it.position],['ph-trend-up','ระดับตำแหน่งที่ขอเลื่อน',it.track],['ph-buildings','กลุ่มงาน',it.group],['ph-hash','ตำแหน่งเลขที่',it.posNo],['ph-hourglass-medium','อายุงาน',it.tenure],['ph-graduation-cap','วุฒิการศึกษา',it.edu],['ph-paperclip','ไฟล์ผลงาน',it.hasFile?'แนบไฟล์/ลิงก์แล้ว':'ไม่ได้แนบ'],['ph-clock','อัปเดตล่าสุด',thDT(it.upd)]];
   return `<section class="titem"><article class="card"><div class="hd" style="margin-bottom:16px"><div><div class="dbadges">${chip(it.status)}${it.track?`<span class="dstage tone-violet"><i class="ph-bold ph-trend-up"></i>${esc(it.track)}</span>`:''}</div><h2 class="mono" style="font-size:20px;margin:8px 0 2px">${esc(it.id)}</h2>${it.title?`<div class="wt"><i class="ph-duotone ph-article"></i><span>${esc(it.title)}</span></div>`:''}<div class="meta"><i class="ph ph-calendar-blank"></i> ยื่นเมื่อ ${esc(thDT(it.ts))}</div></div><button class="btn sec sm" data-copy="${esc(it.id)}"><i class="ph-bold ph-copy"></i> คัดลอกรหัส</button></div>
   ${it.status==='closing'?rateBanner(it):''}${stg(it.status).fix&&it.note?`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-note-pencil"></i><div><b>สิ่งที่ต้องแก้ไข</b><br>${esc(it.note)}</div></div>`:''}
   ${flowHtml(it)}${roundsHtml(it)}</article>
@@ -1299,7 +1299,7 @@ $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s
  let firstBad=null;REQ.forEach(k=>{let ok=!!p[k];if(k==='cid')ok=validCid(p.cid);const el=$('#s-'+k);el.setAttribute('aria-invalid',ok?'false':'true');if(!ok&&!firstBad)firstBad=el});
  if(firstBad){firstBad.focus();return msg(m,p.cid&&!validCid(p.cid)?'เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง':'กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน')}
  if(p.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(p.email)){$('#s-email').setAttribute('aria-invalid','true');$('#s-email').focus();return msg(m,'รูปแบบอีเมลไม่ถูกต้อง')}
- if(!FSUB.get()&&!p.link)return msg(m,'กรุณาแนบไฟล์หรือใส่ลิงก์ผลงานอย่างใดอย่างหนึ่ง');
+ if(p.link&&!/^https?:\/\//i.test(p.link)){$('#s-link').setAttribute('aria-invalid','true');$('#s-link').focus();return msg(m,'ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://')}
  busy(b,1,'กำลังส่งเอกสาร...');const sp=sendPanel(m,['เตรียมไฟล์','ส่งเอกสารและบันทึกข้อมูล']);
  try{p.file=await FSUB.pack()}catch(er){busy(b,0);return sp.fail(er.message)}
  sp.go(1);const d=await api('submit',[p],{timeout:120000,write:true});busy(b,0);
