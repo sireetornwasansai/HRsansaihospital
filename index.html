@@ -636,6 +636,7 @@ button .thw,.btn .thw{white-space:normal}
  <nav aria-label="เมนูหลัก">
   <a href="#track" data-v="track"><i class="ph-bold ph-path"></i> ติดตามสถานะ</a>
   <a href="#submit" data-v="submit"><i class="ph-bold ph-upload-simple"></i> ยื่นเอกสาร</a>
+  <a href="#docs" data-v="docs"><i class="ph-bold ph-folder-open"></i> เอกสาร/แบบฟอร์ม</a>
   <a href="#faq" data-v="faq"><i class="ph-bold ph-question"></i> คำถามที่พบบ่อย</a>
   <a href="#admin" data-v="admin"><i class="ph-bold ph-shield-check"></i> เจ้าหน้าที่ HR</a>
   <a href="fte/" id="fte-link" class="out"><i class="ph-bold ph-users-three"></i> ระบบอัตรากำลัง FTE</a>
@@ -659,6 +660,12 @@ button .thw,.btn .thw{white-space:normal}
 </section>
 
 <!-- ===== ยื่นเอกสาร ===== -->
+<section id="v-docs" hidden>
+ <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>ระบบ อวช.</span><i class="ph-bold ph-caret-right"></i><span>เอกสาร/แบบฟอร์ม</span></nav>
+ <div class="card fq-hero"><h1><i class="ph-duotone ph-folder-open"></i> เอกสารและแบบฟอร์ม</h1><p>ดาวน์โหลดแบบฟอร์มสำหรับขอประเมินบุคคลและผลงาน — เลือกระดับตำแหน่งที่ต้องการ ไม่ต้องเข้าสู่ระบบ จัดทำโดยกลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย</p></div>
+ <div class="dc-lv" id="dc-lv" role="tablist" aria-label="เลือกระดับตำแหน่ง"></div>
+ <div id="dc-body" aria-live="polite"></div>
+</section>
 <section id="v-faq" hidden>
  <nav class="crumbs" aria-label="breadcrumb"><a href="#track"><i class="ph-fill ph-house"></i> หน้าหลัก</a><i class="ph-bold ph-caret-right"></i><span>ระบบ อวช.</span><i class="ph-bold ph-caret-right"></i><span>คำถามที่พบบ่อย</span></nav>
  <div class="card fq-hero"><h1><i class="ph-duotone ph-question"></i> คำถามที่พบบ่อย</h1><p>รวบรวมข้อสงสัยและปัญหาที่ผู้ยื่น อวช. พบบ่อย จัดทำโดยกลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย — ค้นหาก่อนสอบถาม อาจพบคำตอบได้ทันที</p>
@@ -796,6 +803,31 @@ button .thw,.btn .thw{white-space:normal}
 <p class="meta sv-lock" id="sv-lock"><i class="ph ph-lock"></i> ต้องประเมินให้ครบจึงจะปิดเคสได้ · ผลนำเสนอในภาพรวมเท่านั้น</p></dialog>
 <dialog id="dsb" aria-labelledby="sb-ttl"><div class="hd"><div><h2 id="sb-ttl"><i class="ph-bold ph-clock-counter-clockwise"></i> บันทึกแบบประเมินย้อนหลัง</h2><div class="meta">ใช้กรอกแบบประเมินที่ได้รับมาก่อนมีระบบ (กระดาษ/ฟอร์มเดิม) · ไม่เปลี่ยนสถานะเคส ไม่ส่ง LINE</div></div><span class="dbadge" id="sb-role"></span></div><label for="sb-d">วันที่ประเมินจริง</label><input id="sb-d" type="date"><label for="sb-who" style="margin-top:10px">ชื่อผู้ประเมิน (ไม่บังคับ)</label><input id="sb-who" maxlength="80" placeholder="เว้นว่างได้"><label for="sb-mode" style="margin-top:10px">รูปแบบแบบประเมิน</label><select id="sb-mode"><option value="full">เต็มชุด 16 ข้อ</option><option value="quick">แบบสั้น (คะแนนโดยรวมข้อเดียว)</option></select><label for="sb-id" style="margin-top:10px">ผูกกับรหัสเคสที่ปิดแล้ว (ไม่บังคับ)</label><input id="sb-id" maxlength="40" placeholder="เช่น AWC-20260203-0091 · เว้นว่างได้"><div id="sb-m" aria-live="polite" style="margin-top:8px"></div><div class="row" style="justify-content:flex-end;margin-top:14px"><button class="btn sec" type="button" id="sb-x">ยกเลิก</button><button class="btn" type="button" id="sb-go">ถัดไป: ทำแบบประเมิน <i class="ph-bold ph-arrow-right"></i></button></div></dialog>
 <dialog id="dsr" aria-labelledby="sr-ttl"><div class="hd"><div><h2 id="sr-ttl"><i class="ph-bold ph-link"></i> ส่งลิงก์ให้ผู้ยื่นประเมินย้อนหลัง</h2><div class="meta">เคสที่ปิดแล้วและผู้ยื่นยังไม่ได้ประเมิน · ลิงก์ใช้ได้เฉพาะเคสนั้น ผู้ยื่นต้องกรอกเลขบัตรของตนเองก่อนทำแบบประเมิน · ไม่เปลี่ยนสถานะเคส</div></div></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px"><input id="sr-q" type="search" placeholder="ค้นหาชื่อ / รหัสเคส / ชื่อผลงาน" aria-label="ค้นหา"><select id="sr-gl" aria-label="ช่วงเวลา"><option value="1" selected>ใช้ระบบตั้งแต่วันเปิดระบบ</option><option value="0">ทุกเคส (รวมข้อมูลนำเข้า)</option></select><select id="sr-min" aria-label="จำนวนรายการสถานะขั้นต่ำ"><option value="0" selected>สถานะกี่รายการก็ได้</option><option value="3">สถานะ ≥ 3 รายการ</option><option value="5">สถานะ ≥ 5 รายการ</option><option value="7">สถานะ ≥ 7 รายการ</option><option value="10">สถานะ ≥ 10 รายการ</option></select></div><div class="meta" style="margin-top:6px"><span id="sr-gln"></span> เคสที่นำเข้า/สำรองข้อมูลจะไม่แสดง เรียงจากสถานะมากไปน้อย</div><div id="sr-m" aria-live="polite" style="margin-top:8px"></div><div id="sr-list" style="margin-top:6px;max-height:55vh;overflow:auto"></div><div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn sec" type="button" id="sr-x">ปิด</button></div></dialog>
+<style>
+.dc-lv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.dc-lv button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 8px;border:2px solid var(--line);background:#fff;border-radius:14px;cursor:pointer;font-weight:700;font-size:16px;line-height:1.3;color:var(--ink)}
+.dc-lv button small{font-weight:500;font-size:12.5px;color:var(--mut)}
+.dc-lv button[aria-selected=true]{color:#fff}
+.dc-lv button.t-green[aria-selected=true]{background:#166534;border-color:#166534}.dc-lv button.t-blue[aria-selected=true]{background:#1e40af;border-color:#1e40af}.dc-lv button.t-maroon[aria-selected=true]{background:#7f1d1d;border-color:#7f1d1d}
+.dc-lv button[aria-selected=true] small{color:rgba(255,255,255,.85)}
+.dc-lv button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+.dc-hero{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;border-radius:16px;padding:16px;border:1px solid var(--line)}
+.dc-hero.t-green{background:#f0fdf4;border-color:#bbf7d0}.dc-hero.t-blue{background:#eff6ff;border-color:#bfdbfe}.dc-hero.t-maroon{background:#fdf2f2;border-color:#f3c9c9}
+.dc-cvs{display:flex;gap:12px;flex-wrap:wrap}.dc-cover{all:unset;cursor:zoom-in;display:block;width:150px;text-align:center}
+.dc-cover img{display:block;width:150px;height:auto;aspect-ratio:3/4;object-fit:cover;border-radius:10px;box-shadow:0 4px 14px rgba(15,23,42,.18);background:#fff}
+.dc-cover span{display:block;margin-top:6px;font-size:12.5px;color:var(--mut);line-height:1.35}.dc-cover:focus-visible img{outline:3px solid #f59e0b;outline-offset:2px}
+.dc-in{flex:1;min-width:220px}.dc-in h2{margin:0 0 4px;font-size:21px}.dc-in p{margin:0 0 8px;color:var(--mut);line-height:1.6}
+.dc-list{display:grid;gap:12px;margin-top:14px}
+.dc-c{display:flex;gap:12px;align-items:flex-start;padding:14px}.dc-ico{flex:none;width:46px;height:46px;border-radius:12px;background:#ecfdf5;color:var(--pri);display:grid;place-items:center;font-size:26px}
+.dc-c h3{margin:0 0 4px;font-size:16px;line-height:1.45}.dc-c p{margin:0 0 8px;font-size:14.5px;color:var(--mut);line-height:1.6}
+.dc-tg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.dc-tg span{font-size:12px;padding:2px 9px;border-radius:999px;background:#f1f5f9;color:#334155;border:1px solid #e2e8f0}
+.dc-tg span.w{background:#fff7ed;color:#9a3412;border-color:#fed7aa}.dc-b{display:flex;gap:8px;flex-wrap:wrap}
+#dpv{max-width:960px;width:96vw}#dpv iframe{width:100%;height:70vh;border:1px solid var(--line);border-radius:10px;background:#f8fafc}#dpv img{max-width:100%;max-height:72vh;display:block;margin:0 auto;border-radius:10px}
+@media(max-width:560px){.dc-lv button{font-size:14.5px;padding:10px 4px}.dc-cover,.dc-cover img{width:44vw;max-width:170px}.dc-c{flex-direction:column}}
+</style>
+<dialog id="dpv" aria-labelledby="dpv-t"><div class="hd"><div><h2 id="dpv-t">ตัวอย่าง</h2><div class="meta" id="dpv-s"></div></div><button class="btn sec sm" type="button" id="dpv-x">ปิด</button></div>
+<div id="dpv-b" style="margin-top:10px"></div><p class="meta" id="dpv-h" style="margin:8px 0 0"></p>
+<div class="row" style="margin-top:12px"><a class="btn sec" id="dpv-o" target="_blank" rel="noopener noreferrer"><i class="ph-bold ph-arrow-square-out"></i> เปิดในแท็บใหม่</a><a class="btn" id="dpv-d" hidden><i class="ph-bold ph-download-simple"></i> ดาวน์โหลด</a></div></dialog>
 <script src="config.js"></script>
 <script>
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -1021,14 +1053,44 @@ function mkFile(el,{exts,max=8,hint}){
      const bl=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));if(bl&&bl.size<f.size)return{name:f.name.replace(/\.\w+$/,'')+'.jpg',mime:'image/jpeg',data:await b64(bl)}}catch(e){}}
    if(f.size>max*1048576)throw new Error('ไฟล์ใหญ่เกิน '+max+' MB');
    return{name:f.name,mime:f.type,data:await b64(f)}}}}
-const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',faq:'คำถามที่พบบ่อย',admin:'เจ้าหน้าที่ HR'};
-function route(){let v=(location.hash||'#track').slice(1);if(/^retro-/.test(v)){const s=v.slice(6),k=s.lastIndexOf('.');try{PENDING_RETRO=k>0?{id:decodeURIComponent(s.slice(0,k)),sig:s.slice(k+1)}:null}catch(e){PENDING_RETRO=null}v='track';history.replaceState(null,'','#track');if(PENDING_RETRO)setTimeout(()=>toast('กรอกเลขบัตรประชาชนของท่านแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RETRO.id,'info',9000),700)}else if(/^rate-/.test(v)){try{PENDING_RATE=decodeURIComponent(v.slice(5))}catch(e){PENDING_RATE=''}v='track';history.replaceState(null,'','#track');setTimeout(()=>toast('กรอกเลขบัตรประชาชนแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RATE,'info',9000),700)}const id=['track','submit','faq','admin'].includes(v)?v:'track';
+const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',docs:'เอกสาร/แบบฟอร์ม',faq:'คำถามที่พบบ่อย',admin:'เจ้าหน้าที่ HR'};
+function route(){let v=(location.hash||'#track').slice(1);if(/^retro-/.test(v)){const s=v.slice(6),k=s.lastIndexOf('.');try{PENDING_RETRO=k>0?{id:decodeURIComponent(s.slice(0,k)),sig:s.slice(k+1)}:null}catch(e){PENDING_RETRO=null}v='track';history.replaceState(null,'','#track');if(PENDING_RETRO)setTimeout(()=>toast('กรอกเลขบัตรประชาชนของท่านแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RETRO.id,'info',9000),700)}else if(/^rate-/.test(v)){try{PENDING_RATE=decodeURIComponent(v.slice(5))}catch(e){PENDING_RATE=''}v='track';history.replaceState(null,'','#track');setTimeout(()=>toast('กรอกเลขบัตรประชาชนแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RATE,'info',9000),700)}const id=['track','submit','docs','faq','admin'].includes(v)?v:'track';
  document.body.classList.toggle('wide',id==='admin'&&!!USER);
  $$('main>section').forEach(s=>{const on=s.id==='v-'+id;s.hidden=!on;if(on){s.classList.remove('vin');void s.offsetWidth;s.classList.add('vin')}});
- $$('header nav a[data-v]').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});document.title=TITLES[id]+' · อวช. รพ.สันทราย';scrollTo(0,0);if(id==='faq')loadFaq()}
+ $$('header nav a[data-v]').forEach(a=>{a.classList.toggle('on',a.dataset.v===id);a.ariaCurrent=a.dataset.v===id?'page':null});document.title=TITLES[id]+' · อวช. รพ.สันทราย';scrollTo(0,0);if(id==='faq')loadFaq();if(id==='docs')loadDocs()}
 addEventListener('hashchange',route);
 
 
+/* ===================== เอกสาร/แบบฟอร์มสำหรับผู้ยื่น (อ่านรายการจาก assets/forms/forms.json) ===================== */
+let DCD=null,DCL='';
+const DC_ICO={docx:'ph-file-doc',pdf:'ph-file-pdf'},DC_LBL={docx:'Word (.docx)',pdf:'PDF'};
+const dcKb=k=>k>=1024?(k/1024).toFixed(1)+' MB':k+' KB';
+async function loadDocs(){const b=$('#dc-body');
+ if(!DCD){b.innerHTML=skel(3);let d;try{const r=await fetch('assets/forms/forms.json',{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);d=await r.json()}catch(e){b.innerHTML='';$('#dc-lv').innerHTML='';return msg(b,'โหลดรายการเอกสารไม่สำเร็จ กรุณาลองใหม่อีกครั้ง หรือติดต่อกลุ่มงานทรัพยากรบุคคล')}
+  DCD=d;try{DCL=sessionStorage.getItem('dcl')||''}catch(e){}if(!DCD.levels.some(l=>l.id===DCL))DCL=DCD.levels[0].id}
+ drawDocs()}
+function dcPick(id){DCL=id;try{sessionStorage.setItem('dcl',id)}catch(e){}drawDocs()}
+function drawDocs(){const D=DCD,L=D.levels.find(l=>l.id===DCL)||D.levels[0];
+ $('#dc-lv').innerHTML=D.levels.map(l=>`<button type="button" role="tab" class="t-${esc(l.tone)}" aria-selected="${l.id===L.id}" data-l="${esc(l.id)}">ระดับ${esc(l.name)}<small>${l.docs.length} เอกสาร</small></button>`).join('');
+ $$('#dc-lv button').forEach(x=>{x.onclick=()=>dcPick(x.dataset.l);x.onkeydown=e=>{const bs=$$('#dc-lv button'),i=bs.indexOf(x);if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const n=bs[(i+(e.key==='ArrowRight'?1:bs.length-1))%bs.length];dcPick(n.dataset.l);setTimeout(()=>$('#dc-lv [aria-selected=true]').focus(),0)}}});
+ const cards=L.docs.map(id=>({id,...D.docs[id]})).filter(d=>d.title);
+ const card=d=>{const ft=d.files&&d.files[0]?d.files[0].type:'pdf';
+  const dl=(d.files||[]).map(f=>`<a class="btn sm" href="${esc(f.path)}" download="${esc(f.download||'')}"><i class="ph-bold ph-download-simple"></i> ดาวน์โหลด ${esc(DC_LBL[f.type]||f.type)} <span style="opacity:.8">(${esc(dcKb(f.kb))})</span></a>`).join('');
+  const pv=d.preview?`<button class="btn sm sec" type="button" data-pv="${esc(d.id)}"><i class="ph-bold ph-eye"></i> ดูตัวอย่าง</button>`:'';
+  const tg=(d.tags||[]).map(t=>`<span class="${/เฉพาะ|ไฟล์สแกน/.test(t)?'w':''}">${esc(t)}</span>`).join('');
+  return `<article class="card dc-c"><span class="dc-ico"><i class="ph-duotone ${DC_ICO[ft]||'ph-file-text'}"></i></span><div style="flex:1;min-width:0"><h3>${esc(d.title)}</h3>${tg?`<div class="dc-tg">${tg}</div>`:''}<p>${esc(d.desc||'')}</p><div class="dc-b">${dl}${pv}</div></div></article>`};
+ const cv=(L.covers||[]).map((c,i)=>`<button type="button" class="dc-cover" data-cv="${i}" aria-label="ดูปกขนาดใหญ่: ${esc(c.label)}"><img src="${esc(c.card)}" alt="${esc(c.alt||c.label)}" width="150" height="200" loading="lazy" decoding="async"><span>${esc(c.label)}</span></button>`).join('');
+ $('#dc-body').innerHTML=`<div class="dc-hero t-${esc(L.tone)}">${cv?`<div class="dc-cvs">${cv}</div>`:''}<div class="dc-in"><h2>ระดับ${esc(L.name)}</h2><p>${esc(L.intro||'')}</p><div class="meta"><i class="ph ph-files"></i> ${cards.length} เอกสาร · ดาวน์โหลดได้ทันที</div></div></div>
+  <div class="dc-list">${cards.map(card).join('')}</div>
+  <div class="msg info" style="margin-top:14px"><i class="ph-fill ph-info"></i><div>แบบฟอร์มที่มีหมายเหตุ “เฉพาะ…” ใช้เฉพาะสายงานนั้น ก่อนยื่นจริงควรสอบถามกลุ่มงานทรัพยากรบุคคลว่าต้องใช้เอกสารชุดใด และหากสำนักงานปลัดกระทรวงสาธารณสุขปรับปรุงแบบฟอร์ม ให้ใช้ฉบับล่าสุด</div></div>`;
+ $$('#dc-body [data-cv]').forEach(x=>x.onclick=()=>openCover(L,+x.dataset.cv));
+ $$('#dc-body [data-pv]').forEach(x=>x.onclick=()=>openPdf(x.dataset.pv))}
+function dcShow(o){$('#dpv-t').textContent=o.title;$('#dpv-s').textContent=o.sub||'';$('#dpv-b').innerHTML=o.html;$('#dpv-h').textContent=o.hint||'';$('#dpv-o').href=o.open;
+ const d=$('#dpv-d');if(o.dl){d.hidden=false;d.href=o.dl;d.setAttribute('download',o.dlName||'')}else d.hidden=true;dlgOpen($('#dpv'))}
+function openCover(L,i){const c=L.covers[i];if(!c)return;dcShow({title:'ปก'+c.label,sub:'ระดับ'+L.name,html:`<img src="${esc(c.large)}" alt="${esc(c.alt||c.label)}">`,open:c.large})}
+function openPdf(id){const d=DCD.docs[id];if(!d||!d.preview)return;const f=(d.files||[]).find(x=>x.path===d.preview)||{};
+ dcShow({title:d.title,sub:'ตัวอย่างไฟล์ PDF'+(d.pages?' · '+d.pages+' หน้า':''),html:`<iframe src="${esc(d.preview)}" title="${esc(d.title)}"></iframe>`,hint:'หากตัวอย่างไม่แสดงบนมือถือ ให้กด “เปิดในแท็บใหม่” หรือดาวน์โหลดไฟล์',open:d.preview,dl:d.preview,dlName:f.download||''})}
+$('#dpv-x').onclick=()=>$('#dpv').close();$('#dpv').addEventListener('close',()=>{$('#dpv-b').innerHTML=''});
 /* ===================== คำถามที่พบบ่อย (ผู้เยี่ยมชม) ===================== */
 let FAQ=[],FQC='',FQT=0,FQV={};try{FQV=JSON.parse(localStorage.getItem('awc_fv')||'{}')}catch(e){}
 const bgm=s=>{s=String(s||'').toLowerCase().replace(/\s+/g,'');const a=new Set();for(let i=0;i<s.length-1;i++)a.add(s.slice(i,i+2));return a};
