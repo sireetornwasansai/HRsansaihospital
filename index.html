@@ -848,7 +848,8 @@ const stg=k=>CFG.stages.find(s=>s.k===k)||{k,t:k,c:'blue',h:'',tn:'slate',ic:'ph
 /* เล่ม 2 แยกเส้นทางตามระดับตำแหน่ง (a = ชำนาญการ/ชำนาญงาน, b = ชำนาญการพิเศษ) — ตารางอยู่ที่ TRACK_TIER ใน Code.gs */
 const tierOf=t=>{const T=CFG.tiers||{};return (T.map||{})[t]||T.def||''};
 /* ขั้นตอนของรายการนี้ = ขั้นที่ใช้ร่วมกัน + ขั้นของระดับตำแหน่งนั้น + ขั้นที่ระบุเพิ่ม (vis: สถานะปัจจุบัน/ขั้นที่เคยผ่าน แม้เป็นขั้นเดิมที่เลิกใช้แล้ว) */
-const stgFor=(it,vis)=>{const tr=tierOf(it&&it.track),keep=new Set([it&&it.status].concat(vis||[]));return CFG.stages.filter(s=>keep.has(s.k)||(!s.lg&&(!s.tier||s.tier===tr)))};
+const gateOn=it=>{const b=(CFG.books||[]).find(x=>x.gate);return !!b&&!!it&&it.track===b.trk};
+const stgFor=(it,vis)=>{const tr=tierOf(it&&it.track),keep=new Set([it&&it.status].concat(vis||[]));return CFG.stages.filter(s=>keep.has(s.k)||(!s.lg&&(!s.tier||s.tier===tr)&&(!s.trk||(it&&it.track===s.trk))))};
 const tone=k=>stg(k).tn||'slate';
 const SIC=new Proxy({},{get:(_,k)=>stg(String(k)).ic||'ph-flag'});
 const LVS={hos:'รพ.สันทราย',pho:'สสจ.',gov:'ศาลากลาง',zone:'เขตสุขภาพที่ 1',ret:'รพ. รับหนังสือ',cmd:'รพ.สันทราย (ปิดเคส)',cxl:'ยกเลิก'};
@@ -1154,7 +1155,7 @@ $('#df-del').onclick=()=>confirmBox({title:'ลบคำถาม '+FQE.id+'?',t
 
 /* ===================== ติดตามสถานะ ===================== */
 $('#t-cid').addEventListener('input',e=>e.target.value=fmtCid(e.target.value));
-const legendStages=its=>{const tr=new Set((its||[]).map(i=>tierOf(i.track))),cur=new Set((its||[]).map(i=>i.status));return CFG.stages.filter(s=>cur.has(s.k)||(!s.lg&&(!s.tier||!its||!its.length||tr.has(s.tier))))};
+const legendStages=its=>{const tr=new Set((its||[]).map(i=>tierOf(i.track))),cur=new Set((its||[]).map(i=>i.status));return CFG.stages.filter(s=>cur.has(s.k)||(!s.lg&&(!s.tier||!its||!its.length||tr.has(s.tier))&&(!s.trk||!its||!its.length||its.some(i=>i.track===s.trk))))};
 const legendHtml=its=>legendStages(its).map(s=>`<li>${chip(s.k)}<span class="t">${esc(s.h||'')}</span></li>`).join('');
 function guideHtml(){
  const st=legendHtml();
@@ -1242,7 +1243,7 @@ function flowHtml(it){const now=nowMs(),h=it.history||[],cs0=stg(it.status),cx=!
   :`<span class="dbadge ok"${rg}><i class="ph-fill ph-check-circle"></i>อยู่ในระยะเวลาปกติ${left!=null?' (เหลืออีก '+left+' วัน)':cs.smin&&!cs.sla?' (ผ่านมา '+ageC+' วัน)':''}</span>${rgT}`;
  const hd=holderOf(st),total=(ended||cx)?(lastT&&subT?spanF(lastT-subT):'-'):(subT?`<span data-live="${esc(it.ts)}">${spanF(now-subT)}</span>`:'-');
  const nx=flat.find(s=>s.ord>cs.ord);
- const next=(ended||cx)?'':cs.nx?`<i class="ph-fill ph-info"></i><span>${esc(cs.nxb&&tierOf(it.track)==='b'?cs.nxb:cs.nx)}</span>`:cs.fix?'<i class="ph-fill ph-info"></i><span>เมื่อแก้ไขเสร็จ ให้แจ้งกลุ่มงานทรัพยากรบุคคล แล้วเรื่องจะดำเนินการต่อ</span>':nx?`<i class="ph-fill ph-arrow-bend-down-right"></i><span>ขั้นตอนถัดไป: <b>${fmtT(nx.t,true)}</b>${nx.book!==cs.book?' ('+bsn(nx.book)+')':''}</span>`:'';
+ const next=(ended||cx)?'':cs.nx?`<i class="ph-fill ph-info"></i><span>${esc(cs.nxb&&gateOn(it)?cs.nxb:cs.nx)}</span>`:cs.fix?'<i class="ph-fill ph-info"></i><span>เมื่อแก้ไขเสร็จ ให้แจ้งกลุ่มงานทรัพยากรบุคคล แล้วเรื่องจะดำเนินการต่อ</span>':nx?`<i class="ph-fill ph-arrow-bend-down-right"></i><span>ขั้นตอนถัดไป: <b>${fmtT(nx.t,true)}</b>${nx.book!==cs.book?' ('+bsn(nx.book)+')':''}</span>`:'';
  return `<div class="dflow tone-${cx?'rose':tone(st)}"><div class="dflow-head"><div class="dflow-now">${hd.av}<div><div class="dflow-now-k">${cx?'<i class="ph-fill ph-prohibit"></i>ยกเลิกขณะอยู่ที่ขั้นตอน':ended?'<i class="ph-fill ph-seal-check"></i>ผลการประเมิน':'<span class="live-pulse"></span>ตอนนี้อยู่ที่'}</div><div class="dflow-now-v">${fmtT(hd.name)}</div><div class="dflow-now-s">${fmtT(cs.t+((cs.fix||cs.rep)&&fixN(h).pop()?' ครั้งที่ '+fixN(h).pop():''))}</div></div></div>
   <div class="dflow-kpis"><div class="dflow-kpi"><span>ขั้นตอน</span><b>${idx} / ${flat.length}</b></div><div class="dflow-kpi"><span>${ended||cx?'ใช้เวลารวม':'ยื่นมาแล้ว'}</span><b>${total}</b></div>${sla}</div></div>
   ${cxB}<div class="bks" aria-label="ขั้นตอนการประเมิน">${rows}</div>${sumHtml(it,PS,ended||cx)}${next?`<div class="dflow-next">${next}</div>`:''}</div>`}
@@ -1368,7 +1369,7 @@ $('#s-start').addEventListener('change',e=>{const v=e.target.value;if(!v)return 
 $('#s-cid').addEventListener('blur',()=>{const c=$('#s-cid').value.replace(/\D/g,''),bad=c.length===13&&!validCid(c);$('#s-cid').setAttribute('aria-invalid',bad?'true':'false');$('#s-cid-e').classList.toggle('hide',!bad)});
 const REQ=['cid','prefix','first','last','position','group','track','edu','title'];
 function routeHtml(){const nm=(CFG.tiers||{}).name||{},lvs=a=>a.map(l=>`<i class="ph-bold ph-caret-right sep"></i><span class="dstage tone-slate">${esc((CFG.lv||{})[l]||l)}</span>`).join('');
- return (CFG.books||[]).map(b=>b.lvt?`<span class="dstage tone-teal">${esc(b.t)}</span>`+Object.keys(b.lvt).map(t=>`<span class="dstage tone-violet">ระดับ${esc(nm[t]||t)}</span>`+lvs(b.lvt[t])).join('<span class="meta" style="margin:0 8px">หรือ</span>'):`<span class="dstage tone-teal">${esc(b.t)}</span>`+lvs(b.lv)).join('<i class="ph-bold ph-arrow-bend-down-right sep" style="margin:0 8px"></i>')}
+ return (CFG.books||[]).map(b=>b.gate?`<span class="dstage tone-amber">${esc(b.t)}</span><span class="meta"> (เฉพาะเส้นทาง ${esc(b.trk)} · แนบหนังสือคำสั่งรักษาการ)</span>`:b.lvt?`<span class="dstage tone-teal">${esc(b.t)}</span>`+Object.keys(b.lvt).map(t=>`<span class="dstage tone-violet">ระดับ${esc(nm[t]||t)}</span>`+lvs(b.lvt[t])).join('<span class="meta" style="margin:0 8px">หรือ</span>'):`<span class="dstage tone-teal">${esc(b.t)}</span>`+lvs(b.lv)).join('<i class="ph-bold ph-arrow-bend-down-right sep" style="margin:0 8px"></i>')}
 $('#f-sub').addEventListener('submit',async e=>{e.preventDefault();const m=$('#s-msg'),b=$('#s-go');msg(m,'');
  const p={};['cid','prefix','first','last','position','group','track','posNo','start','edu','phone','email','link','title'].forEach(k=>p[k]=$('#s-'+k).value.trim().replace(/\s+/g,' '));p.cid=p.cid.replace(/\D/g,'');
  if(p.prefix==='__other')p.prefix=$('#s-prefix-o').value.trim();
@@ -1647,7 +1648,7 @@ $('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r
   toast(t,k,7000)}
  loadList()};
 /* ---- ไฟล์แนบจากผู้ยื่น (เจ้าหน้าที่ดู) ---- */
-const ATK={book2:'ไฟล์เล่ม 2',revision:'ฉบับแก้ไขตามข้อเสนอแนะกรรมการ'};
+const ATK={book2:'ไฟล์เล่ม 2',revision:'ฉบับแก้ไขตามข้อเสนอแนะกรรมการ',acting:'หนังสือคำสั่งรักษาการในตำแหน่ง'};
 async function openAtt(id){const r=ROWS.find(x=>x.id===id);if(!r)return;$('#da-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}${r.title?' · ผลงาน: '+r.title:''}`;$('#da-b').innerHTML=skel(2);dlgOpen($('#da'));
  const d=await api('attList',[TOKEN,id]);if(!d.ok){$('#da-b').innerHTML='';return msg($('#da-b'),d.message)}
  r.attNew=0;r.attN=d.rows.length;
@@ -1656,16 +1657,16 @@ async function openAtt(id){const r=ROWS.find(x=>x.id===id);if(!r)return;$('#da-s
 $('#da-x').onclick=()=>$('#da').close();
 /* ---- ผู้ยื่น: แนบไฟล์เล่ม 2 เพิ่มเติม (ไม่เปลี่ยนสถานะ — เป็นข้อมูลให้งานทรัพยากรบุคคล) ---- */
 const AFM={};
-function attCard(it){const g=stg(it.status),ended=!!g.end,L=it.att||[],fx=it.fx||0,openIt=!ended&&(g.fix||g.rep||g.k==='b1_signed'||g.k==='b2_submit'||g.book===1.5||L.length>0);
+function attCard(it){const g=stg(it.status),ended=!!g.end,L=it.att||[],fx=it.fx||0,gOn=gateOn(it),hasAct=L.some(a=>a.kind==='acting'),needAct=gOn&&!ended&&!hasAct&&(g.k==='b1_signed'||g.book===1.5),openIt=!ended&&(g.fix||g.rep||g.k==='b1_signed'||g.k==='b2_submit'||g.book===1.5||L.length>0);
  const list=L.length?`<ul class="attl">${L.slice().reverse().map(a=>`<li><i class="ph-fill ph-file-text"></i><div><b>${esc(a.name)}</b><span class="meta">${esc(ATK[a.kind]||a.kind)}${a.round?' ครั้งที่ '+esc(a.round):''} · ${esc(thDT(a.t))}</span>${a.note?`<span class="meta">${esc(a.note)}</span>`:''}</div></li>`).join('')}</ul>`:'';
  const form=ended?'<div class="msg info" style="margin:8px 0 0"><i class="ph ph-info"></i><div>รายการนี้เสร็จสิ้นแล้ว ไม่สามารถแนบไฟล์เพิ่มได้</div></div>':`<form class="af" novalidate>
-  <div class="af-r"><div><label>ประเภทไฟล์</label><select name="kind"><option value="book2">ไฟล์เล่ม 2 (ฉบับสมบูรณ์ / เอกสารประกอบ)</option><option value="revision" ${g.fix?'selected':''}>ฉบับแก้ไขตามข้อเสนอแนะกรรมการ${g.fix?' (ครั้งที่ '+Math.max(1,fx)+')':''}</option></select></div>
+  <div class="af-r"><div><label>ประเภทไฟล์</label><select name="kind">${gOn?`<option value="acting" ${g.book===1.5||g.k==='b1_signed'?'selected':''}>หนังสือคำสั่งรักษาการในตำแหน่ง (ต้องแนบก่อนยื่นเล่ม 2)</option>`:''}<option value="book2">ไฟล์เล่ม 2 (ฉบับสมบูรณ์ / เอกสารประกอบ)</option><option value="revision" ${g.fix?'selected':''}>ฉบับแก้ไขตามข้อเสนอแนะกรรมการ${g.fix?' (ครั้งที่ '+Math.max(1,fx)+')':''}</option></select></div>
   <div><label>หมายเหตุถึงเจ้าหน้าที่ <span class="meta">(ไม่บังคับ)</span></label><input name="note" maxlength="200" autocomplete="off" placeholder="เช่น แก้ไขบทที่ 2 ตามข้อเสนอแนะข้อ 1-3"></div></div>
   <div><label>ไฟล์</label><div class="af-file"></div></div>
   <div><label>หรือใส่ลิงก์ไฟล์ <span class="meta">(ไม่บังคับ — ใช้เมื่อไฟล์ใหญ่เกิน 8 MB)</span></label><input name="link" type="url" inputmode="url" autocomplete="off" placeholder="https://"></div>
   <div class="am" aria-live="polite"></div><div class="row" style="align-items:center"><button class="btn sm"><i class="ph-bold ph-upload-simple"></i> แนบไฟล์</button><span class="meta">ไม่ทำให้สถานะเปลี่ยน — เจ้าหน้าที่จะเห็นและนำไปดำเนินการต่อ</span></div></form>`;
  return `<details class="card tone-sky attd" data-att="${esc(it.id)}" ${openIt?'open':''}><summary><span class="ico"><i class="ph-duotone ph-paperclip"></i></span>แนบไฟล์เล่ม 2 เพิ่มเติม${L.length?` <span class="dbadge ok" style="font-size:12px">แนบแล้ว ${L.length}</span>`:''}<i class="ph-bold ph-caret-down cv"></i></summary>
- <div class="att-b"><p class="meta" style="margin:0 0 4px">ส่งไฟล์เล่ม 2 ล่วงหน้า หรือส่งฉบับแก้ไขตามข้อเสนอแนะของกรรมการ เพื่อเป็นข้อมูลให้กลุ่มงานทรัพยากรบุคคล (รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB)</p>${list}${form}</div></details>`}
+ <div class="att-b">${needAct?'<div class="msg warn" style="margin:0 0 8px"><i class="ph-fill ph-stamp"></i><div><b>ต้องแนบหนังสือคำสั่งรักษาการในตำแหน่งก่อน</b><br>เลือกประเภทไฟล์ "หนังสือคำสั่งรักษาการในตำแหน่ง" แล้วแนบไฟล์ เจ้าหน้าที่จะตรวจและบันทึกขั้นตอน จึงจะยื่นเล่ม 2 ได้</div></div>':''}<p class="meta" style="margin:0 0 4px">${gOn?'แนบหนังสือคำสั่งรักษาการในตำแหน่ง (เส้นทาง ชำนาญการ → ชำนาญการพิเศษ) และ':''} ส่งไฟล์เล่ม 2 ล่วงหน้า หรือส่งฉบับแก้ไขตามข้อเสนอแนะของกรรมการ เพื่อเป็นข้อมูลให้กลุ่มงานทรัพยากรบุคคล (รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB)</p>${list}${form}</div></details>`}
 function bindAtt(){$$('[data-att]').forEach(card=>{const id=card.dataset.att,f=$('form.af',card);if(!f)return;
  const fm=mkFile($('.af-file',f),{exts:['pdf','doc','docx','zip'],max:8,hint:'รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB'});AFM[id]=fm;
  f.onsubmit=async e=>{e.preventDefault();const b=$('button',f),m=$('.am',f);msg(m,'');const p={kind:f.kind.value,note:f.note.value.trim(),link:f.link.value.trim()};
@@ -1885,7 +1886,8 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   if(i>0&&nw<hs[i-1].t)this.err('เวลาต้องไม่ก่อนขั้นตอนก่อนหน้า ('+hs[i-1].t.slice(0,16)+')');if(i<hs.length-1&&nw>hs[i+1].t)this.err('เวลาต้องไม่หลังขั้นตอนถัดไป ('+hs[i+1].t.slice(0,16)+')');
   h.t=nw;if(i===0)r.ts=nw;if(i===hs.length-1)r.upd=nw;this.save();return ok({t:nw,old:a[3]})}
  case 'adminStatus':{const id=a[1],p=a[2]||{},r=this.find(id),st=p.status||'';if(st&&!stageOk(st))this.err('สถานะไม่ถูกต้อง');if((st==='promoted'||st==='closing')&&st!==r.status)this.err('การปิดเคสต้องกดปุ่ม “ปิดเคส” และทำแบบประเมินความพึงพอใจ (ผู้ยื่นต้องประเมินด้วย) ระบบจึงจะปิดเคสให้');
-  const note=p.note==null?null:String(p.note).trim();let at=now;
+  if(st&&st!==r.status){const so=stg(st);if(so.trk&&!gateOn(r))this.err('ขั้นตอนนี้ใช้กับเส้นทาง "'+so.trk+'" เท่านั้น');if(st==='pre_acting_ok'&&!db.att.some(x=>x.id===r.id&&x.kind==='acting'))this.err('ยังไม่มีหนังสือคำสั่งรักษาการในตำแหน่งแนบในระบบ — ให้ผู้ยื่นแนบหนังสือที่หน้าติดตามสถานะก่อน');if(st==='b2_submit'&&gateOn(r)&&!db.his.some(h=>h.id===r.id&&h.s==='pre_acting_ok'))this.err('เส้นทาง ชำนาญการ → ชำนาญการพิเศษ ต้องมีคำสั่งรักษาการในตำแหน่ง (พร้อมแนบหนังสือ) ก่อน จึงจะยื่นเล่ม 2 ได้')}
+   const note=p.note==null?null:String(p.note).trim();let at=now;
   if(p.customTime){const m=/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(p.when||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');
    at=new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00+07:00`).getTime();if(isNaN(at))this.err('วันที่/เวลาไม่ถูกต้อง');if(at>now+3e5)this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
    const hs=db.his.filter(h=>h.id===id),lt=hs.length?hs[hs.length-1].t:r.ts;if(bkkS(at)<lt)this.err('เวลาที่เลือกต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+lt.slice(0,16)+') — ให้บันทึกขั้นตอนเรียงตามลำดับเวลา')}
@@ -1896,7 +1898,7 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   this.save();return ok({changed:ch,line,file:hasFile?{name:p.attach.name,url:'#'}:null,at:bkkS(at),status:r.status})}
  case 'attAdd':{const cid=cidOf(a[0]),r=this.find(a[1]),p=a[2]||{};if(r.cid!==cid)this.err('ไม่พบรายการของท่าน');if(stg(r.status).end)this.err('รายการนี้เสร็จสิ้นแล้ว ไม่สามารถแนบไฟล์เพิ่มได้');
   if(!(p.file&&p.file.name)&&!p.link)this.err('กรุณาแนบไฟล์หรือใส่ลิงก์');if(p.link&&!/^https?:\/\//i.test(p.link))this.err('ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://');
-  const kind=p.kind==='revision'?'revision':'book2';let rd=0;if(kind==='revision'){let pv='';db.his.filter(h=>h.id===r.id).forEach(h=>{if(stg(h.s).fix&&h.s!==pv)rd++;pv=h.s})}
+  const kind=p.kind==='revision'?'revision':(p.kind==='acting'&&gateOn(r)?'acting':'book2');let rd=0;if(kind==='revision'){let pv='';db.his.filter(h=>h.id===r.id).forEach(h=>{if(stg(h.s).fix&&h.s!==pv)rd++;pv=h.s})}
   db.att.push({id:r.id,t:bkkS(now),kind,round:rd?String(rd):'',name:(p.file&&p.file.name)||'ลิงก์ภายนอก',url:p.link||'#',by:r.first+' '+r.last,note:String(p.note||'').slice(0,200),read:'N'});this.log('att_add','success',r.id);this.save();
   return ok({att:db.att.filter(x=>x.id===r.id).map(x=>({t:x.t,kind:x.kind,round:x.round,name:x.name,note:x.note}))})}
  case 'attList':{const r=this.find(a[1]);const rows=db.att.filter(x=>x.id===r.id).map(x=>({t:x.t,kind:x.kind,round:x.round,name:x.name,url:x.url,by:x.by,note:x.note,isNew:x.read!=='Y'})).reverse();db.att.forEach(x=>{if(x.id===r.id)x.read='Y'});this.save();return ok({rows})}
