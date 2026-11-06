@@ -43,14 +43,27 @@ module.exports = async (req, res) => {
   if (!hasEvents) { res.statusCode = 200; return res.end('OK'); }
 
   // ส่งต่อให้ Apps Script (ช้า: cold start หลายวินาที) แล้วตอบ LINE ทันที ไม่รอผล
-  const forward = fetch(target, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: raw,
-    redirect: 'follow',
-    signal: AbortSignal.timeout(25000),
-  }).then((r) => { if (!r.ok) console.error('GAS status', r.status); })
-    .catch((e) => console.error('forward error', e && e.message));
+  // ลองใหม่สูงสุด 3 ครั้งเมื่อเครือข่ายล้ม/หมดเวลา/ได้ 5xx — Apps Script กันเหตุการณ์ซ้ำด้วย webhookEventId อยู่แล้ว จึงไม่ตอบซ้ำ
+  async function forwardOnce() {
+    const r = await fetch(target, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: raw,
+      redirect: 'follow',
+      signal: AbortSignal.timeout(40000),
+    });
+    if (r.status >= 500) throw new Error('GAS status ' + r.status);
+    if (!r.ok) console.error('GAS status', r.status);
+  }
+  const forward = (async () => {
+    for (let i = 0; i < 3; i++) {
+      try { await forwardOnce(); return; }
+      catch (e) {
+        console.error('forward error (try ' + (i + 1) + ')', e && e.message);
+        if (i < 2) await new Promise((ok) => setTimeout(ok, 1500 * (i + 1)));
+      }
+    }
+  })();
 
   const wu = getWaitUntil();
   if (wu) wu(forward);           // ให้ Vercel รันต่อหลังตอบแล้ว
