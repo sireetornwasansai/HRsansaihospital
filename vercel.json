@@ -57,6 +57,9 @@
   "functions": {
     "api/gas.js": {
       "maxDuration": 60
+    },
+    "api/line.js": {
+      "maxDuration": 60
     }
   }
 }
