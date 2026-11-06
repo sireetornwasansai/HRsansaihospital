@@ -37,12 +37,12 @@ function clean(v) { return String(v == null ? '' : v).trim().replace(/^["']+|["'
 /* ลิงก์ Web App มี 2 รูปแบบ: /macros/s/<ID>/exec (มาตรฐาน) และ /a/macros/<โดเมน>/s/<ID>/exec (Workspace) — ลองทั้งสองแบบ
  * (แบบ /a/macros/… มักขอให้ล็อกอินโดเมน → ได้ HTTP 401 หน้าล็อกอิน Google เมื่อเรียกจากเซิร์ฟเวอร์ จึงลองแบบมาตรฐานก่อน) */
 function variants(u) {
-  const m = /^\/(?:a\/macros\/([^/]+)|macros)\/s\/([^/]+)\/exec$/.exec(u.pathname);
+  /* รับได้ 3 รูปแบบ: /macros/s/<ID>/exec , /a/macros/<โดเมน>/s/<ID>/exec , /a/<โดเมน>/macros/s/<ID>/exec */
+  const m = /^\/(?:macros|a\/macros\/([^/]+)|a\/([^/]+)\/macros)\/s\/([^/]+)\/exec$/.exec(u.pathname);
   if (!m) return [u.toString()];
-  const id = m[2], dom = m[1] || clean(process.env.GAS_DOMAIN) || 'sansaihospital.go.th';
-  const std = new URL(u.toString()); std.pathname = '/macros/s/' + id + '/exec';
-  const dm = new URL(u.toString()); dm.pathname = '/a/macros/' + dom + '/s/' + id + '/exec';
-  return [std.toString(), dm.toString()];
+  const id = m[3], dom = m[1] || m[2] || clean(process.env.GAS_DOMAIN) || 'sansaihospital.go.th';
+  const mk = (pn) => { const x = new URL(u.toString()); x.pathname = pn; return x.toString(); };
+  return [mk('/macros/s/' + id + '/exec'), mk('/a/macros/' + dom + '/s/' + id + '/exec'), mk('/a/' + dom + '/macros/s/' + id + '/exec')];
 }
 
 /* หา URL ปลายทางและรหัส k : ใช้ ?k= ใน GAS_WEBHOOK_URL ก่อน ถ้าไม่มีใช้ LINE_WEBHOOK_KEY แล้วเติมต่อท้าย URL ให้ */
