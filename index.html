@@ -260,6 +260,13 @@ tbody tr:hover td{background:#f8fcfc}
 .rte{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rte i.sep{color:#94a3b8;font-size:14px}
 .rte .dstage{font-size:13px}
 .ferr{color:var(--bad);font-size:13px;margin-top:4px;display:flex;gap:4px;align-items:center}
+.sgw{position:relative}
+.sg{position:absolute;left:0;right:0;top:calc(100% - 2px);z-index:40;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(15,60,60,.18);max-height:320px;overflow:auto;padding:4px}
+.sg[hidden]{display:none}
+.sg-i{display:block;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:9px 11px;cursor:pointer;font:inherit;color:inherit;line-height:1.4}
+.sg-i:hover,.sg-i.on{background:var(--tb)}
+.sg-n{font-weight:600}.sg-m{font-size:13px;color:var(--mut)}
+.sg-h{padding:6px 11px 4px;font-size:12px;color:var(--mut)}
 input[aria-invalid=true],select[aria-invalid=true]{border-color:var(--bad);background:#fff8f8}
 .sendp{border:1.5px solid #b6dcd8;background:#f1faf9;border-radius:12px;padding:12px 16px;margin:12px 0;display:grid;gap:8px}
 .sp-s{display:flex;gap:10px;align-items:center;color:var(--mut)}.sp-s.act{color:var(--ink);font-weight:600}.sp-s.done{color:var(--ok)}.sp-s i{font-size:18px}
@@ -687,8 +694,8 @@ button .thw,.btn .thw{white-space:normal}
   <div class="card fsec"><div class="fsec-h"><span class="fsec-n">1</span><h2>ข้อมูลผู้ยื่น</h2></div><div class="fsec-b"><div id="s-chk" aria-live="polite"></div><div class="grid">
    <div><label class="req" for="s-cid">เลขบัตรประชาชน</label><input id="s-cid" inputmode="numeric" maxlength="17" required placeholder="x-xxxx-xxxxx-xx-x"><div class="ferr hide" id="s-cid-e" role="alert"><i class="ph-fill ph-warning-circle"></i>เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง</div></div>
    <div><label class="req" for="s-prefix">คำนำหน้า</label><select id="s-prefix" required><option value="">เลือก</option></select><input id="s-prefix-o" placeholder="ระบุคำนำหน้า/ยศ" maxlength="40" hidden style="margin-top:6px" aria-label="ระบุคำนำหน้าอื่น ๆ"></div>
-   <div><label class="req" for="s-first">ชื่อ</label><input id="s-first" required></div>
-   <div><label class="req" for="s-last">นามสกุล</label><input id="s-last" required></div>
+   <div class="sgw"><label class="req" for="s-first">ชื่อ</label><input id="s-first" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="sg-first" aria-expanded="false"><div class="sg" id="sg-first" role="listbox" hidden></div></div>
+   <div class="sgw"><label class="req" for="s-last">นามสกุล</label><input id="s-last" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="sg-last" aria-expanded="false"><div class="sg" id="sg-last" role="listbox" hidden></div></div>
    <div><label for="s-phone">เบอร์โทรศัพท์ (ใช้ยืนยันตัวตนตอนเชื่อมต่อ LINE)</label><input id="s-phone" type="tel" inputmode="tel"></div>
    <div><label for="s-email">อีเมล (รับแจ้งเตือนเมื่อสถานะเปลี่ยน)</label><input id="s-email" type="email"></div>
   </div></div></div>
@@ -1429,15 +1436,51 @@ function qrHtml(){const L=(CFG&&CFG.line)||{};if(!L.enabled)return '';const img=
 function initQr(){const h=qrHtml(),b=$('#s-qr');if(!b)return;b.innerHTML=h;b.hidden=!h}
 const FSUB=mkFile($('#s-file'),{exts:['pdf','doc','docx','zip'],max:8,hint:'รองรับ pdf, doc, docx, zip ไม่เกิน 8 MB'});
 $('#s-cid').addEventListener('input',e=>e.target.value=fmtCid(e.target.value));
+/* เติมข้อมูลผู้ยื่นจากทะเบียนบุคลากร (allstaff): force=false เติมเฉพาะช่องที่ยังว่าง (ตอนกรอกเลขบัตร) | force=true ทับค่าเดิม (ตอนผู้ใช้เลือกชื่อจากรายการ)
+ * ระดับตำแหน่งที่ขอเลื่อน: ใช้ \"ระดับ\" ปัจจุบันใน allstaff จับคู่กับต้นทางของเส้นทาง (เช่น ชำนาญการ → ชำนาญการพิเศษ) ถ้าไม่มีระดับ (เช่น พกส.) จะไม่เลือกให้ */
+function fillStaff(s,force){
+ const set=(k,v)=>{const el=$('#s-'+k);if(el&&v&&(force||!el.value))el.value=v};
+ if(s.prefix&&(force||!$('#s-prefix').value)){const has=[...$('#s-prefix').options].some(o=>o.value===s.prefix);
+  if(has){$('#s-prefix').value=s.prefix;$('#s-prefix-o').hidden=true;$('#s-prefix-o').required=false}else{$('#s-prefix').value='__other';$('#s-prefix-o').hidden=false;$('#s-prefix-o').required=true;$('#s-prefix-o').value=s.prefix}}
+ set('first',s.first);set('last',s.last);set('position',s.position);set('group',s.group);set('posNo',s.posNo);set('phone',s.phone);
+ const lv=String(s.level||'').trim(),t=lv&&TRKS().find(x=>String(x.t).split('→')[0].trim()===lv),tk=$('#s-track');
+ if(t&&(force||!tk.value)){tk.value=t.t;tk.dispatchEvent(new Event('change',{bubbles:true}))}
+ return t?'':lv&&lv!=='ไม่มี'?lv:''}
+/* ===== ค้นหาชื่อจากทะเบียนบุคลากรขณะพิมพ์ ชื่อ / นามสกุล → เลือกจากรายการแล้วเติมคำนำหน้า ชื่อ นามสกุล ตำแหน่ง กลุ่มงาน เลขที่ตำแหน่ง และระดับตำแหน่งที่ขอเลื่อน =====
+ * ไม่เติมเลขบัตรประชาชน/เบอร์โทร (ระบบไม่ส่งมาให้ เพื่อความเป็นส่วนตัว) ผู้ยื่นกรอกเลขบัตรเอง แล้วระบบตรวจรายการเดิมต่อ */
+const SPK=(()=>{try{let k=sessionStorage.getItem('spk');if(!k){k=Math.random().toString(36).slice(2,12);sessionStorage.setItem('spk',k)}return k}catch(e){return 'x'}})();
+function nameSug(fid){
+ const inp=$('#s-'+fid),box=$('#sg-'+fid);let T=0,SEQ=0,items=[],cur=-1;
+ const close=()=>{box.hidden=true;inp.setAttribute('aria-expanded','false');cur=-1};
+ const mark=()=>{$$('.sg-i',box).forEach((b,i)=>b.classList.toggle('on',i===cur));const on=$$('.sg-i',box)[cur];if(on)on.scrollIntoView({block:'nearest'})};
+ const pick=i=>{const s=items[i];if(!s)return;close();SEQ++;const miss=fillStaff(s,true);
+  $('#s-chk').innerHTML=chkRes('เติมข้อมูลจากทะเบียนบุคลากรแล้ว',[['ok','ตรวจสอบคำนำหน้า ชื่อ นามสกุล ตำแหน่ง และกลุ่มงานให้ถูกต้อง'],...(miss?[['warn','ระดับปัจจุบัน \"'+miss+'\" ไม่มีเส้นทางขอเลื่อนที่ตรงกัน กรุณาเลือกระดับตำแหน่งที่ขอเลื่อนเอง']]:[]),...($('#s-cid').value?[]:[['info','กรอกเลขบัตรประชาชนเพื่อให้ระบบตรวจรายการที่เคยยื่นและสถานะ LINE']])]);
+  if(!$('#s-cid').value)$('#s-cid').focus()};
+ const paint=()=>{box.innerHTML=`<div class="sg-h">เลือกชื่อจากทะเบียนบุคลากร เพื่อเติมข้อมูลอัตโนมัติ</div>`+items.map((x,i)=>`<button type="button" class="sg-i" role="option" data-i="${i}"><div class="sg-n">${esc((x.prefix||'')+x.first+' '+x.last)}</div><div class="sg-m">${esc([x.position,x.level&&x.level!=='ไม่มี'?'ระดับ'+x.level:'',x.group].filter(Boolean).join(' · '))}</div></button>`).join('');
+  box.hidden=false;inp.setAttribute('aria-expanded','true');cur=-1;
+  $$('.sg-i',box).forEach(b=>{b.addEventListener('mousedown',e=>{e.preventDefault();pick(+b.dataset.i)})})};
+ const run=async()=>{const f=$('#s-first').value.trim(),l=$('#s-last').value.trim();
+  if(inp.value.replace(/\s/g,'').length<2){close();return}
+  const my=++SEQ,d=await api('staffPick',[{first:f,last:l,k:SPK}]);
+  if(my!==SEQ||document.activeElement!==inp)return;
+  if(!d.ok||!d.rows||!d.rows.length){close();return}
+  items=d.rows;paint()};
+ inp.addEventListener('input',()=>{clearTimeout(T);T=setTimeout(run,320)});
+ inp.addEventListener('focus',()=>{if(inp.value.replace(/\s/g,'').length>=2&&!items.length){clearTimeout(T);T=setTimeout(run,100)}});
+ inp.addEventListener('blur',()=>{clearTimeout(T);setTimeout(close,120)});
+ inp.addEventListener('keydown',e=>{if(box.hidden)return;const n=items.length;
+  if(e.key==='ArrowDown'){e.preventDefault();cur=(cur+1)%n;mark()}
+  else if(e.key==='ArrowUp'){e.preventDefault();cur=(cur-1+n)%n;mark()}
+  else if(e.key==='Enter'&&cur>=0){e.preventDefault();pick(cur)}
+  else if(e.key==='Escape'){e.stopPropagation();close()}})}
+nameSug('first');nameSug('last');
 let LKC='';
 $('#s-cid').addEventListener('blur',async()=>{const c=$('#s-cid').value.replace(/\D/g,''),box=$('#s-chk');if(c.length!==13||!validCid(c)||c===LKC)return;LKC=c;
  box.innerHTML=checkHtml('กำลังตรวจสอบข้อมูลเดิม',['ค้นหาข้อมูลในทะเบียนบุคลากร','ตรวจสอบรายการที่เคยยื่น','ตรวจสอบการเชื่อมต่อ LINE']);
  const d=await api('lookup',[c]);if($('#s-cid').value.replace(/\D/g,'')!==c)return;
  if(!d.ok){LKC='';box.innerHTML='';return msg(box,d.message)}
  const L=[];
- if(d.found){const s=d.staff;const set=(k,v)=>{const el=$('#s-'+k);if(el&&!el.value&&v)el.value=v};
-  if(s.prefix&&!$('#s-prefix').value){const has=[...$('#s-prefix').options].some(o=>o.value===s.prefix);if(has)$('#s-prefix').value=s.prefix;else{$('#s-prefix').value='__other';$('#s-prefix-o').hidden=false;$('#s-prefix-o').value=s.prefix}}
-  set('first',s.first);set('last',s.last);set('position',s.position);set('group',s.group);set('posNo',s.posNo);set('phone',s.phone);L.push(['ok','พบข้อมูลในทะเบียนบุคลากร เติมข้อมูลให้แล้ว กรุณาตรวจสอบ'])}
+ if(d.found){fillStaff(d.staff,false);L.push(['ok','พบข้อมูลในทะเบียนบุคลากร เติมข้อมูลให้แล้ว กรุณาตรวจสอบ'])}
  else L.push(['info','ไม่พบในทะเบียนบุคลากร กรุณากรอกข้อมูลเอง']);
  if(d.prev)L.push(['warn','เคยยื่นเอกสารแล้ว '+d.prev+' รายการ (ล่าสุดอยู่ที่: '+stg(d.latest.status).t+') ติดตามได้ที่หน้า "ติดตามสถานะ"']);
  if(d.lineEnabled)L.push(d.lineLinked?['ok','เชื่อมต่อ LINE แล้ว']:['info','ยังไม่ได้เชื่อมต่อ LINE — หากเพิ่มเพื่อน LINE OA ไปแล้ว พิมพ์เลขบัตร 13 หลักในแชทเพื่อเชื่อมต่อได้ทันที']);
@@ -1951,7 +1994,7 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineWebhookTest','lineLinkReq','lineLinkCheck','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
@@ -2103,6 +2146,8 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
  case 'lineLinkCheck':{const l=this.lk;if(!l||l.code!==cidOf(a[0]))return ok({state:'expired'});
   if(now-l.at>7000)return ok({state:'pending'});const r=db.subs.find(x=>x.cid===l.cid);db.lnu.push({cid:l.cid,uid:'U'+Math.random().toString(16).slice(2).padEnd(32,'0').slice(0,32),name:(r?r.first:'ผู้ใช้')+' (LINE)',at:bkkS(now),via:'code',active:true});this.lk=null;this.save();return ok({state:'linked'})}
  case 'lineAdd':{const cid=cidOf(a[1]);if(!db.subs.some(r=>r.cid===cid))this.err('ไม่พบเลขบัตรนี้ในระบบ');db.lnu.push({cid,uid:String(a[2]),name:'LINE (ผูกโดยผู้ดูแล)',at:bkkS(now),via:'admin',active:true});this.save();return ok()}
+ case 'staffPick':{const p=a[0]||{},f=String(p.first||'').replace(/\s/g,''),l=String(p.last||'').replace(/\s/g,'');if(f.length<2&&l.length<2)return ok({rows:[]});const seen={};
+  return ok({rows:db.subs.filter(r=>(f.length<2||String(r.first).startsWith(f))&&(l.length<2||String(r.last).startsWith(l))&&!seen[r.cid]&&(seen[r.cid]=1)).slice(0,8).map(r=>({prefix:r.prefix||'',first:r.first,last:r.last,position:r.position||'',level:String(r.track||'').split('→')[0].trim(),group:r.group||'',posNo:r.posNo||''})),more:false})}
  case 'lineManual':{const p=a[1]||{};return ok({eligible:1,willSend:1,sent:p.dry?0:1,failed:0,quotaLeft:262,more:0,dry:!!p.dry})}
  case 'lineDismiss':return ok()
  case 'lineUnlink':{db.lnu.forEach(u=>{if(u.cid===cidOf(a[1])&&u.uid===String(a[2]))u.active=false});this.save();return ok({n:1})}
