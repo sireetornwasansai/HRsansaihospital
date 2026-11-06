@@ -25,32 +25,48 @@ function send(res, status, obj) {
   res.end(typeof obj === 'string' ? obj : JSON.stringify(obj));
 }
 
+/* ลิงก์ที่จะลอง (ตามลำดับ) : ค่า env GAS_URL → ลิงก์มาตรฐาน → ลิงก์แบบโดเมน Workspace (ของบางโดเมนใช้ได้เฉพาะแบบหลัง) */
+function targets() {
+  const out = [];
+  if (process.env.GAS_URL) out.push(process.env.GAS_URL);
+  out.push(DEFAULT_TARGET);
+  const m = /\/macros\/s\/([^/]+)\/exec/.exec(DEFAULT_TARGET);
+  const dom = process.env.GAS_DOMAIN || 'sansaihospital.go.th';
+  if (m) out.push('https://script.google.com/a/macros/' + dom + '/s/' + m[1] + '/exec');
+  return out.filter((u, i) => out.indexOf(u) === i);
+}
+
+function brief(t) { return String(t || '').replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160); }
+
 module.exports = async (req, res) => {
-  const target = process.env.GAS_URL || DEFAULT_TARGET;
-  if (req.method === 'GET') return send(res, 200, { ok: true, proxy: 'gas' });
+  if (req.method === 'GET') return send(res, 200, { ok: true, proxy: 'gas', targets: targets().map((u) => u.replace(/\/s\/[^/]+\//, '/s/…/')) });
   if (req.method !== 'POST') return send(res, 405, { ok: false, message: 'method not allowed' });
 
   let raw;
   try { raw = await readRaw(req); } catch (e) { return send(res, 400, { ok: false, message: 'อ่านข้อมูลที่ส่งมาไม่ได้' }); }
 
-  try {
-    const r = await fetch(target, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: raw,
-      redirect: 'follow',                       // Apps Script ตอบ 302 → ตามไปรับผลจาก googleusercontent
-      signal: AbortSignal.timeout(55000),
-    });
-    const text = await r.text();
-    try { JSON.parse(text); } catch (e) {       // ไม่ใช่ JSON = Apps Script ตอบหน้า error/หน้าล็อกอิน (เช่น สิทธิ์ไม่ใช่ Anyone)
-      console.error('GAS non-JSON', r.status, text.slice(0, 200));
-      return send(res, 200, { ok: false, message: 'เซิร์ฟเวอร์ Apps Script ตอบกลับผิดรูปแบบ (HTTP ' + r.status + ') กรุณาตรวจการตั้งค่า Deploy ว่าเปิดสิทธิ์เป็น "ทุกคน" และ Deploy เวอร์ชันล่าสุดแล้ว' });
+  const diag = [];
+  for (const target of targets()) {
+    try {
+      const r = await fetch(target, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: raw,
+        redirect: 'follow',                       // Apps Script ตอบ 302 → ตามไปรับผลจาก googleusercontent
+        signal: AbortSignal.timeout(50000),
+      });
+      const text = await r.text();
+      try { JSON.parse(text); return send(res, 200, text); } catch (e) {}
+      let host = ''; try { host = new URL(r.url).host + new URL(r.url).pathname.slice(0, 30); } catch (e) {}
+      const d = 'HTTP ' + r.status + ' @' + host + ' : ' + brief(text);
+      console.error('GAS non-JSON', target.slice(0, 60), d);
+      diag.push(d);
+    } catch (e) {
+      const timeout = e && (e.name === 'TimeoutError' || e.name === 'AbortError');
+      if (timeout) return send(res, 200, { ok: false, message: 'เซิร์ฟเวอร์ตอบช้าเกินกำหนด กรุณาตรวจสอบข้อมูลแล้วลองใหม่อีกครั้ง' });
+      diag.push('error: ' + (e && e.message));
     }
-    return send(res, 200, text);
-  } catch (e) {
-    console.error('proxy error', e && e.message);
-    const timeout = e && (e.name === 'TimeoutError' || e.name === 'AbortError');
-    return send(res, 200, { ok: false, message: timeout ? 'เซิร์ฟเวอร์ตอบช้าเกินกำหนด กรุณาตรวจสอบข้อมูลแล้วลองใหม่อีกครั้ง' : 'เชื่อมต่อเซิร์ฟเวอร์ Apps Script ไม่ได้' });
   }
+  return send(res, 200, { ok: false, message: 'เซิร์ฟเวอร์ Apps Script ตอบกลับผิดรูปแบบ [' + diag.join(' || ').slice(0, 400) + ']' });
 };
 module.exports.config = { api: { bodyParser: false } };
