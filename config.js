@@ -4,7 +4,7 @@
  * LINE_QR  = พาธรูป QR ของ LINE OA (ค่าเริ่มต้น assets/line-qr.png)
  * FTE_RECAPTCHA_SITE_KEY = (ถ้าใช้) reCAPTCHA site key ของหน้า FTE — ค่าเดียวกับ Script Property RECAPTCHA_SITE_KEY (เป็นค่าสาธารณะ) */
 window.APP_CONFIG = {
-  GAS_URL: 'https://script.google.com/a/macros/sansaihospital.go.th/s/AKfycbxbDTmoSluMcM35zptxZ26Nu4RchZK5MC8T-2IxkeUJzINymjJcbPgWw1aetOrq5hJcMg/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbxbDTmoSluMcM35zptxZ26Nu4RchZK5MC8T-2IxkeUJzINymjJcbPgWw1aetOrq5hJcMg/exec',
   LINE_QR: 'assets/line-qr.png',
   FTE_RECAPTCHA_SITE_KEY: ''
 };
