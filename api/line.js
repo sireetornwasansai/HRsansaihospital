@@ -34,6 +34,17 @@ function getWaitUntil() {
 /* ค่า env ที่คัดลอกมาอาจมีช่องว่าง/ขึ้นบรรทัดใหม่/เครื่องหมายคำพูดติดมา → ล้างให้ก่อนใช้ */
 function clean(v) { return String(v == null ? '' : v).trim().replace(/^["']+|["']+$/g, '').trim(); }
 
+/* ลิงก์ Web App มี 2 รูปแบบ: /macros/s/<ID>/exec (มาตรฐาน) และ /a/macros/<โดเมน>/s/<ID>/exec (Workspace) — ลองทั้งสองแบบ
+ * (แบบ /a/macros/… มักขอให้ล็อกอินโดเมน → ได้ HTTP 401 หน้าล็อกอิน Google เมื่อเรียกจากเซิร์ฟเวอร์ จึงลองแบบมาตรฐานก่อน) */
+function variants(u) {
+  const m = /^\/(?:a\/macros\/([^/]+)|macros)\/s\/([^/]+)\/exec$/.exec(u.pathname);
+  if (!m) return [u.toString()];
+  const id = m[2], dom = m[1] || clean(process.env.GAS_DOMAIN) || 'sansaihospital.go.th';
+  const std = new URL(u.toString()); std.pathname = '/macros/s/' + id + '/exec';
+  const dm = new URL(u.toString()); dm.pathname = '/a/macros/' + dom + '/s/' + id + '/exec';
+  return [std.toString(), dm.toString()];
+}
+
 /* หา URL ปลายทางและรหัส k : ใช้ ?k= ใน GAS_WEBHOOK_URL ก่อน ถ้าไม่มีใช้ LINE_WEBHOOK_KEY แล้วเติมต่อท้าย URL ให้ */
 function resolveTarget() {
   const rawUrl = clean(process.env.GAS_WEBHOOK_URL), envKey = clean(process.env.LINE_WEBHOOK_KEY);
@@ -43,7 +54,7 @@ function resolveTarget() {
   let key = clean(u.searchParams.get('k')), source = 'GAS_WEBHOOK_URL';
   if (!key && envKey) { key = envKey; source = 'LINE_WEBHOOK_KEY'; u.searchParams.set('k', key); }
   if (!key) return { error: 'ไม่พบรหัส k: GAS_WEBHOOK_URL ต้องลงท้าย ?k=<LINE_WEBHOOK_KEY> หรือตั้ง env LINE_WEBHOOK_KEY (รัน setupLine() ใน Apps Script เพื่อดูรหัส)' };
-  return { url: u.toString(), key, source };
+  return { url: u.toString(), urls: variants(u), key, source };
 }
 
 module.exports = async (req, res) => {
@@ -83,18 +94,23 @@ module.exports = async (req, res) => {
   // ส่งต่อให้ Apps Script (ช้า: cold start หลายวินาที) แล้วตอบ LINE ทันที ไม่รอผล
   // ลองใหม่สูงสุด 3 ครั้งเมื่อเครือข่ายล้ม/หมดเวลา/ได้ 5xx — Apps Script กันเหตุการณ์ซ้ำด้วย webhookEventId อยู่แล้ว จึงไม่ตอบซ้ำ
   async function forwardOnce() {
-    const r = await fetch(target.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-      redirect: 'follow',
-      signal: AbortSignal.timeout(40000),
-    });
-    if (r.status >= 500) throw new Error('GAS status ' + r.status);
-    const txt = await r.text().catch(() => '');
-    if (!r.ok) console.error('GAS status', r.status, txt.slice(0, 160));
-    else if (/"ok"\s*:\s*false/.test(txt)) console.error('GAS ปฏิเสธเหตุการณ์ (รหัส k ไม่ตรง?) → ดูแท็บ ActivityLog action=line_webhook ; keySource=' + target.source);
-    else if (!/"ok"\s*:\s*true/.test(txt)) console.error('GAS ตอบผิดรูปแบบ (ไม่ใช่ JSON ของระบบ — ตรวจว่า Deploy เป็น Web App สิทธิ์ Anyone และอัปเดต New version แล้ว):', txt.replace(/\s+/g, ' ').slice(0, 160));
+    let last = '';
+    for (const url of target.urls) {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        redirect: 'follow',
+        signal: AbortSignal.timeout(40000),
+      });
+      if (r.status >= 500) throw new Error('GAS status ' + r.status);
+      const txt = await r.text().catch(() => '');
+      if (r.ok && /"ok"\s*:\s*true/.test(txt)) return;                                   // Apps Script รับและประมวลผลแล้ว
+      if (r.ok && /"ok"\s*:\s*false/.test(txt)) { console.error('GAS ปฏิเสธเหตุการณ์ (รหัส k ไม่ตรง?) → ดูแท็บ ActivityLog action=line_webhook ; keySource=' + target.source); return; }
+      last = 'HTTP ' + r.status + (/accounts\.google|ppConfig|<!DOCTYPE/i.test(txt) ? ' (หน้าล็อกอิน/หน้า HTML ของ Google — Web App ไม่ได้ตั้งสิทธิ์ Who has access = Anyone หรือ URL ผิด)' : ' ' + txt.replace(/\s+/g, ' ').slice(0, 120)) + ' @' + new URL(url).pathname.slice(0, 40);
+      console.error('GAS ตอบไม่ใช่ผลของระบบ:', last, '→ ลองลิงก์รูปแบบถัดไป');
+    }
+    console.error('ส่งต่อ Apps Script ไม่สำเร็จทุกรูปแบบลิงก์:', last);
   }
   const forward = (async () => {
     for (let i = 0; i < 3; i++) {
