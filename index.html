@@ -1017,15 +1017,15 @@ function rateCase(id){const it=(LASTDATA&&LASTDATA.items||[]).find(x=>x.id===id)
 const rateBanner=it=>`<div class="msg warn" style="margin:0 0 16px"><i class="ph-fill ph-star"></i><div><b>ขั้นตอนสุดท้าย: ประเมินความพึงพอใจเพื่อปิดเคส</b><br>เอกสารของท่านดำเนินการครบแล้ว กรุณาประเมินความพึงพอใจต่อระบบ (ประมาณ 2 นาที) เจ้าหน้าที่จึงจะปิดเคสได้<div style="margin-top:10px"><button class="btn" type="button" data-rate="${esc(it.id)}"><i class="ph-bold ph-star"></i> ประเมินความพึงพอใจ</button></div></div></div>`;
 function rateAuto(items){if(PENDING_RETRO){const R=PENDING_RETRO;PENDING_RETRO=null;const t=items.find(i=>i.id===R.id);if(t&&t.status==='promoted'){setTimeout(()=>retroCase(R,t),450);return}toast('ไม่พบรายการตามลิงก์ในเลขบัตรนี้ หรือรายการนี้ยังไม่ปิดเคส','warn',9000)}const t=items.find(i=>i.status==='closing'&&PENDING_RATE&&i.id===PENDING_RATE)||items.find(i=>i.status==='closing'&&!RATE_SKIP[i.id]);PENDING_RATE='';if(t)setTimeout(()=>rateCase(t.id),450)}
 /* เจ้าหน้าที่: ปิดเคส = ประเมิน → รอผู้ยื่นประเมิน → ระบบปิดเคสให้ */
-async function promote(id){const r0=ROWS.find(x=>x.id===id);
+async function promote(id,note){const r0=ROWS.find(x=>x.id===id);
  if(r0&&r0.status==='closing')return toast('เจ้าหน้าที่ประเมินแล้ว — รอผู้ยื่นประเมินความพึงพอใจ ระบบจะปิดเคสให้อัตโนมัติ','info');
  if(r0&&r0.status!=='cmd_gov'&&r0.status!=='cmd_gov_ok')return toast('ปิดเคสได้เมื่อรายการอยู่ในขั้น “ผู้ว่าราชการจังหวัดลงนาม (คำสั่งเลื่อนระดับ)” เท่านั้น','err');
  const inf=await api('surveyInfo',[TOKEN,id]);if(!inf.ok)return toast(inf.message,'err');
  const done=d=>{const L=d.line||{};let t='ประเมินแล้ว — สถานะเป็น “รอผู้ยื่นประเมินเพื่อปิดเคส”',k='ok';
   if(L.sent>0)t+=' และส่ง LINE ให้ผู้ยื่นแล้ว';else{t+=' แต่ยังส่ง LINE ให้ผู้ยื่นไม่ได้ (ผู้ยื่นยังไม่ผูก LINE หรือส่งไม่สำเร็จ) — ให้ผู้ยื่นเข้าประเมินที่หน้าติดตามสถานะ';k='warn'}
   toast(t,k,9000);FLASH=id;loadList()};
- if(inf.haveAdmin){let R=null;const ok=await confirmBox({title:'ส่งให้ผู้ยื่นประเมิน '+id+'?',text:'เจ้าหน้าที่ประเมินเคสนี้ไว้แล้ว — ระบบจะเปลี่ยนสถานะเป็น “รอผู้ยื่นประเมินเพื่อปิดเคส” และแจ้งผู้ยื่นให้ประเมิน เมื่อผู้ยื่นประเมินครบ ระบบจะปิดเคสให้อัตโนมัติ',ok:'ส่งให้ผู้ยื่นประเมิน',icon:'ph-star'},async()=>{R=await api('closeRequest',[TOKEN,id,null],{timeout:120000,write:true});if(!R.ok)throw new Error(R.message)});if(ok&&R)done(R);return}
- const d=await openSurvey({role:'admin',mode:inf.mode,id,sub:(r0?r0.prefix+r0.first+' '+r0.last+' · ':'')+id,okLabel:'ส่งแบบประเมิน แล้วให้ผู้ยื่นประเมินต่อ',submit:p=>api('closeRequest',[TOKEN,id,p],{timeout:120000,write:true})});
+ if(inf.haveAdmin){let R=null;const ok=await confirmBox({title:'ส่งให้ผู้ยื่นประเมิน '+id+'?',text:'เจ้าหน้าที่ประเมินเคสนี้ไว้แล้ว — ระบบจะเปลี่ยนสถานะเป็น “รอผู้ยื่นประเมินเพื่อปิดเคส” และแจ้งผู้ยื่นให้ประเมิน เมื่อผู้ยื่นประเมินครบ ระบบจะปิดเคสให้อัตโนมัติ',ok:'ส่งให้ผู้ยื่นประเมิน',icon:'ph-star'},async()=>{R=await api('closeRequest',[TOKEN,id,null,note||''],{timeout:120000,write:true});if(!R.ok)throw new Error(R.message)});if(ok&&R)done(R);return}
+ const d=await openSurvey({role:'admin',mode:inf.mode,id,sub:(r0?r0.prefix+r0.first+' '+r0.last+' · ':'')+id,okLabel:'ส่งแบบประเมิน แล้วให้ผู้ยื่นประเมินต่อ',submit:p=>api('closeRequest',[TOKEN,id,p,note||''],{timeout:120000,write:true})});
  if(d)done(d)}
 /* ผู้ยื่น: ประเมินย้อนหลังจากลิงก์เฉพาะเคส (#retro-รหัส.ลายเซ็น) — ตรวจลิงก์ก่อนเปิดแบบประเมิน กันกรอกจนจบแล้วเพิ่งรู้ว่าลิงก์ใช้ไม่ได้ */
 async function retroCase(R,it){const c=await api('surveyRetro',[LASTCID,R.id,R.sig,null]);if(!c.ok)return toast(c.message,'err',9000);
@@ -1779,12 +1779,17 @@ function openStatus(id){const r=ROWS.find(x=>x.id===id);if(!r)return;SST=r;
 $('#ds-ct').onchange=e=>{const on=e.target.checked;$('#ds-tbox').classList.toggle('hide',!on);$('#ds-tmb').classList.toggle('on',on);if(on){$('#ds-send').checked=false;setTimeout(()=>$('#ds-when-d').focus(),30)}else $('#ds-send').checked=true;dsPreview()};
 ['ds-status','ds-note','ds-when','ds-send'].forEach(i=>{$('#'+i).addEventListener('input',dsPreview);$('#'+i).addEventListener('change',dsPreview)});
 $('#ds-file').addEventListener('change',dsPreview);
+/* เลือก "ได้รับการเลื่อนระดับแล้ว (ปิดเคส)" → ใส่คำยินดี + ข้อความเชิญประเมินในหมายเหตุถึงผู้ยื่น (แก้ไขได้) ; เลือกสถานะอื่นกลับ → คืนหมายเหตุเดิม */
+const CONGRATS_NOTE='ขอแสดงความยินดีกับท่านที่ได้รับการเลื่อนระดับ ขอบคุณที่ทุ่มเทและให้ความร่วมมือตลอดกระบวนการ กรุณาประเมินความพึงพอใจต่อระบบ (ใช้เวลาประมาณ 2 นาที) เพื่อให้ระบบปิดเคสเรียบร้อย';
+$('#ds-status').addEventListener('change',()=>{const r=SST,n=$('#ds-note');if(!r)return;const st=$('#ds-status').value,v=n.value.trim();
+ if(st==='promoted'&&r.status!=='promoted'){if(!v||v===(r.note||'').trim()){n.value=CONGRATS_NOTE;n.dispatchEvent(new Event('input',{bubbles:true}))}}
+ else if(v===CONGRATS_NOTE){n.value=r.note||'';n.dispatchEvent(new Event('input',{bubbles:true}))}});
 $('#ds-x').onclick=$('#ds-cancel').onclick=()=>$('#ds').close();
 $('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r)return;msg(m,'');
  const ct=$('#ds-ct').checked,p={status:$('#ds-status').value,note:$('#ds-note').value,sendLine:$('#ds-send').checked,customTime:ct,when:ct?$('#ds-when').value:''};
  if(ct&&!p.when)return msg(m,'กรุณากรอกวันที่ (วว/ดด/ปปปป) และเวลา (ชช:นน) ให้ครบ หรือเอาเครื่องหมายติ๊ก “เลือกลงเวลาเอง” ออกเพื่อใช้เวลาปัจจุบัน');
  if(ct){const e=dsWhenErr(p.when);if(e)return msg(m,e)}
- if((p.status==='promoted'||p.status==='closing')&&p.status!==r.status){$('#ds').close();toast('กรุณาประเมินความพึงพอใจก่อนปิดเคส — ผู้ยื่นจะได้รับแจ้งให้ประเมินต่อ แล้วระบบจึงปิดเคสให้','info',7000);return promote(r.id)}
+ if((p.status==='promoted'||p.status==='closing')&&p.status!==r.status){$('#ds').close();toast('กรุณาประเมินความพึงพอใจก่อนปิดเคส — ผู้ยื่นจะได้รับคำยินดีพร้อมแบบประเมินทาง LINE แล้วระบบจึงปิดเคสให้','info',7000);return promote(r.id,p.note)}
   if(p.status==='b1_acting'&&p.status!==r.status&&!FDS.get()&&!(r.act>0))return msg(m,'ต้องแนบหนังสือคำสั่งรักษาการในตำแหน่ง (ไฟล์จากกลุ่มงานทรัพยากรบุคคล) ก่อนบันทึกสถานะนี้');
   if(p.status===r.status&&p.note===(r.note||'')&&!FDS.get())return msg(m,'ยังไม่ได้เปลี่ยนสถานะหรือหมายเหตุ','info');
  busy(b,1,FDS.get()?'กำลังอัปโหลดและบันทึก...':'กำลังบันทึก...');
