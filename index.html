@@ -421,16 +421,38 @@ body.wide .wrap{max-width:1320px}
 .lv-h{flex-wrap:wrap}.lv-h .dbadge{font-size:12.5px;white-space:normal}
 .psum{margin-top:14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;padding:14px}
 .psum-h{display:flex;gap:8px;align-items:center;font-weight:700;margin-bottom:8px}.psum-h i{font-size:22px;color:var(--pri)}
-.psum-l{list-style:none;margin:0;padding:0;display:grid;gap:0}
-.psum-l li{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) 150px;gap:4px 12px;align-items:center;padding:9px 0;border-top:1px dashed var(--line)}
-.psum-l li:first-child{border-top:0}
-.psum-l .pn{font-weight:600;line-height:1.4}.psum-l .pt{font-size:13px;color:var(--mut)}.psum-l .pd{font-weight:700;white-space:nowrap;text-align:right}
-.psum-l li.gap .pn{font-weight:500;color:#7a4a05}.psum-l li.live .pd{color:#b45309}
+.psum-l{list-style:none;margin:0;padding:0}
+/* แต่ละกระบวนการ = การ์ดแถวเดียว: [ป้ายเล่ม] ชื่อหน่วยงาน/ช่วงวันที่ ........ [ระยะเวลา] — จัดตามพื้นที่ (grid-area) ไม่ให้ซ้อนกัน */
+.psum-l li{display:grid;grid-template-columns:128px minmax(0,1fr) auto;grid-template-areas:"tag name dur" "tag time dur";column-gap:14px;row-gap:4px;align-items:start;padding:13px 0;border-top:1px dashed var(--line)}
+.psum-l li:first-child{border-top:0;padding-top:4px}
+.psum-l .pg{grid-area:tag;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:64px}
+.psum-l .pg .dstage{font-size:13px;white-space:nowrap}
+.psum-l .pgi{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#fef3c7;color:#92400e;font-size:19px}
+.psum-l .plive{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:700;color:#92400e;background:#fef3c7;border-radius:999px;padding:1px 9px;line-height:1.5;white-space:nowrap}
+.psum-l .plive::before{content:"";width:7px;height:7px;border-radius:50%;background:#f59e0b}
+.psum-l .pn{grid-area:name;font-weight:600;line-height:1.45;min-width:0;overflow-wrap:break-word}
+.psum-l .pn .meta{display:block;font-weight:500;font-size:13.5px;line-height:1.4;margin-top:2px}
+.psum-l .pt{grid-area:time;display:flex;flex-wrap:wrap;align-items:center;gap:2px 7px;font-size:13.5px;color:var(--mut);line-height:1.45;min-width:0}
+.psum-l .pt span{white-space:nowrap}.psum-l .pt i{font-size:13px;flex:none}
+.psum-l .pd{grid-area:dur;justify-self:end;text-align:right;min-width:0}
+.psum-l .pd b{display:inline-block;font-size:16.5px;line-height:1.35;font-weight:800;color:var(--pri-d);background:#e6f4f2;border-radius:12px;padding:3px 12px;font-variant-numeric:tabular-nums}
+.psum-l .pd small{display:block;font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.35}
+.psum-l li.gap .pn{font-weight:600;color:#7a4a05}.psum-l li.gap .pn .meta{color:#8a6a3a}
+.psum-l li.gap .pd b{background:#fef3c7;color:#92400e}
+.psum-l li.live .pd b{background:#fef3c7;color:#92400e}
 .psum-t{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
 .psum-k{flex:1 1 210px;border-radius:12px;padding:10px 14px;background:#f6fafa;border:1px solid var(--line)}
 .psum-k span{display:block;font-size:12.5px;color:var(--mut)}.psum-k b{font-size:20px;line-height:1.35;display:block}
 .psum-k.big{background:var(--pri);border-color:var(--pri);color:#fff}.psum-k.big span{color:#e6fffb}
-@media(max-width:620px){.psum-l li{grid-template-columns:1fr auto}.psum-l .pt{grid-column:1/-1;order:3}}
+@media(max-width:620px){
+ .psum{padding:14px 14px 16px}
+ .psum-l li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"tag dur" "name name" "time time";column-gap:10px;row-gap:6px;padding:14px 0}
+ .psum-l .pg{flex-direction:row;flex-wrap:wrap;align-items:center;min-width:0}
+ .psum-l .pn{font-size:16.5px}
+ .psum-l .pt{font-size:14px}
+ .psum-l .pd b{font-size:17px}
+ .psum-k{flex-basis:100%}
+}
 /* โหมดจำลองข้อมูล */
 #demo-bar{position:relative;z-index:30;background:linear-gradient(90deg,#7c3aed,#4f46e5);color:#fff;box-shadow:0 4px 14px #4f46e566}
 #demo-bar .in{max-width:1320px;margin:0 auto;padding:8px 16px;display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;font-size:14px}
@@ -595,7 +617,6 @@ body.wide .wrap{max-width:1320px}
 button .thw,.btn .thw{white-space:normal}
 
 @media(min-width:721px){.lv-many{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));row-gap:6px}.lv-many .nd{max-width:none;min-width:0}.lv-many .nd:nth-child(4n+1)::before{display:none}}
-.psum-l li{grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) minmax(150px,auto)}.psum-l .pd{white-space:normal}
 
 /* ===== v6: ช่องวันที่/เวลา 24 ชม., คำพูดลัด, แก้ไขวันที่ย้อนหลัง ===== */
 .dt{display:block}.dt-r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -1309,10 +1330,10 @@ function sumHtml(it,PS,ended){
  const bt=n=>(CFG.books.find(b=>b.n===n)||{}).t||'เล่ม '+n;
  let li='',lastB=0,sum=0;
  PS.forEach(x=>{if(x.skip)return;
-  if(x.b===2&&lastB>=1&&lastB<2&&gapA){const e=gapB||now;li+=`<li class="gap${gapB?'':' live'}"><div class="pn"><i class="ph-bold ph-hourglass-medium"></i> ช่วงจัดทำและยื่นเอกสารเล่ม 2 <span class="meta">(กำหนดภายใน 180 วัน)</span></div><div class="pt">${esc(thShort(gS.t))} → ${gapB?esc(thShort(b2s.t)):'ปัจจุบัน'}</div><div class="pd">${spanF(Math.max(0,e-gapA))}${gapB?'':' (ยังไม่ยื่น)'}</div></li>`}
+  if(x.b===2&&lastB>=1&&lastB<2&&gapA){const e=gapB||now;li+=`<li class="gap${gapB?'':' live'}"><div class="pg"><span class="pgi"><i class="ph-bold ph-hourglass-medium"></i></span>${gapB?'':'<span class="plive">ยังไม่ยื่น</span>'}</div><div class="pn">ช่วงจัดทำและยื่นเอกสารเล่ม 2<span class="meta">กำหนดภายใน 180 วัน</span></div><div class="pt"><span>${esc(thShort(gS.t))}</span><i class="ph-bold ph-arrow-right"></i><span>${gapB?esc(thShort(b2s.t)):'ปัจจุบัน'}</span></div><div class="pd"><b>${spanF(Math.max(0,e-gapA))}</b></div></li>`}
   lastB=x.b;if(x.end)sum+=x.ms;
   const sub=thShort(x.startS);
-  li+=`<li class="${x.live?'live':''}"><div class="pn"><span class="dstage tone-teal" style="font-size:12px">${esc(bsn(x.b))}</span> ${fmtT(CFG.lv[x.l]||x.l,true)}</div><div class="pt">${esc(sub)} → ${x.end?esc(thShort(x.endS)):'ปัจจุบัน'}</div><div class="pd">${x.end?spanF(x.ms):'กำลังดำเนินการ · '+spanF(now-x.start)}</div></li>`});
+  li+=`<li class="${x.live?'live':''}"><div class="pg"><span class="dstage tone-teal">${esc(bsn(x.b))}</span>${x.live?'<span class="plive">กำลังดำเนินการ</span>':''}</div><div class="pn">${fmtT(CFG.lv[x.l]||x.l,true)}</div><div class="pt"><span>${esc(sub)}</span><i class="ph-bold ph-arrow-right"></i><span>${x.end?esc(thShort(x.endS)):'ปัจจุบัน'}</span></div><div class="pd"><b>${x.end?spanF(x.ms):spanF(now-x.start)}</b></div></li>`});
  const lastEv=h.length?toDate(h[h.length-1].t):null,tot=subT?((ended&&lastEv?lastEv:now)-subT):0;
  return `<div class="psum"><div class="psum-h"><i class="ph-duotone ph-timer"></i>สรุประยะเวลาแต่ละกระบวนการ</div><ul class="psum-l">${li}</ul>
   <div class="psum-t"><div class="psum-k"><span>รวมเวลาในกระบวนการที่เสร็จสิ้นแล้ว (${done.length} กระบวนการ)</span><b>${spanF(sum)}</b></div>
