@@ -803,12 +803,20 @@ button .thw,.btn .thw{white-space:normal}
 <dialog id="dn" aria-labelledby="n-ttl"><div class="hd"><div><h2 id="n-ttl">แจ้งเตือนทาง LINE</h2><div class="meta" id="n-sub"></div></div><button class="btn sec sm" type="button" id="n-x">ปิด</button></div>
  <div id="n-state"></div>
  <label style="margin-top:8px">รูปแบบข้อความ</label>
- <div class="seg" role="tablist" id="n-seg"><button type="button" data-m="status" class="on"><i class="ph ph-flag"></i> ส่งสถานะปัจจุบัน</button><button type="button" data-m="tpl"><i class="ph ph-note"></i> ข้อความสำเร็จรูป</button><button type="button" data-m="typed"><i class="ph ph-pencil-simple"></i> พิมพ์เอง</button></div>
+ <div class="seg" role="tablist" id="n-seg"><button type="button" data-m="status" class="on"><i class="ph ph-flag"></i> ส่งสถานะปัจจุบัน</button><button type="button" data-m="tpl"><i class="ph ph-note"></i> ข้อความสำเร็จรูป</button><button type="button" data-m="typed"><i class="ph ph-pencil-simple"></i> พิมพ์เอง</button><button type="button" data-m="act"><i class="ph ph-warning"></i> ต้องดำเนินการ</button></div>
  <div id="n-tplbox" class="hide" style="margin-top:12px"><label for="n-tpl">เลือกข้อความ (แก้ไขได้ก่อนส่ง)</label><select id="n-tpl"></select></div>
+ <div id="n-actbox" class="hide" style="margin-top:12px"><label for="a-pre">เรื่องที่ต้องดำเนินการ (เลือกแล้วแก้ไขได้)</label><select id="a-pre"></select>
+  <label for="a-title" style="margin-top:10px">หัวข้อบนการ์ด (ไม่เกิน 60 ตัวอักษร)</label><input id="a-title" maxlength="60" autocomplete="off">
+  <label style="margin-top:10px">รายการที่ต้องทำ (สูงสุด 6 ข้อ)</label><div id="a-items"></div>
+  <button type="button" class="btn sec sm" id="a-add"><i class="ph ph-plus"></i> เพิ่มรายการ</button>
+  <div class="row" style="margin-top:10px"><div class="grow"><label for="a-due">กำหนดดำเนินการ (ไม่บังคับ)</label><input type="date" id="a-due"></div></div>
+  <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="a-ack" checked style="width:auto;flex:0 0 auto"> แสดงปุ่ม “รับทราบ” ในการ์ด (ผู้ยื่นจะกดหรือไม่กดก็ได้)</label>
+  <div class="meta" style="margin-top:6px">การ์ดสีแดงแยกจากการ์ดแจ้งสถานะทั่วไป · ระบบไม่เตือนซ้ำ ถ้าผู้ยื่นกดรับทราบ จะเห็นเวลาในประวัติด้านล่าง</div></div>
  <div id="n-textbox" class="hide" style="margin-top:12px"><label for="n-text">ข้อความ</label><textarea id="n-text" rows="4" maxlength="1000"></textarea><div class="meta" id="n-cnt" aria-live="off">0 / 1000</div></div>
  <div style="margin-top:12px"><label>แนบรูปหรือไฟล์ (ไม่บังคับ)</label><div id="n-file"></div></div>
  <div id="n-msg" aria-live="polite"></div>
  <div class="row" style="margin-top:12px"><button class="btn line" id="n-send" type="button"><i class="ph ph-paper-plane-tilt"></i> ส่งแจ้งเตือน</button></div>
+ <h3 style="margin-top:20px"><i class="ph ph-hand-tap"></i> การรับทราบของรายการนี้</h3><div id="n-ack" class="hist"></div>
  <h3 style="margin-top:20px"><i class="ph ph-clock-counter-clockwise"></i> ประวัติการแจ้งเตือนและการกดส่งของรายการนี้</h3><div id="n-hist" class="hist"></div></dialog>
 
 <!-- Dialog: เชื่อมต่อ LINE (ผู้ยื่น) -->
@@ -1872,27 +1880,46 @@ const FNT=mkFile($('#n-file'),{exts:['jpg','jpeg','png','pdf','doc','docx','xls'
 $('#n-tpl').innerHTML='<option value="">— เลือกข้อความ —</option>'+TPL.map((t,i)=>`<option value="${i}">${esc(t[0])}</option>`).join('');
 $('#n-tpl').onchange=e=>{const t=TPL[e.target.value];if(t){$('#n-text').value=t[1];cnt()}};
 const cnt=()=>$('#n-cnt').textContent=$('#n-text').value.length+' / 1000';$('#n-text').oninput=cnt;
-function setMode(m){NMODE=m;$$('#n-seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#n-tplbox').classList.toggle('hide',m!=='tpl');$('#n-textbox').classList.toggle('hide',m==='status');if(m==='typed'){$('#n-tpl').value=''}}
+/* ---- ข้อความ "ต้องดำเนินการ" + ปุ่มรับทราบ (ไม่เตือนซ้ำ) ---- */
+const APRE=[
+ ['ถ่ายสำเนาเอกสาร',[['เล่มบุคคล','1 เล่ม'],['เล่มผลงาน','5 เล่ม'],['เล่มแนวคิด','5 เล่ม']]],
+ ['มารับเล่มเพื่อแก้ไข',[['มารับเล่มที่กลุ่มงานทรัพยากรบุคคล','เพื่อแก้ไข']]],
+ ['ติดต่อเล่มเนื่องจากลงนามไม่ครบ',[['ติดต่อกลุ่มงานทรัพยากรบุคคล','เล่มลงนามไม่ครบ']]],
+ ['กำหนดเอง',[['','']]]];
+$('#a-pre').innerHTML=APRE.map((p,i)=>`<option value="${i}">${esc(p[0])}</option>`).join('');
+const actRow=(k,v)=>`<div class="row" style="margin-bottom:6px"><input class="grow" data-ai="k" maxlength="80" placeholder="เช่น เล่มผลงาน" aria-label="รายการที่ต้องทำ" value="${esc(k)}"><input data-ai="v" maxlength="24" placeholder="เช่น 5 เล่ม" aria-label="จำนวน" style="width:120px" value="${esc(v)}"><button type="button" class="btn sec sm" data-ad aria-label="ลบรายการ"><i class="ph ph-x"></i></button></div>`;
+function actFill(items){$('#a-items').innerHTML=items.map(x=>actRow(x[0],x[1])).join('')}
+function actPreset(i){const p=APRE[i];$('#a-pre').value=String(i);$('#a-title').value=i===APRE.length-1?'':p[0];actFill(p[1])}
+function actReset(){$('#a-title').value='';$('#a-due').value='';$('#a-ack').checked=true;$('#a-items').innerHTML=''}
+function actCollect(){const items=$$('#a-items .row').map(r=>[$('[data-ai="k"]',r).value.trim(),$('[data-ai="v"]',r).value.trim()]).filter(x=>x[0]);return{title:$('#a-title').value.trim(),items,due:$('#a-due').value,ack:$('#a-ack').checked}}
+$('#a-pre').onchange=e=>actPreset(+e.target.value);
+$('#a-add').onclick=()=>{if($$('#a-items .row').length>=6)return toast('เพิ่มได้ไม่เกิน 6 รายการ','info');$('#a-items').insertAdjacentHTML('beforeend',actRow('',''));$$('#a-items [data-ai="k"]').pop().focus()};
+$('#a-items').addEventListener('click',e=>{const b=e.target.closest('[data-ad]');if(b)b.closest('.row').remove()});
+const thDue=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543}`:(s||'')};
+const ackChip=a=>a.st==='รับทราบแล้ว'?`<span class="chip green" style="font-size:12px"><i class="ph ph-check-circle"></i>รับทราบแล้ว ${esc(thShort(a.at))}</span>`:a.st==='ส่งไม่สำเร็จ'?'<span class="chip red" style="font-size:12px"><i class="ph ph-x-circle"></i>ส่งไม่สำเร็จ</span>':'<span class="chip gray" style="font-size:12px"><i class="ph ph-minus-circle"></i>ยังไม่กดรับทราบ</span>';
+const ackHtml=(rows,named)=>rows.length?`<ul class="tl">${rows.map(a=>`<li>${ackChip(a)} <span class="meta">${esc(a.id)}${named?' · '+esc(a.sid)+(a.name?' · '+esc(a.name):''):''}</span><div><b>${esc(a.title)}</b>${(a.items||[]).length?' — '+esc(a.items.map(x=>x[0]+(x[1]?' '+x[1]:'')).join(' · ')):''}</div><div class="meta">ส่งเมื่อ ${esc(thDT(a.t))}${a.due?' · กำหนด '+esc(thDue(a.due)):''}</div></li>`).join('')}</ul>`:'<div class="empty">ยังไม่มีข้อความแบบต้องดำเนินการ</div>';
+function setMode(m){NMODE=m;$$('#n-seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#n-tplbox').classList.toggle('hide',m!=='tpl');$('#n-textbox').classList.toggle('hide',m==='status'||m==='act');$('#n-actbox').classList.toggle('hide',m!=='act');if(m==='act'&&!$('#a-title').value&&!$('#a-items').children.length)actPreset(0);if(m==='typed'){$('#n-tpl').value=''}}
 $$('#n-seg button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
 async function openNotify(id){const r=ROWS.find(x=>x.id===id);if(!r)return;NID=id;NINFO=null;$('#n-sub').textContent=`${r.id} · ${r.prefix}${r.first} ${r.last}${r.title?' · ผลงาน: '+r.title:''}`;
- $('#n-state').innerHTML='<div class="skeleton sk-text" style="width:70%"></div>';$('#n-hist').innerHTML=skel(3);$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear();msg($('#n-msg'),'');setMode('status');dlgOpen($('#dn'));
+ $('#n-state').innerHTML='<div class="skeleton sk-text" style="width:70%"></div>';$('#n-hist').innerHTML=skel(3);$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear();actReset();msg($('#n-msg'),'');setMode('status');dlgOpen($('#dn'));
  await refreshNotify()}
 async function refreshNotify(){const d=await api('lineInfo',[TOKEN,NID]);if(!d.ok){$('#n-state').innerHTML='';$('#n-hist').innerHTML='';return msg($('#n-msg'),d.message)}NINFO=d;
  $('#n-state').innerHTML=!d.enabled?'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ส่งแจ้งเตือนไม่ได้ (ผู้ดูแลระบบตั้งค่าที่แท็บ LINE) การกดส่งจะถูกบันทึกในประวัติ</div></div>'
   :d.linked?`<div class="msg ok"><i class="ph ph-check-circle"></i><div>ผู้ยื่นผูก LINE แล้ว${d.names.length?': '+esc(d.names.join(', ')):''} · สถานะปัจจุบัน: <b>${esc(stg(d.status).t)}</b></div></div>`
   :'<div class="msg warn"><i class="ph ph-warning"></i><div>ผู้ยื่นรายนี้ยังไม่ได้เชื่อมต่อ LINE — ให้ผู้ยื่นกด "เชื่อมต่อ LINE" ที่หน้าติดตามสถานะ หรือพิมพ์เลขบัตรในแชท LINE OA — หากเพิ่มเพื่อนไปแล้ว ผู้ดูแลระบบผูกให้ได้ที่แท็บ LINE → "เพิ่มเพื่อนแล้วแต่ยังไม่ผูก" (การกดส่งจะถูกบันทึกในประวัติ)</div></div>';
- $('#n-hist').innerHTML=histHtml(d.log)}
-const LT={auto:['แจ้งอัตโนมัติ','ph-robot'],manual:['กดแจ้ง/สำเร็จรูป','ph-hand-pointing'],typed:['พิมพ์เอง','ph-pencil-simple'],bot:['ระบบตอบแชท','ph-chats'],inbound:['ผู้ยื่นพิมพ์เข้ามา','ph-arrow-bend-down-left'],link:['ผูกบัญชี','ph-link'],qa:['ตอบคำถาม','ph-chats-circle'],test:['ทดสอบส่ง','ph-flask']};
+ $('#n-hist').innerHTML=histHtml(d.log);$('#n-ack').innerHTML=ackHtml(d.acks||[])}
+const LT={auto:['แจ้งอัตโนมัติ','ph-robot'],manual:['กดแจ้ง/สำเร็จรูป','ph-hand-pointing'],typed:['พิมพ์เอง','ph-pencil-simple'],bot:['ระบบตอบแชท','ph-chats'],inbound:['ผู้ยื่นพิมพ์เข้ามา','ph-arrow-bend-down-left'],link:['ผูกบัญชี','ph-link'],qa:['ตอบคำถาม','ph-chats-circle'],test:['ทดสอบส่ง','ph-flask'],ack:['ผู้ยื่นกดรับทราบ','ph-check-circle']};
 const LR={sent:['ส่งแล้ว','green','ph-check-circle'],success:['สำเร็จ','green','ph-check-circle'],failed:['ส่งไม่สำเร็จ','red','ph-x-circle'],no_line:['ยังไม่ผูก LINE','orange','ph-minus-circle'],skipped:['ข้ามการส่ง','orange','ph-minus-circle'],received:['รับแล้ว','gray','ph-arrow-down'],info:['ข้อมูล','gray','ph-info']};
 const lt=t=>{const x=LT[t]||[t,'ph-dot'];return `<span class="chip gray" style="font-size:12px"><i class="ph ${x[1]}"></i>${esc(x[0])}</span>`};
 const lr=r=>{const x=LR[r]||[r,'gray','ph-dot'];return `<span class="chip ${x[1]}" style="font-size:12px"><i class="ph ${x[2]}"></i>${esc(x[0])}</span>`};
 const histHtml=log=>log.length?`<ul class="tl">${log.map(x=>`<li>${lt(x.type)} ${lr(x.res)} <span class="meta">${esc(x.by||'ระบบ')}</span><div>${esc(x.m)}${x.fu?` <a href="${esc(x.fu)}" target="_blank" rel="noopener"><i class="ph ph-paperclip"></i> ${esc(x.fn||'ไฟล์แนบ')}</a>`:''}</div>${x.d?`<div class="meta">${esc(x.d)}</div>`:''}<div class="meta">${esc(thDT(x.t))}</div></li>`).join('')}</ul>`:'<div class="empty">ยังไม่มีประวัติการแจ้งเตือนของรายการนี้</div>';
 $('#n-send').onclick=async()=>{const b=$('#n-send'),m=$('#n-msg');msg(m,'');const text=$('#n-text').value.trim();
- if(NMODE!=='status'&&!text)return msg(m,'กรุณาพิมพ์ข้อความ');
- busy(b,1,FNT.get()?'กำลังอัปโหลดและส่ง...':'กำลังส่ง...');const p={mode:NMODE==='status'?'status':'text',kind:NMODE==='tpl'?'manual':'typed',text};
+ if(NMODE!=='status'&&NMODE!=='act'&&!text)return msg(m,'กรุณาพิมพ์ข้อความ');
+ const A=NMODE==='act'?actCollect():null;if(A){if(!A.title)return msg(m,'กรุณาระบุหัวข้อเรื่องที่ต้องดำเนินการ');if(!A.items.length)return msg(m,'กรุณาระบุรายการที่ต้องทำอย่างน้อย 1 ข้อ')}
+ busy(b,1,FNT.get()?'กำลังอัปโหลดและส่ง...':'กำลังส่ง...');const p={mode:NMODE==='status'?'status':NMODE==='act'?'action':'text',kind:NMODE==='tpl'||A?'manual':'typed',text};if(A)Object.assign(p,A);
  try{const a=await FNT.pack();if(a)p.file=a}catch(er){busy(b,0);return msg(m,er.message)}
  const d=await api('lineSend',[TOKEN,NID,p],{timeout:120000,write:true});busy(b,0);
- if(d.ok){if(d.file&&d.file.shared===false)toast('ส่งข้อความ LINE แล้ว แต่ไฟล์แนบไม่ได้ส่ง เพราะ Google Drive ไม่อนุญาตแชร์ลิงก์ (ติดต่อผู้ดูแลระบบ)','warn',8000);else toast('ส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':''));$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear()}else msg(m,d.message);
+ if(d.ok){if(d.file&&d.file.shared===false)toast('ส่งข้อความ LINE แล้ว แต่ไฟล์แนบไม่ได้ส่ง เพราะ Google Drive ไม่อนุญาตแชร์ลิงก์ (ติดต่อผู้ดูแลระบบ)','warn',8000);else toast(A?'ส่งการ์ด “ต้องดำเนินการ” แล้ว':'ส่งแจ้งเตือน LINE แล้ว'+(d.file?' (พร้อมไฟล์แนบ)':''));$('#n-text').value='';cnt();$('#n-tpl').value='';FNT.clear();if(A){actReset();actPreset(0)}}else msg(m,d.message);
  await refreshNotify()};
 /* ---- ถาม-ตอบ (เจ้าหน้าที่) ---- */
 let QID=null;
@@ -2024,7 +2051,7 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineCidFind','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','ackList','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineCidFind','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
@@ -2161,10 +2188,12 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
  case 'qaReply':{const r=this.find(a[1]),t=String(a[2]||'').trim();if(t.length<2)this.err('กรุณาพิมพ์ข้อความ');db.qa.push({id:r.id,t:bkkS(now),from:'staff',by:DM_BY,m:t});
   let line={sent:0,skipped:'none'};if(this.linked(r.cid)){db.lnl.push({t:bkkS(now),id:r.id,cid:r.cid,type:'qa',by:DM_BY,m:t,fn:'',fu:'',res:'sent',d:''});line={sent:1}}this.save();return ok({thread:this.thread(r.id),line})}
  case 'lineInfo':{const r=this.find(a[1]),us=db.lnu.filter(u=>u.cid===r.cid&&u.active);
-  return ok({enabled:true,linked:us.length,names:us.map(u=>u.name||'LINE'),log:db.lnl.filter(x=>x.id===r.id).slice().reverse().slice(0,40),status:r.status,note:r.note})}
+  return ok({enabled:true,linked:us.length,names:us.map(u=>u.name||'LINE'),log:db.lnl.filter(x=>x.id===r.id).slice().reverse().slice(0,40),status:r.status,note:r.note,acks:(db.ack||[]).filter(x=>x.sid===r.id).slice().reverse()})}
  case 'lineSend':{const r=this.find(a[1]),p=a[2]||{};if(!this.linked(r.cid))this.err('ผู้ยื่นรายนี้ยังไม่ได้เชื่อมต่อ LINE');
-  const status=p.mode==='status',txt=status?'ส่งสถานะปัจจุบัน: '+stg(r.status).t:String(p.text||'').trim();if(!txt)this.err('กรุณาพิมพ์ข้อความ');
-  db.lnl.push({t:bkkS(now),id:r.id,cid:r.cid,type:status||p.kind==='manual'?'manual':'typed',by:DM_BY,m:txt,fn:p.file&&p.file.name||'',fu:'',res:'sent',d:''});this.save();return ok({sent:1,failed:0,file:p.file&&p.file.name?{name:p.file.name,shared:true}:null})}
+  const status=p.mode==='status',act=p.mode==='action',txt=status?'ส่งสถานะปัจจุบัน: '+stg(r.status).t:act?'ต้องดำเนินการ: '+String(p.title||'').trim():String(p.text||'').trim();if(!txt||(act&&!String(p.title||'').trim()))this.err(act?'กรุณาระบุหัวข้อเรื่องที่ต้องดำเนินการ':'กรุณาพิมพ์ข้อความ');
+   let ackId='';if(act&&p.ack!==false){ackId='ACK-'+bkkS(now).slice(2,10).replace(/-/g,'')+'-'+Math.random().toString(16).slice(2,7).toUpperCase();(db.ack=db.ack||[]).push({id:ackId,t:bkkS(now),sid:r.id,name:r.prefix+r.first+' '+r.last,title:String(p.title).trim(),items:p.items||[],due:p.due||'',st:'ยังไม่กดรับทราบ',at:''})}
+  db.lnl.push({t:bkkS(now),id:r.id,cid:r.cid,type:status||act||p.kind==='manual'?'manual':'typed',by:DM_BY,m:txt,fn:p.file&&p.file.name||'',fu:'',res:'sent',d:''});this.save();return ok({sent:1,failed:0,ack:ackId,file:p.file&&p.file.name?{name:p.file.name,shared:true}:null})}
+ case 'ackList':{const rows=db.ack||[];return ok({rows:a[1]?rows.filter(x=>x.sid===a[1]).slice().reverse():rows.filter(x=>x.st==='ยังไม่กดรับทราบ').slice().reverse()})}
  case 'lineAdmin':return ok({enabled:true,users:db.lnu.slice().reverse().map(u=>({cid:u.cid,uid:u.uid,name:u.name,at:u.at,via:u.via,active:u.active})),log:db.lnl.slice().reverse().slice(0,500)});
  case 'linePending':{const c=db.subs.find(r=>!this.linked(r.cid));return ok({rows:c?[{uid:'U'+'a'.repeat(32),name:c.first+' (ตัวอย่าง)',at:bkkS(now-864e5),last:'สวัสดีครับ',st:'pending',cands:[{cid:c.cid,name:c.prefix+c.first+' '+c.last,id:c.id}]}]:[]})}
  case 'lineTestInfo':return ok({enabled:true,users:db.lnu.filter(u=>u.active).map(u=>({cid:u.cid,uid:u.uid,name:u.name,at:u.at,via:u.via,active:true,n:db.subs.filter(s=>s.cid===u.cid).length}))});
