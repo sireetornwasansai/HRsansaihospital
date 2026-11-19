@@ -1736,7 +1736,9 @@ const qkNext=r=>{const g=stg(r.status),L=[],SL=stgFor(r,[r.status]),nx=SL.slice(
  return [...new Set(L)].filter(k=>k!==r.status&&SL.some(s=>s.k===k&&!s.lg))};
 const qkLbl=(r,k)=>{const s=stg(k),F=r.fxk||{};let t=s.t;if(s.fix)t+=' ครั้งที่ '+((F[k]||0)+(r.status===k?0:1));else if(s.rep){const f=CFG.stages.find(x=>x.fix&&(x.lp||[]).includes(k));t+=' ครั้งที่ '+Math.max(1,f?(F[f.k]||1):(r.fx||1))}return t};
 function dsWhenErr(w){if(!w)return '';if(DSB.min&&w<DSB.min)return 'เวลาที่เลือกต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+thDT(DSB.min.replace('T',' ')+':00')+') — หากต้องการแก้ไขเวลาของขั้นตอนก่อนหน้า ให้ใช้ “ประวัติสถานะ · แก้ไขวันที่ตามเอกสาร” ด้านล่าง';if(DSB.max&&w>DSB.max)return 'ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้';return ''}
-function dsPreview(){const r=SST;if(!r)return;const st=$('#ds-status').value,ch=st!==r.status;$('#ds-cp').hidden=!(st==='b2_dir_ok'&&ch);{const need=st==='b1_acting';$('#ds-actn').hidden=!need;$('#ds-file-h').innerHTML='<i class="ph ph-paperclip"></i> '+(need?(r.act>0?'แนบหนังสือคำสั่งรักษาการในตำแหน่ง (แนบไว้แล้ว '+r.act+' ไฟล์ — แนบเพิ่มได้)':'แนบหนังสือคำสั่งรักษาการในตำแหน่ง (บังคับ)'):'แนบรูปหรือไฟล์ส่งไปกับ LINE (ไม่บังคับ)')}const nt=$('#ds-note').value!==(r.note||''),ct=$('#ds-ct').checked;
+/* ผอ.ลงนามเล่ม 2 แล้ว = ย้ายจาก b2_dir ไปขั้นถัดไปของ สสจ. (b2_dir_ok เลิกใช้แล้ว เลือกไม่ได้) */
+const CP_NEXT=['b2_pho','b2_pho_dir'];function needCp(r,st){return !!r&&r.status==='b2_dir'&&CP_NEXT.indexOf(st)>=0}
+function dsPreview(){const r=SST;if(!r)return;const st=$('#ds-status').value,ch=st!==r.status;$('#ds-cp').hidden=!needCp(r,st);{const need=st==='b1_acting';$('#ds-actn').hidden=!need;$('#ds-file-h').innerHTML='<i class="ph ph-paperclip"></i> '+(need?(r.act>0?'แนบหนังสือคำสั่งรักษาการในตำแหน่ง (แนบไว้แล้ว '+r.act+' ไฟล์ — แนบเพิ่มได้)':'แนบหนังสือคำสั่งรักษาการในตำแหน่ง (บังคับ)'):'แนบรูปหรือไฟล์ส่งไปกับ LINE (ไม่บังคับ)')}const nt=$('#ds-note').value!==(r.note||''),ct=$('#ds-ct').checked;
  const when=ct&&$('#ds-when').value?thDT($('#ds-when').value.replace('T',' ')+':00'):'เวลาปัจจุบัน (ตอนกดบันทึก)';
  const pv=$('#ds-pv');pv.className='dspv '+(ch||nt?'chg':'');
  const we=ct?dsWhenErr($('#ds-when').value):'';if(we){pv.className='dspv bad';pv.innerHTML='<i class="ph-fill ph-warning"></i><div>'+esc(we)+'</div>';$$('#ds-qk button').forEach(b=>b.classList.toggle('on',b.dataset.k===st));return}
@@ -1825,7 +1827,7 @@ $('#ds-save').onclick=async()=>{const b=$('#ds-save'),m=$('#ds-msg'),r=SST;if(!r
  if(ct){const e=dsWhenErr(p.when);if(e)return msg(m,e)}
  if((p.status==='promoted'||p.status==='closing')&&p.status!==r.status){$('#ds').close();toast('กรุณาประเมินความพึงพอใจก่อนปิดเคส — ผู้ยื่นจะได้รับคำยินดีพร้อมแบบประเมินทาง LINE แล้วระบบจึงปิดเคสให้','info',7000);return promote(r.id,p.note)}
   if(p.status==='b1_acting'&&p.status!==r.status&&!FDS.get()&&!(r.act>0))return msg(m,'ต้องแนบหนังสือคำสั่งรักษาการในตำแหน่ง (ไฟล์จากกลุ่มงานทรัพยากรบุคคล) ก่อนบันทึกสถานะนี้');
-  if(p.status==='b2_dir_ok'&&p.status!==r.status){const cp={};let tot=0;$$('#ds-cp input').forEach(x=>x.removeAttribute('aria-invalid'));
+  if(needCp(r,p.status)){const cp={};let tot=0;$$('#ds-cp input').forEach(x=>x.removeAttribute('aria-invalid'));
    for(const[k,n]of[['person','เล่มบุคคล'],['work','เล่มผลงาน'],['concept','เล่มแนวคิด']]){const el=$('#ds-cp-'+k),v=el.value.trim();if(!/^\d{1,2}$/.test(v)){el.setAttribute('aria-invalid','true');el.focus();return msg(m,'ใส่จำนวน'+n+' (0–99) ก่อนบันทึก')}cp[k]=+v;tot+=cp[k]}
    if(!tot){$('#ds-cp-person').focus();return msg(m,'ต้องส่งอย่างน้อย 1 เล่ม')}p.copies=cp}
   if(p.status===r.status&&p.note===(r.note||'')&&!FDS.get())return msg(m,'ยังไม่ได้เปลี่ยนสถานะหรือหมายเหตุ','info');
@@ -2174,7 +2176,7 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   if(p.customTime){const m=/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(p.when||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');
    at=new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00+07:00`).getTime();if(isNaN(at))this.err('วันที่/เวลาไม่ถูกต้อง');if(at>now+3e5)this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
    const hs=db.his.filter(h=>h.id===id),lt=hs.length?hs[hs.length-1].t:r.ts;if(bkkS(at)<lt)this.err('เวลาที่เลือกต้องไม่ก่อนเวลาของขั้นตอนก่อนหน้า ('+lt.slice(0,16)+') — ให้บันทึกขั้นตอนเรียงตามลำดับเวลา')}
-  let cpv=null;if(st==='b2_dir_ok'&&st!==r.status){const c=p.copies||{};cpv={};let tt=0;for(const[k,n]of[['person','เล่มบุคคล'],['work','เล่มผลงาน'],['concept','เล่มแนวคิด']]){const v=String(c[k]==null?'':c[k]);if(!/^\d{1,2}$/.test(v))this.err('ใส่จำนวน'+n+' (0–99) ก่อนบันทึก');cpv[k]=+v;tt+=cpv[k]}if(!tt)this.err('ต้องส่งอย่างน้อย 1 เล่ม')}
+  let cpv=null;if(r.status==='b2_dir'&&(st==='b2_pho'||st==='b2_pho_dir')){const c=p.copies||{};cpv={};let tt=0;for(const[k,n]of[['person','เล่มบุคคล'],['work','เล่มผลงาน'],['concept','เล่มแนวคิด']]){const v=String(c[k]==null?'':c[k]);if(!/^\d{1,2}$/.test(v))this.err('ใส่จำนวน'+n+' (0–99) ก่อนบันทึก');cpv[k]=+v;tt+=cpv[k]}if(!tt)this.err('ต้องส่งอย่างน้อย 1 เล่ม')}
   const ch=[];if(st&&st!==r.status){r.status=st;ch.push('status')}if(note!==null&&note!==r.note){r.note=note;ch.push('note')}
   const hasFile=!!(p.attach&&p.attach.data);let line=null;
   if(hasFile&&r.status==='b1_acting'&&gateOn(r))db.att.push({id:r.id,t:bkkS(at),kind:'acting',round:'',name:p.attach.name||'หนังสือคำสั่งรักษาการ',url:'#',by:DM_BY,note:String(note||'').slice(0,200),read:'Y'});
