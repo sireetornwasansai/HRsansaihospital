@@ -949,12 +949,12 @@ const avTone=n=>{let h=0;for(const c of String(n||''))h=(h*31+c.charCodeAt(0))>>
 const avatar=(n,cls)=>`<span class="avatar ${cls||''} tone-${avTone(n)}" title="${esc(n)}">${esc(initials(n))}</span>`;
 const validCid=c=>{if(!/^\d{13}$/.test(c))return false;let s=0;for(let i=0;i<12;i++)s+=+c[i]*(13-i);return (11-s%11)%10===+c[12]};
 const hm=s=>(s||'').slice(11,16);
-const thShort=s=>{const m=TS.exec(s||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${m[4]}:${m[5]}`:(s||'')};
+const thShort=s=>{const m=TS.exec(s||'');return m?`${dmy(m[1],m[2],m[3])} ${m[4]}:${m[5]}`:(s||'')};
 const bkk=ms=>new Date(ms+7*36e5).toISOString().slice(0,10);
-const dayLabel=k=>{const n=nowMs();if(k===bkk(n))return 'วันนี้';if(k===bkk(n-864e5))return 'เมื่อวาน';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(k);return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543}`:k};
-const MON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const dayLabel=k=>{const n=nowMs();if(k===bkk(n))return 'วันนี้';if(k===bkk(n-864e5))return 'เมื่อวาน';const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(k);return m?dmy(m[1],m[2],m[3]):k};
+/* วันที่ทั้งแอป = วัน/เดือน/ปี (พ.ศ.) เช่น 05/11/2569 — ใช้ dmy() ที่เดียว */const dmy=(y,m,d)=>String(+d).padStart(2,'0')+'/'+String(+m).padStart(2,'0')+'/'+(+y+543);
 const TS=/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/;
-const thDT=s=>{const m=TS.exec(s||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543} ${m[4]}:${m[5]} น.`:(s||'')};
+const thDT=s=>{const m=TS.exec(s||'');return m?`${dmy(m[1],m[2],m[3])} ${m[4]}:${m[5]} น.`:(s||'')};
 /* เรียงใหม่สุดขึ้นก่อนตามวันเวลาจริง (กันลำดับแถวในชีทสลับ) — เวลาเท่ากันคงลำดับเดิมจากเซิร์ฟเวอร์ */
 const newest=(a,g)=>a.map((x,i)=>[x,i,(m=>m?m.slice(1,6).join(''):'')(TS.exec(g(x)||''))]).sort((p,q)=>p[2]<q[2]?1:p[2]>q[2]?-1:p[1]-q[1]).map(p=>p[0]);
 const toDate=s=>{const m=TS.exec(s||'');return m?new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:00+07:00`):null};
@@ -1066,7 +1066,7 @@ async function retroCase(R,it){const c=await api('surveyRetro',[LASTCID,R.id,R.s
  if(d){toast('ขอบคุณสำหรับการประเมินความพึงพอใจ','ok',8000);$('#t-go').click()}}
 /* เจ้าหน้าที่ (admin): รายการเคสที่ปิดแล้วแต่ผู้ยื่นยังไม่ประเมิน → คัดลอกลิงก์เฉพาะเคส / ส่งทาง LINE */
 function srDraw(){const q=$('#sr-q').value.trim().toLowerCase(),mn=+$('#sr-min').value,gl=$('#sr-gl').value==='1',L=SRL.filter(x=>x.hisN>=mn&&(!gl||x.hisNew>0)&&(!q||(x.id+' '+x.name+' '+x.title).toLowerCase().includes(q))),ln=CFG.line&&CFG.line.enabled;
- $('#sr-list').innerHTML=(L.length?`<div class="meta" style="margin:4px 0">${L.length} รายการ (จากทั้งหมด ${SRL.length})</div>`+L.map(x=>`<div class="sr-i"><div style="min-width:0;flex:1 1 220px"><b>${esc(x.name)}</b> <span class="meta">${esc(x.id)}</span><div class="meta">${esc(x.title)}${x.upd?' · ปิดเมื่อ '+esc(x.upd.slice(0,10)):''}</div><div class="meta">สถานะ <b>${x.hisN}</b> รายการ (ตั้งแต่เปิดระบบ ${x.hisNew}) · ใช้ระบบ ${x.days} วัน</div></div><div class="row"><button class="btn sec" type="button" data-sr-c="${esc(x.id)}"><i class="ph-bold ph-copy"></i> คัดลอกลิงก์</button>${ln?`<button class="btn sec" type="button" data-sr-l="${esc(x.id)}"><i class="ph-bold ph-paper-plane-tilt"></i> ส่ง LINE</button>`:''}</div></div>`).join(''):'<div class="meta" style="padding:12px 0">ไม่มีรายการที่รอประเมินย้อนหลัง</div>')}
+ $('#sr-list').innerHTML=(L.length?`<div class="meta" style="margin:4px 0">${L.length} รายการ (จากทั้งหมด ${SRL.length})</div>`+L.map(x=>`<div class="sr-i"><div style="min-width:0;flex:1 1 220px"><b>${esc(x.name)}</b> <span class="meta">${esc(x.id)}</span><div class="meta">${esc(x.title)}${x.upd?' · ปิดเมื่อ '+esc(thD(x.upd.slice(0,10))):''}</div><div class="meta">สถานะ <b>${x.hisN}</b> รายการ (ตั้งแต่เปิดระบบ ${x.hisNew}) · ใช้ระบบ ${x.days} วัน</div></div><div class="row"><button class="btn sec" type="button" data-sr-c="${esc(x.id)}"><i class="ph-bold ph-copy"></i> คัดลอกลิงก์</button>${ln?`<button class="btn sec" type="button" data-sr-l="${esc(x.id)}"><i class="ph-bold ph-paper-plane-tilt"></i> ส่ง LINE</button>`:''}</div></div>`).join(''):'<div class="meta" style="padding:12px 0">ไม่มีรายการที่รอประเมินย้อนหลัง</div>')}
 $('#sr-q').addEventListener('input',srDraw);$('#sr-min').addEventListener('change',srDraw);$('#sr-gl').addEventListener('change',srDraw);$('#sr-x').onclick=()=>$('#dsr').close();
 $('#sr-list').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;
  if(b.dataset.srC){const x=SRL.find(r=>r.id===b.dataset.srC);if(x)copy(x.uri,'คัดลอกลิงก์')}
@@ -1141,7 +1141,7 @@ function dlyRowHtml(x,open){
   <div style="min-width:0"><div class="dly-nm">${esc(x.name)}</div><div class="dly-sub">${esc(x.id)}${x.pos?' · '+esc(x.pos):''}${x.trk?' · '+esc(x.trk):''}${showSt?' · '+esc(x.stage):''}${x.open?' · ยังอยู่ในขั้นตอนนี้':''}</div></div>
   <div class="dly-r"><div class="dly-days ${x.late?'late':''}">${f1(x.d)} วัน${x.sla?` <span class="dly-sub">/ เกณฑ์ ${x.sla}</span>`:''}${x.late?` · เกิน ${f1(x.over)}`:''}</div>${badge}</div></summary>
   <div class="dly-body"><div>${x.title?`<div class="dly-sub" style="margin-bottom:8px">ผลงาน: ${esc(x.title)}</div>`:''}<h4 class="dly-h">เส้นทางของเคส — เวลาไปอยู่ที่ขั้นตอนใด</h4>
-   <ol class="dly-tl">${x.tl.map(s=>`<li class="${s.here?'here':''} ${s.late?'late':''}"><span>${esc(s.t)}${s.here?' <span class="dbadge wait" style="font-size:12px">ขั้นตอนที่กำลังดู</span>':''}</span><span class="tm">${s.d===null?(s.end?'':'-'):f1(s.d)+' วัน'}</span><span class="at">${esc(thDT(s.at))}${s.cur&&!s.end?' · อยู่ในขั้นตอนนี้':''}${s.pre?' · ก่อน ต.ค. 2569 ไม่เทียบเกณฑ์ (ข้อมูลไม่สมบูรณ์)':''}</span>${s.d===null?'':`<span class="bar" aria-hidden="true"><i style="width:${Math.max(2,Math.round(s.d/mx*100))}%"></i></span>`}</li>`).join('')}</ol>
+   <ol class="dly-tl">${x.tl.map(s=>`<li class="${s.here?'here':''} ${s.late?'late':''}"><span>${esc(s.t)}${s.here?' <span class="dbadge wait" style="font-size:12px">ขั้นตอนที่กำลังดู</span>':''}</span><span class="tm">${s.d===null?(s.end?'':'-'):f1(s.d)+' วัน'}</span><span class="at">${esc(thDT(s.at))}${s.cur&&!s.end?' · อยู่ในขั้นตอนนี้':''}${s.pre?' · ก่อน 01/10/2569 ไม่เทียบเกณฑ์ (ข้อมูลไม่สมบูรณ์)':''}</span>${s.d===null?'':`<span class="bar" aria-hidden="true"><i style="width:${Math.max(2,Math.round(s.d/mx*100))}%"></i></span>`}</li>`).join('')}</ol>
    <div style="margin-top:10px"><button class="btn sec sm" type="button" data-cp="${esc(x.id)}"><i class="ph-bold ph-copy"></i> คัดลอกรหัสเคส</button></div></div>
   <form class="dly-f" data-key="${esc(dlyKey(x))}"><h4 class="dly-h">ปัจจัยที่ทำให้ล่าช้า <span class="dly-sub" style="font-weight:400">เลือกได้หลายข้อ</span></h4>
    ${G.map(g=>`<fieldset><legend>${esc(g.g)}</legend><div>${g.L.map(c=>`<label class="dly-c"><input type="checkbox" name="c" value="${esc(c.k)}" ${sel.has(c.k)?'checked':''}>${esc(c.t)}</label>`).join('')}</div></fieldset>`).join('')}
@@ -1363,7 +1363,7 @@ function flowHtml(it){const now=nowMs(),h=it.history||[],cs0=stg(it.status),cx=!
  const lastEv=h.length?h[h.length-1]:null,lastT=lastEv?toDate(lastEv.t):null,subT=toDate(it.ts);
  const SF=stgFor(it,[st].concat(Object.keys(first))),flat=stgFor(it,[st]).filter(s=>!s.fix&&!s.rep&&!s.cancel),idx=flat.filter(s=>s.ord<cs.ord||s.k===st).length,PS=procStats(it);
  /* ตราของการ์ด "คำสั่งรักษาการในตำแหน่ง" (เล่ม 1.5): สำเร็จแล้ว + สถานะนับ 180 วันเพื่อทำเล่ม 2 · ถ้าข้ามขั้นตอนนี้จะไม่อ้างว่าสำเร็จ */
- const actInfo=()=>{const a=first.b1_acting;if(!a)return {skip:1};const at=toDate(a.t);if(!at)return {skip:1};const b2=first.b2_submit,b2t=b2&&toDate(b2.t),endT=b2t?b2t.getTime():now,used=Math.max(0,Math.floor((endT-at.getTime())/DAY)),left=180-used,dl=bkk(at.getTime()+180*DAY),dls=+dl.slice(8,10)+' '+MON[+dl.slice(5,7)-1]+' '+String((+dl.slice(0,4)+543)%100);let l2,bad=0;
+ const actInfo=()=>{const a=first.b1_acting;if(!a)return {skip:1};const at=toDate(a.t);if(!at)return {skip:1};const b2=first.b2_submit,b2t=b2&&toDate(b2.t),endT=b2t?b2t.getTime():now,used=Math.max(0,Math.floor((endT-at.getTime())/DAY)),left=180-used,dl=bkk(at.getTime()+180*DAY),dls=dmy(dl.slice(0,4),dl.slice(5,7),dl.slice(8,10));let l2,bad=0;
   if(b2t){l2='ยื่นเล่ม 2 แล้ว · ใช้ '+used+' จาก 180 วัน';if(used>180){l2='ยื่นเล่ม 2 แล้ว · เกินกำหนด '+(used-180)+' วัน';bad=1}}
   else if(left>=0)l2='เริ่มนับ 180 วันเพื่อทำเล่ม 2 · เหลือ '+left+' วัน (ครบ '+dls+')';else{l2='เกินกำหนดส่งเล่ม 2 แล้ว '+(-left)+' วัน';bad=1}
   return {at:a.t,l2,bad,b2:!!b2t}};
@@ -1526,7 +1526,7 @@ const maskT=v=>{const d=String(v).replace(/\D/g,'').slice(0,4);return d.slice(0,
 function parseDmy(s){const m=/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(s||'').trim());if(!m)return null;let y=+m[3];if(y>=2400)y-=543;const mo=+m[2],d=+m[1];if(y<1900||y>2200||mo<1||mo>12||d<1)return null;const dt=new Date(Date.UTC(y,mo-1,d));return dt.getUTCFullYear()===y&&dt.getUTCMonth()===mo-1&&dt.getUTCDate()===d?`${y}-${p2(mo)}-${p2(d)}`:null}
 function parseHm(s){const m=/^(\d{1,2}):(\d{2})$/.exec(String(s||'').trim());return m&&+m[1]<24&&+m[2]<60?`${p2(+m[1])}:${m[2]}`:null}
 const isoToDmy=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');return m?`${m[3]}/${m[2]}/${+m[1]+543}`:''};
-const thD=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543}`:''};
+const thD=iso=>{const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');return m?dmy(m[1],m[2],m[3]):''};
 const dtHtml=(id,o={})=>`<div class="dt" id="${id}-w"><div class="dt-r"><span class="dt-f"><input id="${id}-d" class="dt-d" inputmode="numeric" maxlength="10" placeholder="วว/ดด/ปปปป" autocomplete="off" aria-label="วันที่ วัน/เดือน/ปี (พ.ศ.)"><button type="button" class="dt-p" data-pk="${id}" aria-label="เลือกวันที่จากปฏิทิน" title="เลือกจากปฏิทิน"><i class="ph ph-calendar-blank"></i></button><input type="date" id="${id}-n" class="dt-n" tabindex="-1" aria-hidden="true"></span>${o.time?`<span class="dt-f"><input id="${id}-t" class="dt-t" inputmode="numeric" maxlength="5" placeholder="ชช:นน" autocomplete="off" aria-label="เวลา 24 ชั่วโมง (ชั่วโมง:นาที)"><span class="dt-u">น.</span></span><button type="button" class="btn sm sec dt-now" data-now="${id}">ตอนนี้</button>`:''}</div><div class="meta dt-h" id="${id}-h" aria-live="polite"></div><input type="hidden" id="${id}"></div>`;
 function dtSync(id,quiet){const time=!!$('#'+id+'-t'),dS=$('#'+id+'-d').value.trim(),tS=time?$('#'+id+'-t').value.trim():'',h=$('#'+id+'-h'),hid=$('#'+id);
  const d=parseDmy(dS),tm=time?parseHm(tS):'';let v='',txt='',bad=false;
@@ -1912,7 +1912,7 @@ function actCollect(){const items=$$('#a-items .row').map(r=>[$('[data-ai="k"]',
 $('#a-pre').onchange=e=>actPreset(+e.target.value);
 $('#a-add').onclick=()=>{if($$('#a-items .row').length>=6)return toast('เพิ่มได้ไม่เกิน 6 รายการ','info');$('#a-items').insertAdjacentHTML('beforeend',actRow('',''));$$('#a-items [data-ai="k"]').pop().focus()};
 $('#a-items').addEventListener('click',e=>{const b=e.target.closest('[data-ad]');if(b)b.closest('.row').remove()});
-const thDue=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?`${+m[3]} ${MON[+m[2]-1]} ${+m[1]+543}`:(s||'')};
+const thDue=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?dmy(m[1],m[2],m[3]):(s||'')};
 const ackChip=a=>a.st==='รับทราบแล้ว'?`<span class="chip green" style="font-size:12px"><i class="ph ph-check-circle"></i>รับทราบแล้ว ${esc(thShort(a.at))}</span>`:a.st==='ส่งไม่สำเร็จ'?'<span class="chip red" style="font-size:12px"><i class="ph ph-x-circle"></i>ส่งไม่สำเร็จ</span>':'<span class="chip gray" style="font-size:12px"><i class="ph ph-minus-circle"></i>ยังไม่กดรับทราบ</span>';
 const ackHtml=(rows,named)=>rows.length?`<ul class="tl">${rows.map(a=>`<li>${ackChip(a)} <span class="meta">${esc(a.id)}${named?' · '+esc(a.sid)+(a.name?' · '+esc(a.name):''):''}</span><div><b>${esc(a.title)}</b>${(a.items||[]).length?' — '+esc(a.items.map(x=>x[0]+(x[1]?' '+x[1]:'')).join(' · ')):''}</div><div class="meta">ส่งเมื่อ ${esc(thDT(a.t))}${a.due?' · กำหนด '+esc(thDue(a.due)):''}</div></li>`).join('')}</ul>`:'<div class="empty">ยังไม่มีข้อความแบบต้องดำเนินการ</div>';
 function setMode(m){NMODE=m;$$('#n-seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));$('#n-tplbox').classList.toggle('hide',m!=='tpl');$('#n-textbox').classList.toggle('hide',m==='status'||m==='act');$('#n-actbox').classList.toggle('hide',m!=='act');if(m==='act'&&!$('#a-title').value&&!$('#a-items').children.length)actPreset(0);if(m==='typed'){$('#n-tpl').value=''}}
@@ -2003,7 +2003,7 @@ async function loadLineTest(){
  const d=await api('lineTestInfo',[TOKEN]);if(!d.ok){el.innerHTML='';return msg(el,d.message)}
  const us=(d.users||[]).filter(u=>u.active);let saved='';try{saved=localStorage.getItem('awc_lt_uid')||''}catch(e){}
  const opt=us.map(u=>`<option value="${esc(u.uid)}"${u.uid===saved?' selected':''}>${esc(u.name||'LINE')} · ${esc(maskCid(u.cid))} · ผูก ${esc(thDT(u.at))} (${esc(u.via||'-')})</option>`).join('');
- const stamp=new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
+ const stamp=thDT(bkk0());
  el.innerHTML=`<form id="lt-f" class="card"><h2><i class="ph ph-flask"></i> ทดสอบส่งข้อความ LINE</h2>
  <p class="meta">เลือกบัญชีที่ผูกไว้ในแท็บ LineUsers แล้วเลือกรูปแบบทดสอบ — ปลายทางจะได้รับข้อความจริง (ขึ้นต้น [ทดสอบ] สำหรับข้อความตัวอักษร) และบันทึกในประวัติ LINE ประเภท "ทดสอบส่ง" · ส่งได้เฉพาะบัญชีที่ผูกไว้ ไม่เกิน 20 ครั้ง/10 นาที</p>
  ${us.length?'':'<p class="meta"><span class="chip orange"><i class="ph ph-warning"></i>ยังไม่มีบัญชี LINE ที่ผูกไว้</span> ผูกที่แท็บ LINE ก่อน</p>'}
@@ -2172,7 +2172,7 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
  case 'star':{const r=this.find(a[1]);r.star=a[2]?'Y':'';this.save();return ok({star:!!a[2]})}
  case 'histTime':{const id=a[1],r=this.find(id),hs=db.his.filter(h=>h.id===id),i=+a[2],h=hs[i];if(!h)this.err('ไม่พบขั้นตอนที่ต้องการแก้ไข');if(a[3]&&h.t!==a[3])this.err('ข้อมูลขั้นตอนนี้ถูกแก้ไขโดยผู้อื่นแล้ว กรุณาปิดแล้วเปิดใหม่');
   const m=/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(a[4]||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');const nw=m[1]+' '+m[2]+':00';if(nw>bkkS(now+3e5))this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
-  if(i>0&&nw<hs[i-1].t)this.err('เวลาต้องไม่ก่อนขั้นตอนก่อนหน้า ('+hs[i-1].t.slice(0,16)+')');if(i<hs.length-1&&nw>hs[i+1].t)this.err('เวลาต้องไม่หลังขั้นตอนถัดไป ('+hs[i+1].t.slice(0,16)+')');
+  if(i>0&&nw<hs[i-1].t)this.err('เวลาต้องไม่ก่อนขั้นตอนก่อนหน้า ('+thDT(hs[i-1].t)+')');if(i<hs.length-1&&nw>hs[i+1].t)this.err('เวลาต้องไม่หลังขั้นตอนถัดไป ('+thDT(hs[i+1].t)+')');
   h.t=nw;if(i===0)r.ts=nw;if(i===hs.length-1)r.upd=nw;this.save();return ok({t:nw,old:a[3]})}
  case 'adminStatus':{const id=a[1],p=a[2]||{},r=this.find(id),st=p.status||'';if(st&&!stageOk(st))this.err('สถานะไม่ถูกต้อง');if((st==='promoted'||st==='closing')&&st!==r.status)this.err('การปิดเคสต้องกดปุ่ม “ปิดเคส” และทำแบบประเมินความพึงพอใจ (ผู้ยื่นต้องประเมินด้วย) ระบบจึงจะปิดเคสให้');
   if(st&&st!==r.status){const ns=stg(st),hsx=db.his.filter(h=>h.id===r.id);if(ns.trk==='gate'&&!gateOn(r))this.err('ขั้นตอน “คำสั่งรักษาการในตำแหน่ง” ใช้เฉพาะเส้นทาง '+CFG.gateTrack);
