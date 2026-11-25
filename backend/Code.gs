@@ -272,7 +272,13 @@ function sandRun_(task, fn) {
 }
 
 /* ---------- Helpers ---------- */
-function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k) || ''; }
+/* อ่าน Script Properties ครั้งเดียวต่อการรัน (เดิมเรียก PropertiesService ทุกครั้งที่ prop_) — ผู้เขียนค่าต้องใช้ setProp_ เพื่อล้างแคชนี้ */
+var _PROPS = null;
+function prop_(k) {
+  if (!_PROPS) { try { _PROPS = PropertiesService.getScriptProperties().getProperties(); } catch (e) { return PropertiesService.getScriptProperties().getProperty(k) || ''; } }
+  var v = _PROPS[k]; return v == null ? '' : v;
+}
+function setProp_(k, v) { PropertiesService.getScriptProperties().setProperty(k, v); _PROPS = null; }
 /* เปิด Spreadsheet ครั้งเดียวต่อการรัน (ตัวแปร global อยู่แค่ในหนึ่ง execution) — เดิม openById ซ้ำทุกครั้งที่เรียก sheet_() */
 var _SS = null, _SHT = {};
 function ss_() { if (_SS) return _SS; var id = prop_('SPREADSHEET_ID'); _SS = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet(); return _SS; }
@@ -410,6 +416,21 @@ function appendText_(sh, row) {
   var rg = sh.getRange(r, 1, 1, row.length); fmt_(rg, '@'); rg.setValues([row]);
   return r;
 }
+/* เหมือน appendText_ แต่ข้ามการตั้งรูปแบบ+flush เมื่อแถวปลายทางเป็นข้อความ (@) อยู่แล้ว — ตรวจครั้งเดียวต่อแท็บต่อ 6 ชม. (แท็บที่ระบบสร้างตั้ง @ ทั้งแท็บไว้แล้ว)
+ * ถ้าไม่ใช่ @ จะถอยไปใช้ appendText_ แบบเดิมทุกประการ */
+function appendTextLite_(sh, row) {
+  var r = sh.getLastRow() + 1;
+  if (r > sh.getMaxRows()) sh.insertRowsAfter(sh.getMaxRows(), 1);
+  var rg = sh.getRange(r, 1, 1, row.length), ck = 'tf_' + sh.getSheetId(), ok = false, c = CacheService.getScriptCache();
+  try { ok = !!c.get(ck); } catch (e0) {}
+  if (!ok) {
+    ok = rg.getNumberFormats()[0].every(function (x) { return x === '@'; });
+    if (ok) { try { c.put(ck, '1', 21600); } catch (e1) {} }
+  }
+  if (!ok) fmt_(rg, '@');
+  rg.setValues([row]);
+  return r;
+}
 function setText_(range, v) { fmt_(range, '@'); range.setValue(v); }
 /* ---------- ประวัติสถานะ: เรียงตามเวลา (เก่า→ใหม่) ----------
  * แถวในแท็บ "ประวัติสถานะ" อาจไม่เรียงตามเวลา (นำเข้าจากทะเบียนคุมเรียงย้อนหลัง / ลงเวลาย้อนหลัง) — ทุกที่ที่ต้องรู้ "ขั้นตอนล่าสุด/วันเข้าขั้นตอน"
@@ -480,6 +501,12 @@ function fixRound_(id, k) {
 }
 /* จำนวนรอบที่กรรมการให้แก้ไข (นับจากประวัติ) */
 function fixCount_(id) { return fixRound_(id, 'b2_fix'); }
+/* เหมือน fixCount_ แต่ใช้ประวัติที่อ่าน+เรียงแล้ว (hv จาก hisSort_) — ไม่อ่านชีทซ้ำต่อเคส */
+function fixFromHis_(hv, id) {
+  var c = 0, prev = '';
+  hv.forEach(function (r) { if (str_(r[0]) !== id) return; var st = normKey_(str_(r[2])); if (st === 'b2_fix' && prev !== 'b2_fix') c++; prev = st; });
+  return c;
+}
 function lastHisTime_(id) {
   var s = sheet_('HIS'), n = s.getLastRow(), mx = '';
   if (n < 2) return '';
@@ -544,7 +571,7 @@ function staffByCid_(cid) {
   return null;
 }
 function log_(action, user, result, detail) {
-  try { appendText_(sheet_('LOG'), [now_(), action, user || '', result || '', detail || '']); } catch (e) {}
+  try { appendTextLite_(sheet_('LOG'), [now_(), action, user || '', result || '', detail || '']); } catch (e) {}
   try {
     var lv = result === 'error' ? 'error' : (result === 'warn' || result === 'rejected' || result === 'fail') ? 'warn' : '';
     if (lv) sandLog(lv, action + ': ' + maskT_(detail || result), null);
@@ -682,7 +709,7 @@ function faqSeed_() {
   var s = sheet_('FAQ'); if (s.getLastRow() > 1 || prop_('FAQ_SEEDED')) return;
   var t = now_(), rows = FAQ_SEED.map(function (f, i) { return ['FAQ-' + ('00' + (i + 1)).slice(-3), f[0], f[1], f[2], 'Y', f[3] ? 'Y' : 'N', (i + 1) * 10, 0, 0, t, 'ระบบ (ตั้งต้น)']; });
   s.getRange(2, 1, rows.length, 11).setValues(rows);
-  PropertiesService.getScriptProperties().setProperty('FAQ_SEEDED', '1');
+  setProp_('FAQ_SEEDED', '1');
 }
 function faqPub_(r) { return { id: r.id, cat: r.cat, q: r.q, a: r.a, pin: r.pin, upd: r.upd }; }
 function faqSort_(a, b) { return (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || a.ord - b.ord || (a.id < b.id ? -1 : 1); }
@@ -767,7 +794,7 @@ function apiTrack_(cidRaw) {
   var items = mine.map(function (r) {
     return {
       id: r.id, ts: r.ts, position: r.position, group: r.group, posNo: r.posNo, tenure: r.tenure, edu: r.edu, title: r.title, hasFile: !!r.link, qa: qthread_(qall, r.id),
-      status: r.status, note: r.note, upd: r.upd, track: r.track, att: attPublic_(aall, r.id), fx: fixCount_(r.id),
+      status: r.status, note: r.note, upd: r.upd, track: r.track, att: attPublic_(aall, r.id), fx: fixFromHis_(hv, r.id),
       history: hv.filter(function (h) { return str_(h[0]) === r.id; }).map(function (h) { return { t: str_(h[1]), s: normKey_(str_(h[2])), n: str_(h[3]), by: str_(h[4]) }; })
     };
   }).reverse();
@@ -1568,7 +1595,7 @@ function retroKey_() {
   var lock = LockService.getScriptLock(); lock.waitLock(15000);
   try {
     k = prop_('RETRO_KEY');
-    if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); PropertiesService.getScriptProperties().setProperty('RETRO_KEY', k); }
+    if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); setProp_('RETRO_KEY', k); }
   } finally { lock.releaseLock(); }
   return k;
 }
@@ -2371,3 +2398,15 @@ function cleanHistory_(apply) {
 }
 function cleanHistoryDryRun() { return cleanHistory_(false); }
 function cleanHistoryApply() { return cleanHistory_(true); }
+
+/* ---------- อุ่นเครื่อง (ลดอาการหน้าแรกช้าหลังไม่มีคนใช้) ----------
+ * installWarmTrigger = ตั้งทริกเกอร์ทุก 5 นาทีให้เรียก keepWarm (ไม่แตะชีท/ไม่ส่งอะไร) · removeWarmTrigger = ลบ
+ * หมายเหตุ: ช่วยลด cold start ได้บางส่วน ไม่รับประกัน และไม่กระทบข้อมูลหรือฟังก์ชันอื่น */
+function keepWarm() { return 'ok'; }
+function installWarmTrigger() {
+  removeWarmTrigger();
+  ScriptApp.newTrigger('keepWarm').timeBased().everyMinutes(5).create();
+}
+function removeWarmTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'keepWarm') ScriptApp.deleteTrigger(t); });
+}
