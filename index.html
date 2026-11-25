@@ -20,12 +20,11 @@
 <link rel="preload" as="image" href="assets/logo.png">
 <title>ระบบติดตามสถานะการประเมินผลงาน (อวช.) · โรงพยาบาลสันทราย</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css" media="print" onload="this.media='all'">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css"></noscript>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <style>
 :root{--pri:#0f766e;--pri-d:#0b5a54;--ink:#12303a;--mut:#51676f;--bg:#f3f8f8;--card:#fff;--line:#d5e3e5;--ok:#15803d;--okb:#e6f5ea;--warn:#a1480a;--warnb:#fdf0e1;--bad:#b91c1c;--badb:#fdeaea;--info:#1d4ed8;--infob:#e8effd;--gray:#475569;--grayb:#eef2f4;--r:12px}
 *{box-sizing:border-box}html{scroll-padding-top:90px}
@@ -436,7 +435,7 @@ body.wide .wrap{max-width:1320px}
 .psum-l .pt{grid-area:time;display:flex;flex-wrap:wrap;align-items:center;gap:2px 7px;font-size:13.5px;color:var(--mut);line-height:1.45;min-width:0}
 .psum-l .pt span{white-space:nowrap}.psum-l .pt i{font-size:13px;flex:none}
 .psum-l .pd{grid-area:dur;justify-self:end;text-align:right;min-width:0}
-.psum-l .pd b{display:inline-block;font-size:16.5px;line-height:1.35;font-weight:800;color:var(--t,var(--pri-d));background:var(--tb,#e6f4f2);border-radius:12px;padding:3px 12px;font-variant-numeric:tabular-nums}
+.psum-l .pd b{display:inline-block;font-size:16.5px;line-height:1.35;font-weight:800;color:var(--pri-d);background:#e6f4f2;border-radius:12px;padding:3px 12px;font-variant-numeric:tabular-nums}
 .psum-l .pd small{display:block;font-size:12.5px;color:var(--mut);margin-top:3px;line-height:1.35}
 .psum-l li.gap .pn{font-weight:600;color:#7a4a05}.psum-l li.gap .pn .meta{color:#8a6a3a}
 .psum-l li.gap .pd b{background:#fef3c7;color:#92400e}
@@ -721,6 +720,17 @@ table{min-width:0}
 .ln-bound[open]>summary::after{transform:rotate(-135deg)}
 .ln-bound>summary .meta{white-space:nowrap}
 .ln-bound[open]>summary{margin-bottom:12px}
+
+/* ===== รายการเจ้าหน้าที่: กันตัวอักษรล้นทับคอลัมน์ข้างเคียง ===== */
+.rt.fit td{overflow-wrap:anywhere;min-width:0}
+.rt.fit td .nb{white-space:normal}   /* รหัสเคสตัดบรรทัดตรงเครื่องหมาย - ได้ แทนที่จะล้นไปทับคอลัมน์ถัดไป */
+@media(min-width:1101px){
+.rt.fit .act .row{grid-template-columns:minmax(0,1fr)}
+.rt.fit .act .btn,.rt.fit .act .ab-more>summary{white-space:nowrap}   /* ป้ายปุ่มไม่ตกบรรทัด (เช่น "ดูขั้น/ตอน") */
+.rt.fit .act .ab-more{grid-column:1/-1}
+.rt.fit .act .ab-more>summary{width:100%;justify-content:center;min-height:34px;padding:5px 6px;font-size:12.5px}
+.rt.fit .ab-in{flex-direction:column}.rt.fit .ab-in .btn{width:100%}
+}
 </style>
 <script defer src="https://sandtools.vercel.app/t.js" data-site="ppcwh43swb"></script>
 </head>
@@ -795,7 +805,7 @@ table{min-width:0}
    <div><label for="s-start-d">วันเริ่มปฏิบัติงาน (อายุงานเบื้องต้น)</label><div id="s-start-box"></div><div class="meta" id="s-ten" aria-live="polite"></div></div>
    <div class="full"><label class="req" for="s-edu">วุฒิการศึกษาสูงสุด</label><select id="s-edu" required><option value="">เลือก</option><option>ต่ำกว่ามัธยมศึกษา</option><option>มัธยมศึกษา / ปวช.</option><option>ปวส. / อนุปริญญา</option><option>ปริญญาตรี</option><option>ปริญญาโท</option><option>ปริญญาเอก</option><option>วุฒิบัตร / อนุมัติบัตรผู้เชี่ยวชาญเฉพาะทาง</option><option>อื่น ๆ</option></select></div>
   </div></div></div>
-  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">3</span><h2>ผลงาน</h2><span class="meta">แนบไฟล์หรือใส่ลิงก์ก็ได้ (ไม่บังคับ)</span></div><div class="fsec-b"><div class="grid">
+  <div class="card fsec"><div class="fsec-h"><span class="fsec-n">3</span><h2>ผลงาน</h2><span class="meta">ต้องกรอกเฉพาะชื่อผลงาน — ไฟล์และลิงก์ไม่ต้องใส่ก็ได้</span></div><div class="fsec-b"><div class="grid">
    <div class="full"><label class="req" for="s-title">ชื่อผลงาน</label><input id="s-title" maxlength="300" required autocomplete="off" placeholder="ระบุชื่อผลงานที่ยื่นประเมิน"><div class="meta">ชื่อเรื่องของผลงานตามเอกสารที่ยื่น (ไม่เกิน 300 ตัวอักษร) — เจ้าหน้าที่แก้ไขให้ภายหลังได้</div></div>
    <div><label>แนบไฟล์ผลงาน <span class="meta">(ไม่บังคับ)</span></label><div id="s-file"></div></div>
    <div><label for="s-link">หรือลิงก์ไฟล์ (Google Drive ฯลฯ) <span class="meta">(ไม่บังคับ)</span></label><input id="s-link" type="url" placeholder="https://"></div>
@@ -916,7 +926,6 @@ table{min-width:0}
 /* --- ติดตามเคสที่ล่าช้า (เจาะรายเคสจากรายงาน) --- */
 .dly-go{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--pri-d);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
 .dly-go:hover{background:#eef7f6;border-color:var(--pri)}.dly-go.late{border-color:#e8a3a3;background:var(--badb);color:var(--bad)}.dly-go.late:hover{background:#fbdcdc;border-color:var(--bad)}
-.dly-go.done{border-color:#a7d7c5;background:#ecfdf5;color:#047857}.dly-go.done:hover{background:#d1fae5;border-color:#10b981}
 .rp-t td.act,.rp-t th.act{text-align:right}
 .rp-g button.card{font:inherit;color:inherit;text-align:left;width:100%;cursor:pointer;transition:border-color .15s,background .15s}.rp-g button.card:hover{border-color:var(--bad);background:#fffafa}
 #dly{max-width:960px}
@@ -1006,8 +1015,7 @@ const stgFor=(it,vis)=>{const tr=tierOf(it&&it.track),keep=new Set([it&&it.statu
 const tone=k=>stg(k).tn||'slate';
 const SIC=new Proxy({},{get:(_,k)=>stg(String(k)).ic||'ph-flag'});
 const LVS={hos:'รพ.สันทราย',pho:'สสจ.',gov:'ศาลากลาง',zone:'เขตสุขภาพที่ 1',ret:'รพ. รับหนังสือ',cmd:'รพ.สันทราย (ปิดเคส)',cxl:'ยกเลิก'};
-const bsn=n=>((CFG.books||[]).find(b=>b.n===n)||{}).sn||'เล่ม '+n;
-const BTONE={1:'teal',1.5:'slate',2:'blue',3:'violet'},bTone=n=>BTONE[n]||'slate';   /* สีประจำเล่ม: เล่ม 1 เขียวทีล · คำสั่งรักษาการ เทา · เล่ม 2 น้ำเงิน · คำสั่งเลื่อน ม่วง */   /* ชื่อสั้น: เล่ม 1 / เล่ม 2 / คำสั่ง */
+const bsn=n=>((CFG.books||[]).find(b=>b.n===n)||{}).sn||'เล่ม '+n;   /* ชื่อสั้น: เล่ม 1 / เล่ม 2 / คำสั่ง */
 /* แก้ไขครั้งที่ N: นับเมื่อเข้าสถานะแก้ไข (ไม่นับการแก้หมายเหตุซ้ำ) — ตรงกับ backend */
 function fixN(h){const c={};let prev='';return h.map(x=>{const g=stg(x.s);if(!(g.fix||g.rep)){prev=x.s;return 0}if(x.s!==prev)c[x.s]=(c[x.s]||0)+1;prev=x.s;return c[x.s]})}
 const checkHtml=(t,l)=>`<div class="chkp" role="status"><span class="spin" style="margin-top:4px"></span><div><b>${esc(t)}</b><ul>${l.map(x=>`<li><i class="ph ph-dots-three"></i>${esc(x)}</li>`).join('')}</ul></div></div>`;
@@ -1171,7 +1179,7 @@ async function loadReport(ym){const el=$('#a-report');if(!RPM)RPM=bkk0().slice(0
  el.innerHTML=`<div class="hd" style="margin-bottom:6px"><div><h2 style="margin:0"><i class="ph-bold ph-chart-bar"></i> รายงานประจำเดือน</h2><div class="meta">ระบบส่งอัตโนมัติทุกวันสุดท้ายของเดือน เวลา 18:00 น. ถึง <b>${esc(R.to)}</b>${R.sent?' · เดือนนี้ส่งแล้วเมื่อ '+esc(thDT(R.sent)):''}</div></div>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="rp-m" aria-label="เลือกเดือน" style="width:auto">${opts.join('')}</select>${USER&&USER.r==='admin'?'<button class="btn sec" id="rp-send" type="button"><i class="ph-bold ph-envelope-simple"></i> ส่งรายงานเข้าอีเมลตอนนี้</button>'+rxCtl():''}</div></div>
   <div class="rp-g">${mt('ยื่นใหม่ในเดือน',R.submitted)}${mt('ปิดเคสสำเร็จ',R.closed,'#15803d')}${mt('ยกเลิก',R.cancelled)}${mt('งานค้างในระบบ (ขณะนี้)',R.active)}${R.overdue?`<button class="card mt-b" type="button" aria-label="ดูรายเคสที่ค้างนานกว่าเกณฑ์"><span class="meta">ค้างนานกว่าเกณฑ์ <i class="ph-bold ph-caret-right"></i></span><b style="color:#b91c1c">${R.overdue}</b></button>`:mt('ค้างนานกว่าเกณฑ์',R.overdue,'')}${mt('ใกล้ครบ / เกิน 180 วัน',R.near180+' / '+R.over180,R.over180?'#b91c1c':'#a1480a')}${mt('รอผู้ยื่นประเมินเพื่อปิดเคส',R.waitingRate)}${mt('ถาม-ตอบในระบบ',R.qa)}</div>
-  <div class="card" style="margin-bottom:12px"><h3 style="margin:0 0 2px;font-size:16px">ระยะเวลาเฉลี่ยต่อขั้นตอน (ขั้นตอนที่จบในเดือนนี้)</h3><p class="meta" style="margin:0 0 8px">ค่าเฉลี่ยบอกไม่ได้ว่าเป็นเคสของใคร — กดปุ่มท้ายแถวเพื่อดูรายชื่อเคสที่เกินเกณฑ์ ดูเส้นทางของเคส และบันทึกปัจจัยที่ทำให้ล่าช้า</p>${R.dlyFrom?`<div class="msg info" style="margin:0 0 10px"><i class="ph ph-info"></i><div>ทบทวนความล่าช้าได้ตั้งแต่ <b>${thYM(R.dlyFrom)}</b> เป็นต้นไป — (นับจากเดือนที่ขั้นตอนจบ) — ข้อมูลก่อนหน้านั้นมาจากการกู้ข้อมูลที่ไม่สมบูรณ์ วัน-เวลาอาจไม่ตรงกับความจริง</div></div>`:''}${R.stages.length?`<div style="overflow-x:auto"><table class="rp-t"><tr><th>ขั้นตอน</th><th class="n">จำนวน</th><th class="n">เฉลี่ย (วัน)</th><th class="n">เกณฑ์ (วัน)</th><th class="act">ติดตามรายเคส</th></tr>${R.stages.map(s=>{const lt=s.late||0,rv=Math.min(s.rev||0,lt),pend=lt-rv,o=s.sla&&s.avg>s.sla,red=o&&(pend>0||!lt),okAll=lt>0&&pend===0;return `<tr><td>${esc(s.t)}</td><td class="n">${s.n}</td><td class="n" style="${red?'color:#b91c1c;font-weight:700':okAll&&o?'color:#047857;font-weight:700':''}">${s.avg}</td><td class="n">${s.sla||'-'}</td><td class="act">${RPM<(R.dlyFrom||'')?'<span class="meta" style="font-size:12.5px">ไม่ทบทวน (ก่อน '+esc(thYM(R.dlyFrom))+')</span>':`<button class="dly-go ${pend>0?'late':okAll?'done':''}" type="button" data-k="${esc(s.k)}" aria-label="ดูรายเคสของขั้นตอน ${esc(s.t)}${pend>0?' รอทบทวน '+pend+' ราย':okAll?' ทบทวนครบแล้ว':''}">${pend>0?`รอทบทวน ${pend} ราย`:okAll?'<i class="ph-bold ph-check-circle"></i>ทบทวนครบแล้ว':'ดูรายเคส'}<i class="ph-bold ph-caret-right"></i></button>${lt?`<div class="meta" style="font-size:12.5px;margin-top:2px">เกินเกณฑ์ ${lt} ราย · ทบทวนแล้ว ${rv} / ${lt}</div>`:''}`}</td></tr>`}).join('')}</table></div>`:'<div class="meta">ไม่มีขั้นตอนที่จบในเดือนนี้</div>'}</div>
+  <div class="card" style="margin-bottom:12px"><h3 style="margin:0 0 2px;font-size:16px">ระยะเวลาเฉลี่ยต่อขั้นตอน (ขั้นตอนที่จบในเดือนนี้)</h3><p class="meta" style="margin:0 0 8px">ค่าเฉลี่ยบอกไม่ได้ว่าเป็นเคสของใคร — กดปุ่มท้ายแถวเพื่อดูรายชื่อเคสที่เกินเกณฑ์ ดูเส้นทางของเคส และบันทึกปัจจัยที่ทำให้ล่าช้า</p>${R.dlyFrom?`<div class="msg info" style="margin:0 0 10px"><i class="ph ph-info"></i><div>ทบทวนความล่าช้าได้ตั้งแต่ <b>${thYM(R.dlyFrom)}</b> เป็นต้นไป — (นับจากเดือนที่ขั้นตอนจบ) — ข้อมูลก่อนหน้านั้นมาจากการกู้ข้อมูลที่ไม่สมบูรณ์ วัน-เวลาอาจไม่ตรงกับความจริง</div></div>`:''}${R.stages.length?`<div style="overflow-x:auto"><table class="rp-t"><tr><th>ขั้นตอน</th><th class="n">จำนวน</th><th class="n">เฉลี่ย (วัน)</th><th class="n">เกณฑ์ (วัน)</th><th class="act">ติดตามรายเคส</th></tr>${R.stages.map(s=>{const o=s.sla&&s.avg>s.sla,lt=s.late||0;return `<tr><td>${esc(s.t)}</td><td class="n">${s.n}</td><td class="n" style="${o?'color:#b91c1c;font-weight:700':''}">${s.avg}</td><td class="n">${s.sla||'-'}</td><td class="act">${RPM<(R.dlyFrom||'')?'<span class="meta" style="font-size:12.5px">ไม่ทบทวน (ก่อน '+esc(thYM(R.dlyFrom))+')</span>':`<button class="dly-go ${lt?'late':''}" type="button" data-k="${esc(s.k)}" aria-label="ดูรายเคสของขั้นตอน ${esc(s.t)}">${lt?`เกินเกณฑ์ ${lt} ราย`:'ดูรายเคส'}<i class="ph-bold ph-caret-right"></i></button>${lt?`<div class="meta" style="font-size:12.5px;margin-top:2px">ทบทวนแล้ว ${s.rev||0} / ${lt}</div>`:''}`}</td></tr>`}).join('')}</table></div>`:'<div class="meta">ไม่มีขั้นตอนที่จบในเดือนนี้</div>'}</div>
   <div class="sgrid" style="margin-bottom:12px">${svb('applicant','ความพึงพอใจ · ผู้ยื่น อวช.')}${svb('admin','ความพึงพอใจ · เจ้าหน้าที่')}</div>
   <form id="rp-f" class="card"><h3 style="margin:0 0 4px;font-size:16px"><i class="ph ph-phone-call"></i> สายโทรสอบถามที่ยังเข้ามา</h3><p class="meta" style="margin:0 0 10px">ระบบนับสายโทรเองไม่ได้ — ให้กรอกจำนวนสายประจำเดือน และ “ฐานก่อนใช้ระบบ” (เฉลี่ยสายต่อเดือน) เพื่อคำนวณว่าลดลงเท่าไร${pc!==null?` · <b>${pc>=0?'ลดลง ':'เพิ่มขึ้น '}${Math.abs(pc)}%</b>`:''}</p>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px"><div><label for="rp-c">จำนวนสายเดือน ${thYM(RPM)}</label><input id="rp-c" type="number" min="0" max="99999" inputmode="numeric" value="${R.calls===null?'':R.calls}"></div><div><label for="rp-b">ฐานก่อนใช้ระบบ (สาย/เดือน)</label><input id="rp-b" type="number" min="0" max="99999" inputmode="numeric" value="${R.baseline===null?'':R.baseline}"></div></div>
@@ -1245,7 +1253,6 @@ async function api(fn,args=[],o={}){
  if(typeof DEMO!=='undefined'&&DEMO.on&&DEMO.fns.has(fn)){prog(1);try{await new Promise(r=>setTimeout(r,160+Math.random()*240));return DEMO.run(fn,args||[])}catch(e){return{ok:false,message:e.message||String(e)}}finally{prog(-1)}}
  prog(1);const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),o.timeout||45000);
  try{const r=await fetch(APP_CONFIG.GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,args}),signal:ctl.signal});
-  if(r.status===413)return{ok:false,message:'ข้อมูลที่ส่งมีขนาดใหญ่เกินกว่าเซิร์ฟเวอร์รับได้ กรุณาลดขนาดไฟล์ หรือแนบเป็นลิงก์แทน'};
   const d=await r.json();if(d&&d.nowMs)SKEW=d.nowMs-Date.now();if(!d.ok&&/เซสชัน/.test(d.message||''))logout(true);return d}
  catch(e){return{ok:false,message:e.name==='AbortError'?(o.write?'เซิร์ฟเวอร์ตอบช้า ระบบอาจบันทึกไปแล้ว กรุณาตรวจสอบรายการก่อนส่งซ้ำ':'เซิร์ฟเวอร์ตอบช้าเกินไป กรุณาลองใหม่'):'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'}}
  finally{clearTimeout(to);prog(-1)}}
@@ -1362,16 +1369,7 @@ function mkFile(el,{exts,max=8,hint}){
    if(/^image\/(jpeg|png)$/.test(f.type)&&f.size>900*1024){try{const bm=await createImageBitmap(f),s=Math.min(1,1600/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*s);c.height=Math.round(bm.height*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,0,0,c.width,c.height);
      const bl=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));if(bl&&bl.size<f.size)return{name:f.name.replace(/\.\w+$/,'')+'.jpg',mime:'image/jpeg',data:await b64(bl)}}catch(e){}}
    if(f.size>max*1048576)throw new Error('ไฟล์ใหญ่เกิน '+max+' MB');
-   return packBig(f.name,f.type,await b64(f))}}}
-/* พร็อกซี Vercel รับคำขอได้ไม่เกิน ~4.5 MB (base64 ใหญ่กว่าไฟล์จริง ~33%) → ไฟล์ที่ base64 เกิน 3 ล้านตัวอักษร (~2.2 MB) แบ่งส่งทีละส่วนผ่าน upChunk
-   แล้วส่งตัวแทน {data:'@',uid,n} ไปกับคำสั่งเดิม — ฝั่ง GAS ประกอบกลับและตรวจไฟล์เหมือนเดิม */
-const UP_INLINE=3000000,UP_CHUNK=2500000;
-async function packBig(name,mime,data){
- if(data.length<=UP_INLINE)return{name,mime,data};
- const uid=Array.from(crypto.getRandomValues(new Uint8Array(24)),x=>'abcdefghijklmnopqrstuvwxyz0123456789'[x%36]).join(''),n=Math.ceil(data.length/UP_CHUNK);
- for(let i=0;i<n;i++){const r=await api('upChunk',[uid,i,n,data.slice(i*UP_CHUNK,(i+1)*UP_CHUNK)],{timeout:90000,write:true});
-  if(!r.ok)throw new Error(r.message||'อัปโหลดไฟล์ไม่สำเร็จ')}
- return{name,mime,data:'@',uid,n}}
+   return{name:f.name,mime:f.type,data:await b64(f)}}}}
 const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',docs:'เอกสาร/แบบฟอร์ม',faq:'คำถามที่พบบ่อย',admin:'เจ้าหน้าที่ HR'};
 function route(){let v=(location.hash||'#track').slice(1);if(/^retro-/.test(v)){const s=v.slice(6),k=s.lastIndexOf('.');try{PENDING_RETRO=k>0?{id:decodeURIComponent(s.slice(0,k)),sig:s.slice(k+1)}:null}catch(e){PENDING_RETRO=null}v='track';history.replaceState(null,'','#track');if(PENDING_RETRO)setTimeout(()=>toast('กรอกเลขบัตรประชาชนของท่านแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RETRO.id,'info',9000),700)}else if(/^rate-/.test(v)){try{PENDING_RATE=decodeURIComponent(v.slice(5))}catch(e){PENDING_RATE=''}v='track';history.replaceState(null,'','#track');setTimeout(()=>toast('กรอกเลขบัตรประชาชนแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RATE,'info',9000),700)}const id=['track','submit','docs','faq','admin'].includes(v)?v:'track';
  document.body.classList.toggle('wide',id==='admin'&&!!USER);
@@ -1513,7 +1511,7 @@ function sumHtml(it,PS,ended){
   if(x.b===2&&lastB>=1&&lastB<2&&gapA){const e=gapB||now;li+=`<li class="gap${gapB?'':' live'}"><div class="pg"><span class="pgi"><i class="ph-bold ph-hourglass-medium"></i></span>${gapB?'':'<span class="plive">ยังไม่ยื่น</span>'}</div><div class="pn">ช่วงจัดทำและยื่นเอกสารเล่ม 2<span class="meta">กำหนดภายใน 180 วัน</span></div><div class="pt"><span>${esc(thShort(gS.t))}</span><i class="ph-bold ph-arrow-right"></i><span>${gapB?esc(thShort(b2s.t)):'ปัจจุบัน'}</span></div><div class="pd"><b>${spanF(Math.max(0,e-gapA))}</b></div></li>`}
   lastB=x.b;if(x.end)sum+=x.ms;
   const sub=thShort(x.startS);
-  li+=`<li class="${x.live?'live ':''}tone-${bTone(x.b)}"><div class="pg"><span class="dstage">${esc(bsn(x.b))}</span>${x.live?'<span class="plive">กำลังดำเนินการ</span>':''}</div><div class="pn">${fmtT(CFG.lv[x.l]||x.l,true)}</div><div class="pt"><span>${esc(sub)}</span><i class="ph-bold ph-arrow-right"></i><span>${x.end?esc(thShort(x.endS)):'ปัจจุบัน'}</span></div><div class="pd"><b>${x.end?spanF(x.ms):spanF(now-x.start)}</b></div></li>`});
+  li+=`<li class="${x.live?'live':''}"><div class="pg"><span class="dstage tone-teal">${esc(bsn(x.b))}</span>${x.live?'<span class="plive">กำลังดำเนินการ</span>':''}</div><div class="pn">${fmtT(CFG.lv[x.l]||x.l,true)}</div><div class="pt"><span>${esc(sub)}</span><i class="ph-bold ph-arrow-right"></i><span>${x.end?esc(thShort(x.endS)):'ปัจจุบัน'}</span></div><div class="pd"><b>${x.end?spanF(x.ms):spanF(now-x.start)}</b></div></li>`});
  const lastEv=h.length?toDate(h[h.length-1].t):null,tot=subT?((ended&&lastEv?lastEv:now)-subT):0;
  return `<div class="psum"><div class="psum-h"><i class="ph-duotone ph-timer"></i>สรุประยะเวลาแต่ละกระบวนการ</div><ul class="psum-l">${li}</ul>
   <div class="psum-t"><div class="psum-k"><span>รวมเวลาในกระบวนการที่เสร็จสิ้นแล้ว (${done.length} กระบวนการ)</span><b>${spanF(sum)}</b></div>
@@ -1848,7 +1846,7 @@ function renderList(){const el=$('#a-list'),q=($('#q')&&$('#q').value||'').trim(
  <div class="ltabs" role="tablist" aria-label="หมวดรายการ">${[['act','ph-hourglass-medium','กำลังดำเนินการ'],['fix','ph-note-pencil','มีการแก้ไข'],['done','ph-medal','ปิดเคสสำเร็จ']].map(([k,ic,l])=>`<button type="button" role="tab" class="ltab ${LTAB===k&&FILTER!=='__cx'?'on':''}" aria-selected="${LTAB===k&&FILTER!=='__cx'}" data-lt="${k}"><i class="ph-bold ${ic}"></i>${l} <b>${view().filter(LTP[k]).length}</b></button>`).join('')}</div>
  ${CFG.lineOn?'':'<div class="msg warn"><i class="ph ph-warning"></i><div>ยังไม่ได้ตั้งค่า LINE — ระบบจะบันทึกสถานะตามปกติแต่ไม่ส่งแจ้งเตือน (ตั้งค่าที่แท็บ LINE)</div></div>'}
  <div class="row" style="margin-bottom:12px"><div class="grow ig"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><input id="q" placeholder="ค้นหาชื่อ / เลขบัตร / รหัส" aria-label="ค้นหา" value="${esc(q)}" style="padding-left:44px"></div><select class="srt" id="srt" aria-label="เรียงลำดับ"><option value="p" ${SORTM==='p'?'selected':''}>เรียงตามความสำคัญ</option><option value="w" ${SORTM==='w'?'selected':''}>รอนานที่สุดก่อน</option><option value="n" ${SORTM==='n'?'selected':''}>ยื่นล่าสุดก่อน</option><option value="s" ${SORTM==='s'?'selected':''}>ติดดาวก่อน</option></select><button class="btn sec" id="a-rf"><i class="ph-bold ph-arrows-clockwise"></i> รีเฟรช</button></div>
- <div class="card" style="padding:8px"><table class="rt fit"><colgroup><col style="width:10%"><col style="width:9%"><col style="width:11%"><col style="width:8%"><col style="width:17%"><col style="width:14%"><col style="width:13%"><col style="width:5%"><col style="width:13%"></colgroup><thead><tr><th>ความสำคัญ</th><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ผลงาน</th><th>สถานะ</th><th>ระยะเวลารอ</th><th>LINE</th><th>จัดการ</th></tr></thead><tbody id="tb"></tbody></table></div>`;
+ <div class="card" style="padding:8px"><table class="rt fit"><colgroup><col style="width:9%"><col style="width:12%"><col style="width:12%"><col style="width:9%"><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:5%"><col style="width:11%"></colgroup><thead><tr><th>ความสำคัญ</th><th>รหัส</th><th>ผู้ยื่น</th><th>กลุ่มงาน</th><th>ผลงาน</th><th>สถานะ</th><th>ระยะเวลารอ</th><th>LINE</th><th>จัดการ</th></tr></thead><tbody id="tb"></tbody></table></div>`;
  const fill=()=>{const qq=($('#q').value||'').trim().toLowerCase();let L=(FILTER==='__cx'?viewAll().filter(isCx):view().filter(LTP[LTAB])).filter(r=>matchF(r)&&(!qq||(r.id+r.prefix+r.first+r.last+r.cid+(r.title||'')).toLowerCase().includes(qq)));
   L=L.map(r=>({r,p:prio(r)}));L.sort(LTAB==='done'&&FILTER!=='__cx'?(a,b)=>(String(b.r.since||b.r.upd||'')>String(a.r.since||a.r.upd||'')?1:-1):SORTM==='w'?(a,b)=>ageClk(b.r)-ageClk(a.r):SORTM==='n'?(a,b)=>(b.r.ts>a.r.ts?1:-1):SORTM==='s'?(a,b)=>(!!b.r.star-!!a.r.star)||b.p.s-a.p.s||ageClk(b.r)-ageClk(a.r):(a,b)=>b.p.s-a.p.s||ageClk(b.r)-ageClk(a.r));
   $('#tb').innerHTML=rowsHtml(L.map(x=>x.r),SORTM==='p');
@@ -2242,7 +2240,7 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['upChunk','surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','ackList','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineTestDispatch','reportExport','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineCidFind','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','ackList','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineTestDispatch','reportExport','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineCidFind','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
@@ -2338,7 +2336,6 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   if(!f){f={id:'FAQ-'+('00'+(db.faq.reduce((m,x)=>Math.max(m,+x.id.replace(/\D/g,'')),0)+1)).slice(-3),up:0,down:0};db.faq.push(f)}
   Object.assign(f,{cat:String(p.cat||'').trim()||'ทั่วไป',q,a:an,pub:p.pub!==false,pin:!!p.pin,ord:p.ord===''||p.ord==null||isNaN(+p.ord)?(f.ord||db.faq.length*10+10):+p.ord,upd:bkkS(now),by:DM_BY});this.save();return ok({id:f.id})}
  case 'faqDelete':{db.faq=db.faq.filter(x=>x.id!==a[1]);this.save();return ok()}
- case 'upChunk':return ok({idx:a[2]});
  case 'star':{const r=this.find(a[1]);r.star=a[2]?'Y':'';this.save();return ok({star:!!a[2]})}
  case 'histTime':{const id=a[1],r=this.find(id),hs=db.his.filter(h=>h.id===id),i=+a[2],h=hs[i];if(!h)this.err('ไม่พบขั้นตอนที่ต้องการแก้ไข');if(a[3]&&h.t!==a[3])this.err('ข้อมูลขั้นตอนนี้ถูกแก้ไขโดยผู้อื่นแล้ว กรุณาปิดแล้วเปิดใหม่');
   const m=/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(a[4]||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');const nw=m[1]+' '+m[2]+':00';if(nw>bkkS(now+3e5))this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
@@ -2452,17 +2449,12 @@ $('#a-demo').onclick=()=>{if(DEMO.on)return setDemo(false);
 /* Boot */
 function offBoot(){const b=$('#boot');if(!b)return;b.classList.add('off');setTimeout(()=>b.remove(),450)}
 setTimeout(offBoot,15000);
-async function boot(){$('#t-guide').innerHTML=skel(3);
- /* ยิง config กับ verify พร้อมกัน (เดิมรอ config เสร็จก่อนค่อย verify = 2 รอบรอ GAS) และแสดง config ที่แคชไว้ทันที แล้วอัปเดตเมื่อของจริงมาถึง — config ไม่มีข้อมูลบุคคล */
- const vp=(TOKEN&&!USER)?api('verify',[TOKEN]):null,cp=api('config');
- const draw=c=>{CFG=c;initQr();$('#s-track').innerHTML=trkOpts('',false);if(DEMO.on)demoBar();$('#ttl').textContent=c.title;$('#org').textContent=c.org;$('#t-guide').innerHTML=guideHtml();$('#s-route').innerHTML=routeHtml()};
- let shown='';try{const k=localStorage.getItem('awc_cfg');if(k){const j=JSON.parse(k);if(j&&j.stages&&j.title){draw(j);shown=k}}}catch(e){}
- const c=await cp;
- if(c.ok){const o=Object.assign({},c);delete o.ok;const k=JSON.stringify(o);try{localStorage.setItem('awc_cfg',k)}catch(e){}if(k!==shown)draw(o)}
- else if(!shown){$('#t-guide').innerHTML='';$('#t-out').innerHTML=`<div class="card empty-s"><i class="ph-duotone ph-plugs"></i><h2>เชื่อมต่อระบบไม่ได้</h2><p class="meta">${esc(c.message||'')}</p><button class="btn" id="cfg-retry"><i class="ph-bold ph-arrows-clockwise"></i> ลองใหม่</button></div>`;
+async function boot(){$('#t-guide').innerHTML=skel(3);const c=await api('config');
+ if(c.ok){CFG=c;initQr();$('#s-track').innerHTML=trkOpts('',false);if(DEMO.on)demoBar();$('#ttl').textContent=c.title;$('#org').textContent=c.org;$('#t-guide').innerHTML=guideHtml();$('#s-route').innerHTML=routeHtml()}
+ else{$('#t-guide').innerHTML='';$('#t-out').innerHTML=`<div class="card empty-s"><i class="ph-duotone ph-plugs"></i><h2>เชื่อมต่อระบบไม่ได้</h2><p class="meta">${esc(c.message||'')}</p><button class="btn" id="cfg-retry"><i class="ph-bold ph-arrows-clockwise"></i> ลองใหม่</button></div>`;
   $('#cfg-retry').onclick=async e=>{busy(e.currentTarget,1,'กำลังเชื่อมต่อ...');await boot()}}
  offBoot();
- if(vp){const v=await vp;if(v.ok)enter(v.user);else logout(true)}
+ if(TOKEN&&!USER){const v=await api('verify',[TOKEN]);if(v.ok)enter(v.user);else logout(true)}
  if(DEMO.on&&!USER)setDemo(false,true);syncDemoBtn()}
 route();boot();
 </script>
