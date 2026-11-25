@@ -1245,6 +1245,7 @@ async function api(fn,args=[],o={}){
  if(typeof DEMO!=='undefined'&&DEMO.on&&DEMO.fns.has(fn)){prog(1);try{await new Promise(r=>setTimeout(r,160+Math.random()*240));return DEMO.run(fn,args||[])}catch(e){return{ok:false,message:e.message||String(e)}}finally{prog(-1)}}
  prog(1);const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),o.timeout||45000);
  try{const r=await fetch(APP_CONFIG.GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,args}),signal:ctl.signal});
+  if(r.status===413)return{ok:false,message:'ข้อมูลที่ส่งมีขนาดใหญ่เกินกว่าเซิร์ฟเวอร์รับได้ กรุณาลดขนาดไฟล์ หรือแนบเป็นลิงก์แทน'};
   const d=await r.json();if(d&&d.nowMs)SKEW=d.nowMs-Date.now();if(!d.ok&&/เซสชัน/.test(d.message||''))logout(true);return d}
  catch(e){return{ok:false,message:e.name==='AbortError'?(o.write?'เซิร์ฟเวอร์ตอบช้า ระบบอาจบันทึกไปแล้ว กรุณาตรวจสอบรายการก่อนส่งซ้ำ':'เซิร์ฟเวอร์ตอบช้าเกินไป กรุณาลองใหม่'):'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่'}}
  finally{clearTimeout(to);prog(-1)}}
@@ -1361,7 +1362,16 @@ function mkFile(el,{exts,max=8,hint}){
    if(/^image\/(jpeg|png)$/.test(f.type)&&f.size>900*1024){try{const bm=await createImageBitmap(f),s=Math.min(1,1600/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*s);c.height=Math.round(bm.height*s);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(bm,0,0,c.width,c.height);
      const bl=await new Promise(r=>c.toBlob(r,'image/jpeg',.85));if(bl&&bl.size<f.size)return{name:f.name.replace(/\.\w+$/,'')+'.jpg',mime:'image/jpeg',data:await b64(bl)}}catch(e){}}
    if(f.size>max*1048576)throw new Error('ไฟล์ใหญ่เกิน '+max+' MB');
-   return{name:f.name,mime:f.type,data:await b64(f)}}}}
+   return packBig(f.name,f.type,await b64(f))}}}
+/* พร็อกซี Vercel รับคำขอได้ไม่เกิน ~4.5 MB (base64 ใหญ่กว่าไฟล์จริง ~33%) → ไฟล์ที่ base64 เกิน 3 ล้านตัวอักษร (~2.2 MB) แบ่งส่งทีละส่วนผ่าน upChunk
+   แล้วส่งตัวแทน {data:'@',uid,n} ไปกับคำสั่งเดิม — ฝั่ง GAS ประกอบกลับและตรวจไฟล์เหมือนเดิม */
+const UP_INLINE=3000000,UP_CHUNK=2500000;
+async function packBig(name,mime,data){
+ if(data.length<=UP_INLINE)return{name,mime,data};
+ const uid=Array.from(crypto.getRandomValues(new Uint8Array(24)),x=>'abcdefghijklmnopqrstuvwxyz0123456789'[x%36]).join(''),n=Math.ceil(data.length/UP_CHUNK);
+ for(let i=0;i<n;i++){const r=await api('upChunk',[uid,i,n,data.slice(i*UP_CHUNK,(i+1)*UP_CHUNK)],{timeout:90000,write:true});
+  if(!r.ok)throw new Error(r.message||'อัปโหลดไฟล์ไม่สำเร็จ')}
+ return{name,mime,data:'@',uid,n}}
 const TITLES={track:'ติดตามสถานะ',submit:'ยื่นเอกสาร',docs:'เอกสาร/แบบฟอร์ม',faq:'คำถามที่พบบ่อย',admin:'เจ้าหน้าที่ HR'};
 function route(){let v=(location.hash||'#track').slice(1);if(/^retro-/.test(v)){const s=v.slice(6),k=s.lastIndexOf('.');try{PENDING_RETRO=k>0?{id:decodeURIComponent(s.slice(0,k)),sig:s.slice(k+1)}:null}catch(e){PENDING_RETRO=null}v='track';history.replaceState(null,'','#track');if(PENDING_RETRO)setTimeout(()=>toast('กรอกเลขบัตรประชาชนของท่านแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RETRO.id,'info',9000),700)}else if(/^rate-/.test(v)){try{PENDING_RATE=decodeURIComponent(v.slice(5))}catch(e){PENDING_RATE=''}v='track';history.replaceState(null,'','#track');setTimeout(()=>toast('กรอกเลขบัตรประชาชนแล้วกด “ติดตาม” เพื่อประเมินความพึงพอใจของเลขที่ '+PENDING_RATE,'info',9000),700)}const id=['track','submit','docs','faq','admin'].includes(v)?v:'track';
  document.body.classList.toggle('wide',id==='admin'&&!!USER);
@@ -2232,7 +2242,7 @@ async function loadLog(){const el=$('#a-log');el.innerHTML=skTable(6);const d=aw
  * - ทุกคำสั่งในเว็บ (ติดตามสถานะ / ยื่นเอกสาร / แดชบอร์ด / แจ้ง LINE / ถาม-ตอบ) ทำงานกับข้อมูลตัวอย่างในเบราว์เซอร์เท่านั้น
  * - ไม่เรียก Google Apps Script จริง ไม่เขียนชีท ไม่ส่ง LINE/อีเมลจริง — ปิดแท็บหรือกดออกแล้วข้อมูลตัวอย่างหายไป */
 const DEMO={on:false,db:null,key:'awc_demo_db',flag:'awc_demo',lk:null,
- fns:new Set(['surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','ackList','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineTestDispatch','reportExport','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineCidFind','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
+ fns:new Set(['upChunk','surveyInfo','closeRequest','surveyApplicant','surveyBackfill','surveyRetroList','surveyRetroSend','surveyRetro','reportGet','stageCases','delaySave','metSave','reportSend','star','histTime','faqList','faqVote','faqAdminList','faqSave','faqDelete','track','lookup','submit','adminList','adminSave','adminStatus','attAdd','attList','actingAdd','actingDel','histGet','adminDelete','adminCancel','adminRestore','trashList','trashRestore','qaAsk','qaThread','qaReply','lineInfo','lineSend','ackList','lineAdmin','linePending','lineCheck','lineTestInfo','lineTest','lineTestDispatch','reportExport','lineWebhookTest','lineLinkReq','lineLinkCheck','staffPick','lineCidFind','lineAdd','lineManual','lineDismiss','lineUnlink','usersList','staffSearch','userAdd','userEdit','userToggle','logList'])};
 try{DEMO.on=sessionStorage.getItem(DEMO.flag)==='1'}catch(e){}
 const DM_BY='ผู้ดูแลระบบ (โหมดจำลอง)',DM_HR='พิมพ์ชนก ตัวอย่าง';
 const mkCid=b=>{let s=0;for(let i=0;i<12;i++)s+=+b[i]*(13-i);return b+((11-(s%11))%10)};
@@ -2328,6 +2338,7 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   if(!f){f={id:'FAQ-'+('00'+(db.faq.reduce((m,x)=>Math.max(m,+x.id.replace(/\D/g,'')),0)+1)).slice(-3),up:0,down:0};db.faq.push(f)}
   Object.assign(f,{cat:String(p.cat||'').trim()||'ทั่วไป',q,a:an,pub:p.pub!==false,pin:!!p.pin,ord:p.ord===''||p.ord==null||isNaN(+p.ord)?(f.ord||db.faq.length*10+10):+p.ord,upd:bkkS(now),by:DM_BY});this.save();return ok({id:f.id})}
  case 'faqDelete':{db.faq=db.faq.filter(x=>x.id!==a[1]);this.save();return ok()}
+ case 'upChunk':return ok({idx:a[2]});
  case 'star':{const r=this.find(a[1]);r.star=a[2]?'Y':'';this.save();return ok({star:!!a[2]})}
  case 'histTime':{const id=a[1],r=this.find(id),hs=db.his.filter(h=>h.id===id),i=+a[2],h=hs[i];if(!h)this.err('ไม่พบขั้นตอนที่ต้องการแก้ไข');if(a[3]&&h.t!==a[3])this.err('ข้อมูลขั้นตอนนี้ถูกแก้ไขโดยผู้อื่นแล้ว กรุณาปิดแล้วเปิดใหม่');
   const m=/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})$/.exec(a[4]||'');if(!m)this.err('รูปแบบวันที่/เวลาไม่ถูกต้อง');const nw=m[1]+' '+m[2]+':00';if(nw>bkkS(now+3e5))this.err('ไม่สามารถลงเวลาล่วงหน้าในอนาคตได้');
