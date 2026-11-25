@@ -32,7 +32,7 @@ var TZ = 'Asia/Bangkok', SESSION_TTL = 3600;
 var ORG = 'กลุ่มงานทรัพยากรบุคคล โรงพยาบาลสันทราย จังหวัดเชียงใหม่';
 var TITLE = 'ระบบติดตามสถานะการประเมินผลงาน (อวช.)';
 /* ระดับหน่วยงาน (lvl) และเล่ม (BOOKS) — หน้าเว็บวาดแถวตามค่าที่ตั้งตรงนี้ */
-var LV = { cxl: 'ยกเลิกรายการ', hos: 'โรงพยาบาลสันทราย', pho: 'สำนักงานสาธารณสุขจังหวัด (สสจ.)', gov: 'ศาลากลางจังหวัด', zone: 'สำนักงานเขตสุขภาพที่ 1', ret: 'โรงพยาบาลสันทราย (รับหนังสือแจ้งผล)', cmd: 'โรงพยาบาลสันทราย (แจ้งผลและปิดเคส)' };
+var LV = { cxl: 'ยกเลิกรายการ', hos: 'โรงพยาบาลสันทราย', pho: 'สำนักงานสาธารณสุขจังหวัด (สสจ.)', gov: 'ศาลากลางจังหวัด', act: 'กลุ่มงานทรัพยากรบุคคล (ออกคำสั่งรักษาการในตำแหน่ง)', zone: 'สำนักงานเขตสุขภาพที่ 1', ret: 'โรงพยาบาลสันทราย (รับหนังสือแจ้งผล)', cmd: 'โรงพยาบาลสันทราย (แจ้งผลและปิดเคส)' };
 /* ระดับตำแหน่งที่ขอเลื่อน (เดิมเรียก "ระดับ ก.พ.") — ใช้เป็นตัวเลือกในฟอร์มยื่นและตัวกรองหน้าจัดการ (t=ค่าที่เก็บในชีท g=กลุ่ม tn=โทนสี) */
 var TRACKS = [
   { t: 'ปฏิบัติงาน → ชำนาญงาน', g: 'ประเภททั่วไป', tn: 'sky' },
@@ -61,11 +61,27 @@ var TRACK_TIER = {
 var TIER_DEF = 'b';
 var TIER_NAME = { a: 'ชำนาญการ / ชำนาญงาน', b: 'ชำนาญการพิเศษ' };
 function tierOf_(track) { return TRACK_TIER[trackNorm_(track)] || TIER_DEF; }
+/* คำสั่งรักษาการในตำแหน่ง — เฉพาะเส้นทาง "ชำนาญการ → ชำนาญการพิเศษ" (สถานะ b1_acting · เล่ม 1.5 · ระดับหน่วยงาน act)
+ * ลำดับ : ผวจ.ลงนามชี้ตัวเล่ม 1 (b1_signed) → กลุ่มงานทรัพยากรบุคคลออกคำสั่งรักษาการ + แนบหนังสือ แล้วกด "อัพเดทสถานะ" เป็น b1_acting → ยื่นเล่ม 2 (b2_submit)
+ * - b1_acting ต้องมีหนังสือคำสั่งที่ HR แนบเอง (แนบพร้อมการอัพเดทสถานะ หรือแนบไว้แล้วที่ปุ่ม "ไฟล์แนบ") ; ผู้ยื่นแนบแทนไม่ได้
+ * - การเปลี่ยนสถานะส่งแจ้งเตือน LINE/อีเมลถึงผู้ยื่นตามปกติ (แนบไฟล์คำสั่งไปกับ LINE) และแสดงในหน้าติดตามสถานะ/ประวัติสถานะ
+ * - กำหนด 180 วันส่งเล่ม 2 ของเส้นทางนี้ "เริ่มนับเมื่อบันทึก b1_acting" (เส้นทางอื่นนับจาก b1_signed เหมือนเดิม) — ดู start180Key_
+ * - บังคับที่ statusCore_ : บันทึก b2_submit ได้ต่อเมื่อมี b1_acting ในประวัติสถานะแล้ว
+ * เพิ่มเส้นทางอื่นได้ที่ GATE_TRACK ที่เดียว */
+var GATE_TRACK = 'ชำนาญการ → ชำนาญการพิเศษ';
+function gateOn_(track) { return trackNorm_(track) === GATE_TRACK; }
+/* สถานะที่ "เริ่มนับ 180 วันส่งเล่ม 2" : เส้นทาง GATE_TRACK นับจาก b1_acting (HR อัพเดทสถานะคำสั่งรักษาการ) ; เส้นทางอื่นนับจาก b1_signed */
+function start180Key_(track) { return gateOn_(track) ? 'b1_acting' : 'b1_signed'; }
+/* ข้อความที่ต่างกันตามเส้นทาง : hb / rngb ใช้แทน h / rng เฉพาะเส้นทาง GATE_TRACK */
+function stDesc_(st, it) { return (st.hb && it && gateOn_(it.track)) ? st.hb : st.h; }
+function stRng_(st, it) { return (st.rngb && it && gateOn_(it.track)) ? st.rngb : st.rng; }
 /* sn = ชื่อสั้นที่หน้าเว็บใช้นำหน้าระดับหน่วยงาน (เช่น "เล่ม 1 · สสจ." / "คำสั่ง · สสจ.")
  * lvt = ระดับหน่วยงานที่เล่มนั้นผ่านจริงตามระดับ (a/b) ใช้แสดงเส้นทางในหน้ายื่นเอกสาร ; lv = ระดับทั้งหมดของเล่ม (หน้าเว็บซ่อนกล่องที่ไม่มีขั้นตอนของรายการนั้น)
  * เล่ม 2 สิ้นสุดที่ "ได้รับหนังสือแจ้งผลการพิจารณา (b2_signed)" → จากนั้นเข้ากระบวนการ "ออกคำสั่งเลื่อนระดับ" (n:3) แล้วปิดเคส */
 var BOOKS = [
   { n: 1, t: 'เล่ม 1 : ประเมินบุคคล', sn: 'เล่ม 1', lv: ['hos', 'pho', 'gov'] },
+  /* เล่ม 1.5 = คำสั่งรักษาการในตำแหน่ง (เฉพาะเส้นทาง GATE_TRACK — หน้าเว็บซ่อนกล่องนี้ในรายการของเส้นทางอื่น) */
+  { n: 1.5, t: 'คำสั่งรักษาการในตำแหน่ง', sn: 'คำสั่งรักษาการ', lv: ['act'], bi: 'ph-stamp', gate: 'คำสั่งรักษาการในตำแหน่ง (HR แนบหนังสือคำสั่งและอัปเดตสถานะ)' },
   { n: 2, t: 'เล่ม 2 : ประเมินผลงาน', sn: 'เล่ม 2', lv: ['hos', 'pho', 'gov', 'zone', 'ret'], lvt: { a: ['hos', 'pho', 'ret'], b: ['hos', 'pho', 'gov', 'zone', 'ret'] } },
   { n: 3, t: 'ออกคำสั่งเลื่อนระดับ', sn: 'คำสั่ง', lv: ['hos', 'pho', 'gov', 'cmd'] }
 ];
@@ -73,6 +89,7 @@ var BOOKS = [
 var LEGACY = { submitted: 'b1_submit', qualify: 'b1_check', review: 'b2_check', revise: 'b1_fix', passed: 'b2_pass', b2_review: 'b2_check', b2_wait: 'b2_read', b1_gov_chk: 'b1_gov_reg', b2_gov_chk: 'b2_gov_reg' };
 /* ขั้นตอน: k=รหัส t=ชื่อ book=เล่ม lvl=ระดับ ord=ลำดับ (เรียงจากน้อยไปมาก) tn=โทนสี ic=ไอคอน c=สีข้อความ LINE (blue/orange/green)
  * h=คำอธิบายสั้น o=ผู้รับผิดชอบ sla=จำนวนวันสูงสุดที่ถือว่าปกติ (0=ไม่นับ) fix=ขั้นตอนแก้ไข (แสดง "ครั้งที่ N" อัตโนมัติ ; มี sla = กำหนดวันแก้ไข) rep=ขั้นตอนที่วนซ้ำได้ (แสดง "ครั้งที่ N") end=ขั้นตอนสุดท้าย fin=ขั้นตอนที่ถือว่าจบกระบวนการของหน่วยงานนั้น (ใช้สรุประยะเวลาแยกกระบวนการ)
+ * trk='gate' = ใช้เฉพาะเส้นทาง GATE_TRACK ; hb/rngb/nxb = ข้อความที่ใช้แทน h/rng/nx เฉพาะเส้นทาง GATE_TRACK
  * tier='a'|'b' = ใช้เฉพาะเล่ม 2 ของระดับนั้น (ไม่ระบุ = ใช้กับทุกระดับ)  lg=true = ขั้นตอนเดิมที่เลิกใช้แล้ว (ข้อมูลเก่ายังแสดงได้ แต่ไม่อยู่ในรายการที่เลือกและไม่นับในขั้นตอนถัดไป)
  * sg=ขั้นตอนลงนาม: 'sign'=ขั้นเดียว "ผอ./นพ.สสจ./ผวจ. ลงนาม" (มีเกณฑ์วัน ไม่มีสถานะ "รอ" แล้ว) , 'done'="ลงนามแล้ว" ขั้นเดิมที่เลิกใช้ (lg) แสดงเฉพาะข้อมูลเก่า (who: dir=ผอ.โรงพยาบาล, pho=นพ.สสจ., gov=ผู้ว่าราชการจังหวัด)
  * ระยะเวลา: sla=วันสูงสุด (เกินแล้วขึ้น "ค้างนานกว่าปกติ", 0=ไม่เตือน) smin=วันต่ำสุด rng=ข้อความช่วงเวลาที่แสดง clk=รหัสขั้นตอนที่เริ่มนับเวลา (ไม่ใส่=นับจากเข้าขั้นนี้) bd/nx=ข้อความป้ายสถานะ/ขั้นถัดไปแบบกำหนดเอง
@@ -98,7 +115,9 @@ var STAGES = [
   S_('b1_pho_ok', 'นพ.สสจ. ลงนามแล้ว (เล่ม 1)', 1, 'pho', 52, 'emerald', 'ph-signature', 'green', 'นายแพทย์สาธารณสุขจังหวัดลงนามเล่ม 1 แล้ว รอส่งต่อศาลากลางจังหวัด', PHO, 0, { sg: 'done', who: 'pho', lg: true }),
   /* ศาลากลาง: ผวจ.ลงนาม 30 วัน → ผวจ.ลงนามชี้ตัว (เริ่มนับ 180 วันเพื่อยื่นเล่ม 2) */
   S_('b1_gov', 'ผู้ว่าราชการจังหวัดลงนาม (เล่ม 1)', 1, 'gov', 55, 'indigo', 'ph-hourglass-medium', 'blue', 'เรื่องอยู่ระหว่างศาลากลางจังหวัดตรวจสอบและเสนอผู้ว่าราชการจังหวัดลงนาม เล่ม 1 (ไม่เกิน 30 วัน)', 'ศาลากลางจังหวัดเชียงใหม่', 30, { sg: 'sign', who: 'gov', rng: 'ไม่เกิน 30 วัน (ศาลากลาง)' }),
-  S_('b1_signed', 'ผู้ว่าราชการจังหวัดลงนามชี้ตัว (เล่ม 1 · เริ่มนับ 180 วันเพื่อส่งเล่ม 2)', 1, 'gov', 60, 'emerald', 'ph-signature', 'green', 'ผู้ว่าราชการจังหวัดลงนามชี้ตัวเล่ม 1 แล้ว กรุณายื่นเอกสาร เล่ม 2 (ประเมินผลงาน) ภายใน 180 วัน นับจากวันนี้', 'ผู้ว่าราชการจังหวัดเชียงใหม่', 180, { sg: 'done', who: 'gov', fin: true, rng: '180 วัน สำหรับส่งเล่ม 2', nx: 'ยื่นเอกสาร เล่ม 2 ที่กลุ่มงานทรัพยากรบุคคล ภายใน 180 วัน (แนบไฟล์เล่ม 2 ล่วงหน้าได้ที่หน้าติดตามสถานะ)' }),
+  S_('b1_signed', 'ผู้ว่าราชการจังหวัดลงนามชี้ตัว (เล่ม 1)', 1, 'gov', 60, 'emerald', 'ph-signature', 'green', 'ผู้ว่าราชการจังหวัดลงนามชี้ตัวเล่ม 1 แล้ว กรุณายื่นเอกสาร เล่ม 2 (ประเมินผลงาน) ภายใน 180 วัน นับจากวันนี้', 'ผู้ว่าราชการจังหวัดเชียงใหม่', 180, { sg: 'done', who: 'gov', fin: true, rng: '180 วัน สำหรับส่งเล่ม 2', nx: 'ยื่นเอกสาร เล่ม 2 ที่กลุ่มงานทรัพยากรบุคคล ภายใน 180 วัน (แนบไฟล์เล่ม 2 ล่วงหน้าได้ที่หน้าติดตามสถานะ)', hb: 'ผู้ว่าราชการจังหวัดลงนามชี้ตัวเล่ม 1 แล้ว (เส้นทางชำนาญการ → ชำนาญการพิเศษ) กลุ่มงานทรัพยากรบุคคลจะออกคำสั่งรักษาการในตำแหน่งและแนบหนังสือคำสั่งให้ท่าน เมื่ออัปเดตสถานะแล้วจึงเริ่มนับ 180 วันเพื่อยื่นเล่ม 2', rngb: 'ยังไม่เริ่มนับ 180 วัน (นับเมื่อมีคำสั่งรักษาการ)', nxb: 'ขั้นตอนถัดไป: กลุ่มงานทรัพยากรบุคคลออกคำสั่งรักษาการในตำแหน่ง แนบหนังสือคำสั่ง และอัปเดตสถานะ — จากนั้นจึงเริ่มนับ 180 วันเพื่อยื่นเล่ม 2' }),
+  /* คำสั่งรักษาการในตำแหน่ง (เฉพาะ GATE_TRACK) : HR แนบหนังสือ + อัพเดทสถานะ → เริ่มนับ 180 วันส่งเล่ม 2 ; ผู้ยื่นเห็นสถานะ/ประวัติ และได้รับแจ้งเตือน LINE พร้อมไฟล์ */
+  S_('b1_acting', 'ออกคำสั่งรักษาการในตำแหน่ง (เริ่มนับ 180 วันเพื่อส่งเล่ม 2)', 1.5, 'act', 62, 'fuchsia', 'ph-stamp', 'green', 'กลุ่มงานทรัพยากรบุคคลออกคำสั่งรักษาการในตำแหน่งให้ท่านแล้ว (แนบหนังสือคำสั่งแล้ว) กรุณายื่นเอกสาร เล่ม 2 (ประเมินผลงาน) ภายใน 180 วัน นับจากวันนี้', HR, 180, { trk: 'gate', clk: 'b1_acting', rng: '180 วัน สำหรับส่งเล่ม 2', nx: 'ยื่นเอกสาร เล่ม 2 ที่กลุ่มงานทรัพยากรบุคคล ภายใน 180 วัน นับจากวันที่ออกคำสั่งรักษาการ (แนบไฟล์เล่ม 2 ล่วงหน้าได้ที่หน้าติดตามสถานะ)' }),
   /* ขั้นตอนเดิมของเล่ม 1 ที่เลิกใช้ (ข้อมูลเก่ายังแสดงได้) */
   S_('b1_pass', 'คุณสมบัติผ่านการประเมิน (เล่ม 1 : ประเมินบุคคล)', 1, 'hos', 30, 'emerald', 'ph-seal-check', 'green', 'คุณสมบัติผ่านการประเมินระดับโรงพยาบาลแล้ว รอเสนอผู้อำนวยการโรงพยาบาลลงนาม', HR, 2, { rng: '2 วัน (โรงพยาบาล)' , lg: true }),
   S_('b1_pho', 'กลุ่มงานทรัพยากรบุคคล สสจ.เชียงใหม่ กำลังตรวจสอบ (เล่ม 1)', 1, 'pho', 40, 'violet', 'ph-buildings', 'blue', 'กลุ่มงานทรัพยากรบุคคล สำนักงานสาธารณสุขจังหวัดเชียงใหม่ กำลังตรวจสอบเอกสาร เล่ม 1 (ใช้เวลาประมาณ 3-5 วัน)', PHO, 5, { smin: 3, rng: '3-5 วัน (สสจ.)' , lg: true }),
@@ -154,14 +173,16 @@ var STAGES = [
   S_('cmd_pho', 'กลุ่มงานทรัพยากรบุคคล สสจ.เชียงใหม่ กำลังตรวจสอบ (คำสั่งเลื่อนระดับ)', 3, 'pho', 320, 'violet', 'ph-buildings', 'blue', 'กลุ่มงานทรัพยากรบุคคล สำนักงานสาธารณสุขจังหวัดเชียงใหม่ กำลังตรวจสอบคำสั่งเลื่อนระดับ', PHO, 0, { bd: 'ระยะเวลาไม่แน่นอน (ขึ้นกับหน่วยงาน)', nx: 'ขั้นตอนถัดไป: เสนอ นพ.สสจ. ลงนามคำสั่งเลื่อนระดับ' , lg: true }),
   S_('cmd_gov_hr', 'กลุ่มงานทรัพยากรบุคคล จังหวัด กำลังตรวจสอบ (คำสั่งเลื่อนระดับ)', 3, 'gov', 340, 'indigo', 'ph-stamp', 'blue', 'กลุ่มงานทรัพยากรบุคคล จังหวัด (ศาลากลางจังหวัด) กำลังตรวจสอบคำสั่งเลื่อนระดับ ก่อนเสนอผู้ว่าราชการจังหวัดลงนาม', 'กลุ่มงานทรัพยากรบุคคล จังหวัด ศาลากลางจังหวัดเชียงใหม่', 0, { bd: 'ระยะเวลาไม่แน่นอน (ขึ้นกับหน่วยงาน)', nx: 'ขั้นตอนถัดไป: เสนอผู้ว่าราชการจังหวัดลงนามคำสั่งเลื่อนระดับ' , lg: true }),
   /* ปิดเคส: ทำได้เฉพาะเมื่อสถานะปัจจุบันคือ cmd_gov (หรือ cmd_gov_ok ของข้อมูลเก่า) — บังคับที่ statusCore_ */
+  /* รอประเมินความพึงพอใจ: เจ้าหน้าที่ประเมินแล้ว → ระบบส่งให้ผู้ยื่นประเมินทางเว็บ/LINE → ผู้ยื่นประเมินครบ ระบบปิดเคส (promoted) ให้เอง — ตั้งสถานะนี้/promoted ด้วยมือไม่ได้ */
+  S_('closing', 'รอผู้ยื่นประเมินความพึงพอใจเพื่อปิดเคส', 3, 'cmd', 390, 'amber', 'ph-star', 'orange', 'ผู้ว่าราชการจังหวัดลงนามแล้ว เหลือขั้นตอนสุดท้าย: กรุณาประเมินความพึงพอใจต่อระบบ (ประมาณ 2 นาที) เพื่อปิดเคส', HR, 0, { sv: true, lg: true, nx: 'ผู้ยื่นประเมินความพึงพอใจที่หน้าติดตามสถานะหรือลิงก์ใน LINE ระบบจะปิดเคสให้อัตโนมัติ' }),
   S_('promoted', 'ได้รับการเลื่อนระดับแล้ว (ปิดเคส สำเร็จ)', 3, 'cmd', 400, 'emerald', 'ph-medal', 'green', 'ขอแสดงความยินดี ท่านได้รับการเลื่อนระดับแล้ว กระบวนการประเมินเสร็จสิ้น (ปิดเคส)', HR, 0, { end: true }),
   /* ยกเลิกรายการ: ปิดเคสแบบไม่สำเร็จ (ผู้ยื่นถอนเรื่อง/ไม่ผ่าน/ย้ายออก/ซ้ำ/บันทึกผิด) — ทำได้ทุกขั้นตอนก่อนปิดเคส ผ่าน apiAdminCancel_ (บังคับระบุเหตุผล)
    * end=true จึงไม่ถูกนับเป็นงานค้าง/ค้างนาน/ใกล้ครบ 180 วัน ; cancel=true ให้หน้าเว็บแยกแสดง (ไม่อยู่ในรายการสถานะที่เลือกได้ — กู้คืนด้วย apiAdminRestore_) */
   S_('cancelled', 'ยกเลิกรายการ (ปิดเคส ไม่ดำเนินการต่อ)', 3, 'cxl', 420, 'rose', 'ph-prohibit', 'orange', 'รายการนี้ถูกยกเลิกและปิดเคสแล้ว ไม่ดำเนินการต่อในระบบ หากมีข้อสงสัยกรุณาติดต่อกลุ่มงานทรัพยากรบุคคล', HR, 0, { end: true, cancel: true })
 ];
-var SH = { SUB: 'ยื่นอวช', HIS: 'ประวัติสถานะ', USR: 'Users', NOT: 'Notifications', LOG: 'ActivityLog', STAFF: 'allstaff', LNU: 'LineUsers', LNL: 'LineLog', LNP: 'LinePending', QA: 'ถามตอบ', ATT: 'ไฟล์แนบ', FAQ: 'คำถามที่พบบ่อย', TRASH: 'ถังขยะ' };
+var SH = { SUB: 'ยื่นอวช', HIS: 'ประวัติสถานะ', USR: 'Users', NOT: 'Notifications', LOG: 'ActivityLog', STAFF: 'allstaff', LNU: 'LineUsers', LNL: 'LineLog', LNP: 'LinePending', QA: 'ถามตอบ', ATT: 'ไฟล์แนบ', FAQ: 'คำถามที่พบบ่อย', TRASH: 'ถังขยะ', SV: 'แบบประเมิน', MET: 'ตัวเลขรายเดือน', ACK: 'รับทราบ' };
 var HEAD = {
-  SUB: ['รหัส', 'เวลายื่น', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'เลขบัตรประชาชน', 'ตำแหน่ง', 'กลุ่มงาน', 'ตำแหน่งเลขที่', 'วันเริ่มงาน', 'อายุงาน', 'วุฒิการศึกษาสูงสุด', 'ชื่อผลงาน', 'ลิงก์ไฟล์', 'เบอร์โทร', 'อีเมล', 'สถานะ', 'หมายเหตุ', 'อัปเดตล่าสุด', 'ระดับตำแหน่ง', 'ติดดาว'],
+  SUB: ['รหัส', 'เวลายื่น', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'เลขบัตรประชาชน', 'ตำแหน่ง', 'กลุ่มงาน', 'ตำแหน่งเลขที่', 'วันเริ่มงาน', 'อายุงาน', 'วุฒิการศึกษาสูงสุด', 'ชื่อผลงาน', 'ลิงก์ไฟล์', 'เบอร์โทร', 'อีเมล', 'สถานะ', 'หมายเหตุ', 'อัปเดตล่าสุด', 'ระดับตำแหน่ง', 'ติดดาว', 'เวลาบันทึกระบบ (timestamp)'],
   HIS: ['รหัส', 'เวลา', 'สถานะ', 'หมายเหตุ', 'โดย'],
   USR: ['username', 'ชื่อ-สกุล', 'role', 'salt', 'hash', 'active', 'เลขบัตร(อ้างอิง allstaff)'],
   NOT: ['เวลา', 'เลขบัตรประชาชน', 'รหัส', 'ข้อความ'],
@@ -173,15 +194,18 @@ var HEAD = {
   FAQ: ['รหัส', 'หมวด', 'คำถาม', 'คำตอบ', 'เผยแพร่', 'ปักหมุด', 'ลำดับ', 'เป็นประโยชน์', 'ไม่เป็นประโยชน์', 'อัปเดตล่าสุด', 'โดย'],
   ATT: ['รหัส', 'เวลา', 'ชนิด', 'ครั้งที่แก้ไข', 'ชื่อไฟล์', 'ลิงก์ไฟล์', 'ผู้ส่ง', 'หมายเหตุ', 'เจ้าหน้าที่อ่านแล้ว']
 };
+HEAD.ACK = ['รหัสข้อความ', 'เวลาส่ง', 'รหัสรายการ', 'เลขบัตรประชาชน', 'ผู้ส่ง', 'หัวข้อ', 'รายการที่ต้องทำ (JSON)', 'กำหนด', 'สถานะ', 'เวลารับทราบ', 'LINE userId ที่กดรับทราบ'];
+HEAD.SV = ['รหัสเคส', 'เวลา', 'ผู้ตอบ', 'ผู้ใช้/ชื่อ', 'ประสบการณ์ใช้งาน', 'โหมด', 'ข้อ 1', 'ข้อ 2', 'ข้อ 3', 'ข้อ 4', 'ข้อ 5', 'ข้อ 6', 'ข้อ 7', 'ข้อ 8', 'ข้อ 9', 'ข้อ 10', 'ข้อ 11', 'ข้อ 12', 'ข้อ 13', 'ข้อ 14', 'ข้อ 15', 'ข้อ 16', 'คะแนนเฉลี่ย', 'ปัญหา/อุปสรรค', 'อยากให้ปรับปรุง/เพิ่มเติม', 'ข้อเสนอแนะอื่น'];
+HEAD.MET = ['เดือน (yyyy-MM หรือ baseline)', 'จำนวนสายโทรสอบถาม', 'หมายเหตุ', 'บันทึกโดย', 'บันทึกเมื่อ'];
 /* ถังขยะ: สำรองรายการที่ลบ (ข้อมูลรายการ/ประวัติสถานะ/ไฟล์แนบ/ถามตอบ เป็น JSON) เพื่อกู้คืนได้ */
 HEAD.TRASH = ['ลบเมื่อ', 'ลบโดย', 'รหัส', 'ชื่อ-สกุล', 'สถานะตอนลบ', 'เหตุผล', 'ข้อมูลรายการ (JSON)', 'ประวัติสถานะ (JSON)', 'ไฟล์แนบ (JSON)', 'ถามตอบ (JSON)', 'กู้คืนเมื่อ'];
 var CANCEL_REASONS = ['ผู้ยื่นขอถอนเรื่อง / ยกเลิกการส่ง', 'ไม่ผ่านการประเมิน', 'เกินกำหนด 180 วัน (ไม่ยื่นเล่ม 2)', 'ย้าย / ลาออก / เกษียณ / พ้นจากตำแหน่ง', 'ส่งซ้ำ / รายการซ้ำซ้อน', 'บันทึกข้อมูลผิดพลาด', 'อื่น ๆ (ระบุในรายละเอียด)'];
-var KEYS = ['id', 'ts', 'prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'tenure', 'edu', 'title', 'link', 'phone', 'email', 'status', 'note', 'upd', 'track', 'star'];
+var KEYS = ['id', 'ts', 'prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'tenure', 'edu', 'title', 'link', 'phone', 'email', 'status', 'note', 'upd', 'track', 'star', 'sts'];
 /* แก้ไขข้อมูลทั่วไป (ปุ่ม "แก้ไข") — สถานะ/หมายเหตุเปลี่ยนผ่าน apiAdminStatus_ (ปุ่ม "อัพเดทสถานะ") เท่านั้น */
 var EDITABLE = ['prefix', 'first', 'last', 'cid', 'position', 'group', 'posNo', 'start', 'edu', 'title', 'link', 'phone', 'email', 'track'];
 var TITLE_MAX = 300;   /* ความยาวสูงสุดของชื่อผลงาน */
-var ATT_KINDS = { book2: 'ไฟล์เล่ม 2', revision: 'ฉบับแก้ไขตามข้อเสนอแนะกรรมการ' }, ATT_MAX = 12;
-/* ประเภทข้อความ LINE ที่บันทึกใน LineLog: auto=อัตโนมัติเมื่อสถานะเปลี่ยน, manual=กดแจ้งเตือน(ข้อความสำเร็จรูป), typed=เจ้าหน้าที่พิมพ์เอง, bot=ระบบตอบในแชท, inbound=ผู้ยื่นพิมพ์เข้ามา, link=ผูกบัญชี */
+var ATT_KINDS = { book2: 'ไฟล์เล่ม 2', revision: 'ฉบับแก้ไขตามข้อเสนอแนะกรรมการ', acting: 'หนังสือคำสั่งรักษาการในตำแหน่ง (HR แนบ)' }, ATT_MAX = 12;
+/* ประเภทข้อความ LINE ที่บันทึกใน LineLog: auto=อัตโนมัติเมื่อสถานะเปลี่ยน, manual=กดแจ้งเตือน(ข้อความสำเร็จรูป), typed=เจ้าหน้าที่พิมพ์เอง, bot=ระบบตอบในแชท, inbound=ผู้ยื่นพิมพ์เข้ามา, link=ผูกบัญชี, test=ข้อความทดสอบจากแท็บ "ทดสอบ LINE" */
 var OUT_TYPES = ['auto', 'manual', 'typed'];
 var FILE_MAX = 8 * 1024 * 1024;
 var EXT_MIME = { pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', zip: 'application/zip', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png' };
@@ -189,23 +213,27 @@ var SUBMIT_EXT = ['pdf', 'doc', 'docx', 'zip'];
 var LINE_EXT = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx'];
 
 /* ---------- Entry ---------- */
+/* ฟังก์ชัน LINE อยู่ในไฟล์ Line.gs — ห่อเป็น wrapper เพื่อไม่ขึ้นกับลำดับโหลดไฟล์ของ Apps Script */
 var API = {
   config: apiConfig_, track: apiTrack_, lookup: apiLookup_, submit: apiSubmit_,
   login: apiLogin_, logout: apiLogout_, verify: apiVerify_,
-  adminList: apiAdminList_, adminSave: apiAdminSave_, adminDelete: apiAdminDelete_,
+  staffPick: apiStaffPick_, lineCidFind: apiLineCidFind_, adminList: apiAdminList_, adminSave: apiAdminSave_, adminDelete: apiAdminDelete_,
   usersList: apiUsersList_, staffSearch: apiStaffSearch_, userAdd: apiUserAdd_, userEdit: apiUserEdit_, userToggle: apiUserToggle_, logList: apiLogList_,
-  lineLinkReq: apiLineLinkReq_, lineLinkCheck: apiLineLinkCheck_,
-  lineInfo: apiLineInfo_, lineSend: apiLineSend_, lineAdmin: apiLineAdmin_, lineCheck: apiLineCheck_, lineUnlink: apiLineUnlink_, lineAdd: apiLineAdd_, linePending: apiLinePending_,
+  lineLinkReq: function () { return apiLineLinkReq_.apply(null, arguments); }, lineLinkCheck: function () { return apiLineLinkCheck_.apply(null, arguments); },
+  lineInfo: function () { return apiLineInfo_.apply(null, arguments); }, lineSend: function () { return apiLineSend_.apply(null, arguments); }, lineAdmin: function () { return apiLineAdmin_.apply(null, arguments); }, lineCheck: function () { return apiLineCheck_.apply(null, arguments); }, lineTest: function () { return apiLineTest_.apply(null, arguments); }, lineTestDispatch: function () { return apiLineTestDispatch_.apply(null, arguments); }, lineTestInfo: function () { return apiLineTestInfo_.apply(null, arguments); }, lineWebhookTest: function () { return apiLineWebhookTest_.apply(null, arguments); }, lineUnlink: function () { return apiLineUnlink_.apply(null, arguments); }, lineAdd: function () { return apiLineAdd_.apply(null, arguments); }, linePending: function () { return apiLinePending_.apply(null, arguments); }, lineManual: function () { return apiLineManual_.apply(null, arguments); }, lineDismiss: function () { return apiLineDismiss_.apply(null, arguments); },
+  ackList: function () { return apiAckList_.apply(null, arguments); },
   qaAsk: apiQaAsk_, qaReply: apiQaReply_, qaThread: apiQaThread_,
   faqList: apiFaqList_, faqVote: apiFaqVote_, faqAdminList: apiFaqAdminList_, faqSave: apiFaqSave_, faqDelete: apiFaqDelete_,
-  adminStatus: apiAdminStatus_, attAdd: apiAttAdd_, attList: apiAttList_, histGet: apiHistory_, histTime: apiHisTime_, star: apiStar_,
-  adminCancel: apiAdminCancel_, adminRestore: apiAdminRestore_, trashList: apiTrashList_, trashRestore: apiTrashRestore_
+  adminStatus: apiAdminStatus_, attAdd: apiAttAdd_, attList: apiAttList_, actingAdd: apiActingAdd_, actingDel: apiActingDel_, histGet: apiHistory_, histTime: apiHisTime_, star: apiStar_,
+  adminCancel: apiAdminCancel_, adminRestore: apiAdminRestore_, trashList: apiTrashList_, trashRestore: apiTrashRestore_,
+  surveyInfo: apiSurveyInfo_, closeRequest: apiCloseRequest_, surveyApplicant: apiSurveyApplicant_, surveyBackfill: apiSurveyBackfill_, surveyRetroList: apiSurveyRetroList_, surveyRetroSend: apiSurveyRetroSend_, surveyRetro: apiSurveyRetro_, reportGet: apiReportGetDly_, metSave: apiMetSave_, reportSend: apiReportSend_,
+  stageCases: apiStageCases_, delaySave: apiDelaySave_, reportExport: apiReportExport_
 };
 function doGet() { return json_({ ok: true, name: TITLE }); }
 function doPost(e) {
-  var out;
+  var out, b;
   try {
-    var b = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    b = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     if (b && Array.isArray(b.events)) return lineWebhook_(e, b);           // เรียกจาก LINE Platform
     if (b && b.fn && fteApi_().hasOwnProperty(b.fn)) {                     // ระบบ FTE (Fte.gs): คืนค่าเดิมของฟังก์ชันใน data
       var fa = b.args || [];
@@ -214,29 +242,87 @@ function doPost(e) {
     if (!b.fn || !Object.prototype.hasOwnProperty.call(API, b.fn)) throw new Error('ไม่พบคำสั่งที่เรียก');
     out = API[b.fn].apply(null, b.args || []);
     if (out.ok === undefined) out.ok = true;
-  } catch (err) { out = { ok: false, message: String(err.message || err) }; }
+    try { SpreadsheetApp.flush(); } catch (ef) {}                           // คำสั่งเขียนชีทที่ค้างอยู่ ถ้า error ให้เกิดตรงนี้ ไม่ใช่หลังจบ doPost
+  } catch (err) {
+    var em = String(err.message || err), st = String(err.stack || '');
+    /* error ที่มาจากชีท (เช่น คอลัมน์ถูกจัดประเภท) ไม่มีเลขบรรทัดให้ตามหา — แนบเลขบรรทัด/ฟังก์ชันไว้ท้ายข้อความ เพื่อชี้จุดที่ต้องแก้ */
+    if (!/ไม่พบคำสั่ง/.test(em) && /ชีท|เซลล์|คอลัมน์|Range|Sheet|sheet|cell|column/.test(em)) { var mm = st.match(/\(?(?:Code|Fte)?:?(\d+)[:)]?\s*(?:\(([^)]+)\))?/); em += ' [' + (st.split('\n').slice(0, 3).join(' | ').replace(/\s+/g, ' ').slice(0, 200)) + ']'; }
+    out = { ok: false, message: em };
+    try { sandLog(/ชีท|เซลล์|คอลัมน์|Range|Sheet|sheet|cell|column|TypeError|ReferenceError/.test(em) ? 'error' : 'warn', 'doPost ' + String((b && b.fn) || '?') + ': ' + em, null); } catch (es) {}
+  }
   return json_(out);
 }
 function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
+/* ---------- Monitor (SAND Tools) ----------
+ * ส่งบันทึกไปที่ https://sandtools.vercel.app — ห้ามใส่ข้อมูลส่วนบุคคล (ชื่อ/เลขบัตร/เบอร์) ใน message
+ * level: info | warn | error · o = { task, status: 'start'|'ok'|'fail', ms } */
+function sandLog(level, message, o) {
+  try {
+    UrlFetchApp.fetch('https://sandtools.vercel.app/api/collect', { method: 'post', contentType: 'text/plain', muteHttpExceptions: true,
+      payload: JSON.stringify({ k: 'ppcwh43swb', t: 'lg', h: 'hrsansaihospital.vercel.app', c: o && o.task ? 'tk' : 'lg', v: level,
+        m: String(message == null ? '' : message).slice(0, 300), e: o && o.task, s: o && o.status, d: o && o.ms }) });
+  } catch (e) { /* บันทึกไม่สำเร็จต้องไม่ทำให้งานหลักล้ม */ }
+}
+/* ห่อฟังก์ชันตั้งเวลา: จับเวลา + รายงานสำเร็จ/ล้มเหลว แล้วโยน error ต่อให้ Apps Script บันทึกเองตามเดิม */
+function sandRun_(task, fn) {
+  var t0 = Date.now();
+  try { var r = fn(); sandLog('info', task + ' เสร็จ', { task: task, status: 'ok', ms: Date.now() - t0 }); return r; }
+  catch (e) { sandLog('error', String(e && e.message || e), { task: task, status: 'fail', ms: Date.now() - t0 }); throw e; }
+}
+
 /* ---------- Helpers ---------- */
 function prop_(k) { return PropertiesService.getScriptProperties().getProperty(k) || ''; }
-function ss_() { var id = prop_('SPREADSHEET_ID'); return id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet(); }
+/* เปิด Spreadsheet ครั้งเดียวต่อการรัน (ตัวแปร global อยู่แค่ในหนึ่ง execution) — เดิม openById ซ้ำทุกครั้งที่เรียก sheet_() */
+var _SS = null, _SHT = {};
+function ss_() { if (_SS) return _SS; var id = prop_('SPREADSHEET_ID'); _SS = id ? SpreadsheetApp.openById(id) : SpreadsheetApp.getActiveSpreadsheet(); return _SS; }
+/* ตั้งรูปแบบเซลล์แบบปลอดภัย — ถ้าคอลัมน์ในชีทถูกจัดประเภท (Table / Column type เช่นแท็บ ActivityLog, allstaff) Google จะโยน
+ * "ตั้งค่ารูปแบบตัวเลขของเซลล์ในคอลัมน์ที่มีการจัดประเภทไม่ได้"
+ * จุดสำคัญ: SpreadsheetApp เก็บคำสั่งเขียนไว้เป็นชุดแล้ว "ค่อยส่งทีหลัง" (flush) ดังนั้น error จึงไปโผล่ที่คำสั่งอื่นถัดไป (เช่น getLastRow)
+ * หรือตอนสคริปต์จบ → หลุดออกนอก try/catch ของ doPost กลายเป็นหน้า error HTML ที่ไม่มีหัว CORS
+ * จึงสั่ง flush ภายใน try ทันที เพื่อให้ error เกิด "ตรงนี้" แล้วจำคอลัมน์ที่ตั้งไม่ได้ไว้ ไม่ลองซ้ำ */
+var _BADFMT = {};
+function fmtBadKey_(sh, col) { return 'bf_' + sh.getSheetId() + '_' + col; }
+function fmtIsBad_(sh, col) {
+  var k = fmtBadKey_(sh, col);
+  if (_BADFMT[k]) return true;
+  try { if (CacheService.getScriptCache().get(k)) { _BADFMT[k] = 1; return true; } } catch (e) {}
+  return false;
+}
+function fmtMarkBad_(sh, col) {
+  var k = fmtBadKey_(sh, col); _BADFMT[k] = 1;
+  try { CacheService.getScriptCache().put(k, '1', 21600); } catch (e) {}
+}
+function fmt_(range, f) {
+  var sh, r0, c0, nr, nc, j, ok = true, anyBad = false;
+  try { sh = range.getSheet(); r0 = range.getRow(); c0 = range.getColumn(); nr = range.getNumRows(); nc = range.getNumColumns(); } catch (e0) { return false; }
+  for (j = 0; j < nc; j++) if (fmtIsBad_(sh, c0 + j)) { anyBad = true; break; }
+  if (!anyBad) {
+    try { range.setNumberFormat(f); SpreadsheetApp.flush(); return true; } catch (e1) {}
+  }
+  for (j = 0; j < nc; j++) {                                    // ทีละคอลัมน์ ข้ามคอลัมน์ที่ตั้งไม่ได้ (ข้อมูลยังเขียนได้ตามปกติ)
+    if (fmtIsBad_(sh, c0 + j)) { ok = false; continue; }
+    try { sh.getRange(r0, c0 + j, nr, 1).setNumberFormat(f); SpreadsheetApp.flush(); } catch (e2) { fmtMarkBad_(sh, c0 + j); ok = false; }
+  }
+  return ok;
+}
 function sheet_(key) {
+  if (_SHT[key]) return _SHT[key];                               // เก็บ Sheet ต่อคีย์ — ไม่เรียก getSheetByName/migrateHead_ ซ้ำใน execution เดียว
   var ss = ss_(), name = SH[key], s = ss.getSheetByName(name);
   if (s) migrateHead_(s, key);
   if (!s) {
     s = ss.insertSheet(name);
     s.getRange(1, 1, 1, HEAD[key].length).setValues([HEAD[key]]).setFontWeight('bold');
     s.setFrozenRows(1);
-    s.getRange(1, 1, s.getMaxRows(), HEAD[key].length).setNumberFormat('@');
+    fmt_(s.getRange(1, 1, s.getMaxRows(), HEAD[key].length), '@');
   }
+  _SHT[key] = s;
   return s;
 }
 /* อัปเดตหัวคอลัมน์ของแท็บที่ระบบสร้างเอง (เพิ่มคอลัมน์ใหม่/เปลี่ยนชื่อหัว) ทำครั้งเดียวต่อ 6 ชม. — ไม่แตะข้อมูลแถวอื่น และไม่ใช้กับชีท allstaff */
 /* คอลัมน์เวลาของแต่ละแท็บ (เลขคอลัมน์เริ่มที่ 1) — ต้องเก็บเป็น "ข้อความ" เท่านั้น
  * ถ้าปล่อยให้ Google Sheets แปลงเป็นวันที่ เวลาที่แสดงอาจเพี้ยนตามเขตเวลาของชีท (เช่น 12:17 กลายเป็น 19:17) */
-var TIMECOLS = { QA: [2], ATT: [2], LOG: [1], NOT: [1], LNU: [4], LNL: [1], LNP: [3, 7], FAQ: [10] };
+var TIMECOLS = { SV: [2], MET: [5], SUB: [22], QA: [2], ATT: [2], LOG: [1], NOT: [1], LNU: [4], LNL: [1], LNP: [3, 7], FAQ: [10], ACK: [2, 10] };
 function fixTimeCols_(s, key) {
   var cols = TIMECOLS[key]; if (!cols) return 0;
   var fixed = 0, n = s.getLastRow(), mx = Math.max(s.getMaxRows() - 1, 1);
@@ -246,18 +332,18 @@ function fixTimeCols_(s, key) {
     if (n >= 2) {
       var data = s.getRange(2, c, n - 1, 1), vals = data.getValues();
       if (vals.some(function (v) { return v[0] instanceof Date; })) {
-        data.setNumberFormat('yyyy-MM-dd HH:mm:ss');           // บังคับรูปแบบก่อน แล้วอ่าน "ข้อความที่ชีทแสดง" = เวลาตามที่บันทึกไว้จริง (ไม่ผ่านการคำนวณเขตเวลา)
+        fmt_(data, 'yyyy-MM-dd HH:mm:ss');           // บังคับรูปแบบก่อน แล้วอ่าน "ข้อความที่ชีทแสดง" = เวลาตามที่บันทึกไว้จริง (ไม่ผ่านการคำนวณเขตเวลา)
         var disp = data.getDisplayValues();
-        all.setNumberFormat('@'); data.setValues(disp);
+        fmt_(all, '@'); data.setValues(disp);
         fixed += vals.filter(function (v) { return v[0] instanceof Date; }).length; return;
       }
     }
-    all.setNumberFormat('@');                                   // แถวใหม่ที่ appendRow ต่อท้ายจะเป็นข้อความเสมอ
+    fmt_(all, '@');                                   // แถวใหม่ที่ appendRow ต่อท้ายจะเป็นข้อความเสมอ
   });
   return fixed;
 }
 function migrateHead_(s, key) {
-  var c = CacheService.getScriptCache(), ck = 'hm3_' + key; if (c.get(ck)) return;
+  var c = CacheService.getScriptCache(), ck = 'hm4_' + key; if (c.get(ck)) return;
   try { fixTimeCols_(s, key); } catch (e) {}
   var h = HEAD[key], cur = s.getRange(1, 1, 1, Math.max(h.length, s.getLastColumn())).getValues()[0], diff = false;
   for (var i = 0; i < h.length; i++) if (String(cur[i] || '') !== h[i]) diff = true;
@@ -265,6 +351,21 @@ function migrateHead_(s, key) {
   c.put(ck, '1', 21600);
 }
 function now_() { return Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss'); }
+/* เรียงประวัติตามวันเวลาจริง (ไม่พึ่งลำดับแถวในชีท): แถวที่บันทึกแบบหน่วงเวลา/แก้มือ/สลับแถว จะได้ไม่ขึ้นผิดที่
+ * tsKey_ แปลงเวลาเป็นคีย์ yyyyMMddHHmmss — รองรับ "2026-11-06 10:00:00" และ "6/11/2569 10:00" (ปี พ.ศ. แปลงเป็น ค.ศ.) · ไม่รู้จักรูปแบบ = คีย์ว่าง (ถือว่าเก่าสุด) */
+function tsKey_(t) {
+  t = String(t == null ? '' : t).trim();
+  function p2(x) { x = String(x == null ? '0' : x); return x.length < 2 ? '0' + x : x; }
+  var m = t.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if (m) return m[1] + m[2] + m[3] + p2(m[4]) + m[5] + p2(m[6] || '0');
+  m = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (m) { var y = +m[3]; if (y > 2400) y -= 543; return y + p2(m[2]) + p2(m[1]) + p2(m[4] || '0') + p2(m[5] || '0') + p2(m[6] || '0'); }
+  return '';
+}
+function sortByTime_(rows, getT) {   // เรียงเก่า → ใหม่ (เวลาเท่ากันคงลำดับเดิม) — ใช้ .reverse() เพื่อให้ใหม่สุดขึ้นก่อน
+  return rows.map(function (r, i) { return { r: r, i: i, k: tsKey_(getT(r)) }; })
+    .sort(function (a, b) { return a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i; }).map(function (x) { return x.r; });
+}
 function digits_(v) { return String(v == null ? '' : v).replace(/\D/g, ''); }
 /* เขตเวลาของ "ชีท" (File > Settings) — Google Sheets แปลงข้อความ "2026-10-20 09:19:00" เป็นวันที่ตามเขตเวลาของชีท
  * ถ้าชีทไม่ใช่เวลาไทย การอ่านกลับด้วย TZ ของสคริปต์จะคลาดเคลื่อนเป็นชั่วโมง (เช่น 16:19 ทั้งที่ยื่น 09:19) จึงต้องอ่านกลับด้วยเขตเวลาเดียวกับที่ชีทใช้แปลง */
@@ -274,14 +375,42 @@ function str_(v) {
   if (v instanceof Date) return Utilities.formatDate(v, ssTz_(), 'yyyy-MM-dd HH:mm:ss');
   return String(v == null ? '' : v).trim();
 }
+/* ---------- อ่านเวลา "ตามที่ชีทแสดงจริง" ----------
+ * ปัญหาเดิม: เซลล์เวลาบางแท็บ (เช่น ActivityLog) เป็น "วันที่จริง" ไม่ใช่ข้อความ — getValues() ได้ Date แล้วต้องเดาเขตเวลาตอนแปลงกลับ
+ * ถ้าเขตเวลาของชีท/สคริปต์/การแปลงไม่ตรงกัน เวลาที่เว็บแสดงจะคลาดเคลื่อนเป็นชั่วโมง (เช่น ชีทแสดง 15:22 แต่เว็บแสดง 22:22)
+ * วิธีแก้: ให้ "ข้อความที่ชีทแสดง" (getDisplayValues) เป็นความจริง
+ *   - ถ้าชีทแสดงเป็น yyyy-MM-dd HH:mm[:ss] อยู่แล้ว ใช้ตามนั้นตรง ๆ
+ *   - ถ้าชีทแสดงเป็นรูปแบบอื่น (เช่น m/d/yyyy h:mm:ss) ใช้ "เวลาในวัน" ที่ชีทแสดง หาส่วนต่างเขตเวลาจริงของเซลล์ แล้วแปลงวันที่ให้ตรง (ไม่พึ่งการเดาเขตเวลาและไม่พึ่งรูปแบบวัน/เดือน) */
+function dispTime_(v, disp) {
+  disp = String(disp == null ? '' : disp).trim();
+  var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/.exec(disp);
+  if (m) return m[1] + '-' + m[2] + '-' + m[3] + ' ' + m[4] + ':' + m[5] + ':' + (m[6] || '00');
+  var t = /(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp])?\.?[Mm]?/.exec(disp);
+  if (t) {
+    var h = +t[1]; if (t[4]) h = (h % 12) + (/p/i.test(t[4]) ? 12 : 0);
+    var shown = h * 3600 + (+t[2]) * 60 + (+t[3] || 0);
+    var utc = v.getUTCHours() * 3600 + v.getUTCMinutes() * 60 + v.getUTCSeconds();
+    var off = ((shown - utc) % 86400 + 86400 + 43200) % 86400 - 43200;   // ส่วนต่างเขตเวลาของชีท (วินาที) ในช่วง -12..+12 ชม.
+    return Utilities.formatDate(new Date(v.getTime() + off * 1000), 'UTC', 'yyyy-MM-dd HH:mm:ss');
+  }
+  return Utilities.formatDate(v, ssTz_(), 'yyyy-MM-dd HH:mm:ss');
+}
+/* getValues() ที่เซลล์วันที่ถูกแปลงเป็นข้อความตามที่ชีทแสดง (เซลล์อื่นคืนค่าเดิม) — ใช้แทน getValues() กับช่วงที่มีคอลัมน์เวลา */
+function V_(rg) {
+  var v = rg.getValues(), d = null;
+  for (var i = 0; i < v.length; i++) for (var j = 0; j < v[i].length; j++) {
+    if (v[i][j] instanceof Date) { if (!d) d = rg.getDisplayValues(); v[i][j] = dispTime_(v[i][j], d[i][j]); }
+  }
+  return v;
+}
 /* เขียนเป็นข้อความล้วน (@) กัน Google Sheets แปลงวันที่/เลขศูนย์นำหน้า — ใช้กับแท็บที่เก็บเวลา (ยื่นอวช, ประวัติสถานะ) */
 function appendText_(sh, row) {
   var r = sh.getLastRow() + 1;
   if (r > sh.getMaxRows()) sh.insertRowsAfter(sh.getMaxRows(), 1);
-  var rg = sh.getRange(r, 1, 1, row.length); rg.setNumberFormat('@'); rg.setValues([row]);
+  var rg = sh.getRange(r, 1, 1, row.length); fmt_(rg, '@'); rg.setValues([row]);
   return r;
 }
-function setText_(range, v) { range.setNumberFormat('@'); range.setValue(v); }
+function setText_(range, v) { fmt_(range, '@'); range.setValue(v); }
 /* ---------- ประวัติสถานะ: เรียงตามเวลา (เก่า→ใหม่) ----------
  * แถวในแท็บ "ประวัติสถานะ" อาจไม่เรียงตามเวลา (นำเข้าจากทะเบียนคุมเรียงย้อนหลัง / ลงเวลาย้อนหลัง) — ทุกที่ที่ต้องรู้ "ขั้นตอนล่าสุด/วันเข้าขั้นตอน"
  * จึงต้องเรียงก่อนเสมอ ; เวลาเท่ากันคงลำดับเดิมในชีท (stable) */
@@ -292,10 +421,13 @@ function hisSort_(hv) {
   }).map(function (o) { return o.r; });
 }
 /* ประวัติของรายการหนึ่ง เรียงตามเวลา : [{ row (แถวในชีท), t, s (รหัสสถานะ), n, by }] */
+var HISV_ = null;   // แคชแท็บประวัติสถานะ ตลอดการประมวลผล webhook 1 เหตุการณ์ (อ่านอย่างเดียว) — ลดการอ่านชีทซ้ำเมื่อตอบหลายรายการ
 function hisMine_(id, ncol) {
-  var sh = sheet_('HIS'), n = sh.getLastRow(), out = [];
+  var sh = sheet_('HIS'), n = sh.getLastRow(), out = [], nc = ncol || 5, vals;
   if (n < 2) return out;
-  sh.getRange(2, 1, n - 1, ncol || 5).getValues().forEach(function (r, i) {
+  if (DEFER_ && HISV_ && HISV_.n === n && HISV_.c === nc) vals = HISV_.v;
+  else { vals = V_(sh.getRange(2, 1, n - 1, nc)); if (DEFER_) HISV_ = { n: n, c: nc, v: vals }; }
+  vals.forEach(function (r, i) {
     if (str_(r[0]) === id) out.push({ row: i + 2, i: i, t: str_(r[1]), s: normKey_(str_(r[2])), n: str_(r[3]), by: str_(r[4]) });
   });
   return out.sort(function (a, b) { return a.t < b.t ? -1 : a.t > b.t ? 1 : a.i - b.i; });
@@ -318,7 +450,7 @@ function fixHistoryOrder() {
     });
     var moved = 0; idx.forEach(function (o, k) { if (o.i !== k) moved++; });
     if (!moved) { Logger.log('ประวัติสถานะเรียงตามเวลาอยู่แล้ว'); return 0; }
-    rg.setNumberFormat('@'); rg.setValues(idx.map(function (o) { return o.r.map(function (c) { return str_(c); }); }));
+    fmt_(rg, '@'); rg.setValues(idx.map(function (o) { return o.r.map(function (c) { return str_(c); }); }));
     log_('fix_history_order', 'system', 'success', 'เรียงประวัติสถานะตามเวลา ' + moved + ' แถว');
     Logger.log('เรียงประวัติสถานะตามเวลาแล้ว ' + moved + ' แถว'); return moved;
   } finally { lock.releaseLock(); }
@@ -343,7 +475,7 @@ function stageName_(k) { return stageObj_(k).t; }
 function fixRound_(id, k) {
   var s = sheet_('HIS'), n = s.getLastRow(); if (n < 2) return 0;
   var c = 0, prev = '';
-  hisSort_(s.getRange(2, 1, n - 1, 3).getValues()).forEach(function (r) { if (str_(r[0]) !== id) return; var st = normKey_(str_(r[2])); if (st === k && prev !== k) c++; prev = st; });
+  hisSort_(V_(s.getRange(2, 1, n - 1, 3))).forEach(function (r) { if (str_(r[0]) !== id) return; var st = normKey_(str_(r[2])); if (st === k && prev !== k) c++; prev = st; });
   return c;
 }
 /* จำนวนรอบที่กรรมการให้แก้ไข (นับจากประวัติ) */
@@ -351,9 +483,12 @@ function fixCount_(id) { return fixRound_(id, 'b2_fix'); }
 function lastHisTime_(id) {
   var s = sheet_('HIS'), n = s.getLastRow(), mx = '';
   if (n < 2) return '';
-  s.getRange(2, 1, n - 1, 2).getValues().forEach(function (r) { if (str_(r[0]) === id && str_(r[1]) > mx) mx = str_(r[1]); });
+  V_(s.getRange(2, 1, n - 1, 2)).forEach(function (r) { if (str_(r[0]) === id && str_(r[1]) > mx) mx = str_(r[1]); });
   return mx;
 }
+function hasActingAtt_(id) { return attRows_().some(function (a) { return a.id === id && a.kind === 'acting'; }); }
+/* ประวัติสถานะของรายการเคยบันทึกสถานะ k แล้วหรือยัง */
+function hisHas_(id, k) { return hisMine_(id, 3).some(function (h) { return h.s === k; }); }
 function curFixRound_(it) {
   var s = stageObj_(it.status);
   if (s.fix) return fixRound_(it.id, s.k);
@@ -361,10 +496,10 @@ function curFixRound_(it) {
   return fixCount_(it.id);
 }
 function stageLabel_(it) { var s = stageObj_(it.status); if (!s.fix && !s.rep) return s.t; var n = fixRound_(it.id, s.k); return s.t + (n ? ' ครั้งที่ ' + n : ''); }
+/* วันที่-เวลาไทย รูปแบบ วัน/เดือน/ปี (พ.ศ.) เช่น 05/11/2569 09:06 น. — การ์ด LINE/อีเมลที่เรียกฟังก์ชันนี้เปลี่ยนตามอัตโนมัติ */
 function thaiDT_(d) {
-  var M = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  var p = Utilities.formatDate(d || new Date(), TZ, 'd|M|yyyy|HH:mm').split('|');
-  return p[0] + ' ' + M[+p[1] - 1] + ' ' + (+p[2] + 543) + ' ' + p[3] + ' น.';
+  var p = Utilities.formatDate(d || new Date(), TZ, 'dd|MM|yyyy|HH:mm').split('|');
+  return p[0] + '/' + p[1] + '/' + (+p[2] + 543) + ' ' + p[3] + ' น.';
 }
 function rateOk_(key, max, ttl) {
   var c = CacheService.getScriptCache(), n = +c.get(key) || 0;
@@ -372,26 +507,48 @@ function rateOk_(key, max, ttl) {
   c.put(key, String(n + 1), ttl);
   return true;
 }
+function subObj_(r, row) {
+  var o = { row: row };
+  KEYS.forEach(function (k, j) { o[k] = (k === 'cid') ? digits_(r[j]) : str_(r[j]); });
+  o.status = normKey_(o.status);
+  return o;
+}
 function subs_() {
   var s = sheet_('SUB'), n = s.getLastRow();
   if (n < 2) return [];
-  return s.getRange(2, 1, n - 1, KEYS.length).getValues().map(function (r, i) {
-    var o = { row: i + 2 };
-    KEYS.forEach(function (k, j) { o[k] = (k === 'cid') ? digits_(r[j]) : str_(r[j]); });
-    o.status = normKey_(o.status);
-    return o;
-  });
+  return V_(s.getRange(2, 1, n - 1, KEYS.length)).map(function (r, i) { return subObj_(r, i + 2); });
+}
+/* คอลัมน์ของชีท allstaff: หาจาก "หัวตาราง" (แถวที่ 1) เพื่อให้ยังทำงานถูกแม้มีการแทรก/ย้ายคอลัมน์ในชีท — ถ้าหาหัวไม่พบจะใช้ตำแหน่งเดิม (0 = คอลัมน์ A)
+ * ชื่อหัวที่ใช้หา: คำนำหน้า · ชื่อ · นามสกุล · ตำแหน่ง · ระดับ · เลขที่ตำแหน่ง · กลุ่มงาน จ.18 · บัตรประชาชน (หรือมีคำว่า เลขบัตร) · เบอร์โทร */
+var STAFF_LEGACY_ = { prefix: 1, first: 2, last: 3, position: 4, level: 6, posNo: 8, group: 19, cid: 32, phone: 33 };
+var STAFFC_ = null;
+function staffCols_(s) {
+  if (STAFFC_) return STAFFC_;
+  var w = Math.max(s.getLastColumn(), 34), h = s.getRange(1, 1, 1, w).getValues()[0].map(function (x) { return String(x == null ? '' : x).replace(/\s+/g, ''); });
+  function find(fn) { for (var i = 0; i < h.length; i++) if (fn(h[i])) return i; return -1; }
+  function eq(t) { return function (x) { return x === t; }; }
+  var c = { prefix: find(eq('คำนำหน้า')), first: find(eq('ชื่อ')), last: find(eq('นามสกุล')), position: find(eq('ตำแหน่ง')), level: find(eq('ระดับ')), posNo: find(eq('เลขที่ตำแหน่ง')),
+    group: find(function (x) { return x.indexOf('กลุ่มงานจ.18') === 0; }),
+    cid: find(function (x) { return x.indexOf('บัตรประชาชน') > -1 || x.indexOf('เลขบัตร') > -1; }),
+    phone: find(function (x) { return x.indexOf('เบอร์โทร') > -1; }) };
+  var mx = 0; Object.keys(STAFF_LEGACY_).forEach(function (k) { if (c[k] < 0) c[k] = STAFF_LEGACY_[k]; if (c[k] > mx) mx = c[k]; });
+  c.w = mx + 1;
+  return (STAFFC_ = c);
 }
 function staffByCid_(cid) {
   var s = ss_().getSheetByName(SH.STAFF);
   if (!s || s.getLastRow() < 2) return null;
-  var v = s.getRange(2, 1, s.getLastRow() - 1, 34).getValues();
-  for (var i = 0; i < v.length; i++) if (digits_(v[i][32]) === cid)
-    return { prefix: str_(v[i][1]), first: str_(v[i][2]), last: str_(v[i][3]), position: str_(v[i][4]), posNo: str_(v[i][8]), group: str_(v[i][19]), phone: str_(v[i][33]) };
+  var c = staffCols_(s), v = s.getRange(2, 1, s.getLastRow() - 1, c.w).getValues();
+  for (var i = 0; i < v.length; i++) if (digits_(v[i][c.cid]) === cid)
+    return { prefix: str_(v[i][c.prefix]), first: str_(v[i][c.first]), last: str_(v[i][c.last]), position: str_(v[i][c.position]), level: str_(v[i][c.level]), posNo: str_(v[i][c.posNo]), group: str_(v[i][c.group]), phone: str_(v[i][c.phone]) };
   return null;
 }
 function log_(action, user, result, detail) {
-  try { sheet_('LOG').appendRow([now_(), action, user || '', result || '', detail || '']); } catch (e) {}
+  try { appendText_(sheet_('LOG'), [now_(), action, user || '', result || '', detail || '']); } catch (e) {}
+  try {
+    var lv = result === 'error' ? 'error' : (result === 'warn' || result === 'rejected' || result === 'fail') ? 'warn' : '';
+    if (lv) sandLog(lv, action + ': ' + maskT_(detail || result), null);
+  } catch (e2) {}
 }
 /* อีเมลแจ้งผู้ยื่น (รูปแบบหนังสือแจ้ง: คำขึ้นต้น – เนื้อความ – ลิงก์ระบบ – คำขอบคุณ – ลงท้าย)
  * kind: 'received' = ได้รับเอกสารแล้ว | 'status' = ความคืบหน้าเปลี่ยน */
@@ -446,7 +603,7 @@ function mailHtml_(it, kind) {
 }
 function notify_(item, msg, kind) {
   try {
-    sheet_('NOT').appendRow([now_(), item.cid, item.id, msg]);
+    appendText_(sheet_('NOT'), [now_(), item.cid, item.id, msg]);
     if (item.email) MailApp.sendEmail(item.email, '[ระบบติดตามสถานะ อวช.] ความคืบหน้าปัจจุบันของเลขที่เอกสาร ' + item.id, mailText_(item, kind || 'status'), { htmlBody: mailHtml_(item, kind || 'status'), name: 'ระบบติดตามสถานะ อวช. โรงพยาบาลสันทราย' });
   } catch (e) {}
 }
@@ -462,7 +619,16 @@ function auth_(token, needAdmin) {
   c.put('s_' + token, v, SESSION_TTL);
   return u;
 }
-function findSub_(id) { return subs_().filter(function (r) { return r.id === id; })[0]; }
+/* หาเคสเดียว: อ่านเฉพาะคอลัมน์รหัสก่อน แล้วอ่านเต็มแค่แถวที่เจอ (เดิมอ่านทั้งชีทแล้วกรอง) — คืนรูปแบบเดียวกับ subs_() */
+function findSub_(id) {
+  var s = sheet_('SUB'), n = s.getLastRow();
+  if (n < 2) return undefined;
+  var ids = s.getRange(2, 1, n - 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) {
+    if (str_(ids[i][0]) === id) return subObj_(V_(s.getRange(i + 2, 1, 1, KEYS.length))[0], i + 2);
+  }
+  return undefined;
+}
 
 /* ---------- ไฟล์แนบ: ตรวจสอบฝั่งเซิร์ฟเวอร์ (นามสกุล + ขนาด + ลายเซ็นไฟล์) แล้วบันทึกลง Drive ---------- */
 function safeName_(n) {
@@ -495,9 +661,9 @@ function saveUpload_(file, allowed, share) {
 /* ---------- คำถามที่พบบ่อย (บอร์ดที่งานทรัพยากรบุคคลจัดทำ ผู้เยี่ยมชมอ่านได้โดยไม่ต้องเข้าสู่ระบบ) ---------- */
 var FAQ_SEED = [
   ['เริ่มต้นใช้งาน', 'ติดตามสถานะผลงาน อวช. ได้อย่างไร', 'ไปที่แท็บ "ติดตามสถานะ" แล้วกรอกเลขบัตรประชาชน 13 หลัก ระบบจะแสดงขั้นตอนทั้งหมด สถานะปัจจุบัน ระยะเวลาที่อยู่ในแต่ละขั้นตอน และหมายเหตุจากเจ้าหน้าที่\nหากยังไม่เคยยื่นเอกสาร ให้ยื่นที่แท็บ "ยื่นเอกสาร" ก่อน', 1],
-  ['เริ่มต้นใช้งาน', 'กระบวนการประเมินมีกี่เล่ม และผ่านหน่วยงานใดบ้าง', 'มี 2 เล่ม คือ เล่ม 1 ประเมินบุคคล และเล่ม 2 ประเมินผลงาน แล้วจึงออกคำสั่งเลื่อน\nเล่ม 1 : โรงพยาบาลสันทราย → สำนักงานสาธารณสุขจังหวัด (สสจ.) → ศาลากลางจังหวัด (ผู้ว่าราชการจังหวัดลงนามชี้ตัว)\nเล่ม 2 ระดับชำนาญการ/ชำนาญงาน : โรงพยาบาล → สสจ. (ประชุมพิจารณา/กรรมการ) → รับหนังสือมติ\nเล่ม 2 ระดับชำนาญการพิเศษ : โรงพยาบาล → สสจ. → ศาลากลางจังหวัด → สำนักงานเขตสุขภาพที่ 1 → รับหนังสือส่งกลับ', 1],
-  ['ระยะเวลา', 'ใช้เวลาแต่ละขั้นตอนนานเท่าไร', 'เกณฑ์สูงสุดต่อขั้นตอน (วัน) — นับจากวันที่เข้าสู่ขั้นตอนปัจจุบัน ไม่ใช่นับจากวันที่ยื่นเอกสาร\nเล่ม 1 : โรงพยาบาลตรวจสอบ 5 · แก้ไข 30 · ผอ.ลงนาม 5 · นพ.สสจ.ลงนาม 10 · ผู้ว่าฯ ลงนาม 30 · หลังผู้ว่าฯ ชี้ตัวมี 180 วันเพื่อส่งเล่ม 2\nเล่ม 2 ชำนาญการ/ชำนาญงาน : ตรวจสอบ 5 · แก้ไข 30 · ผอ.ลงนาม 7 · สสจ.ลงรับ 3 · เข้าประชุมพิจารณา 180 · แก้ไข 30 · กรรมการอ่านซ้ำ 90 · หนังสือมติ 30\nเล่ม 2 ชำนาญการพิเศษ : ตรวจสอบ 50 · แก้ไข 30 · ผอ.ลงนาม 7 · นพ.สสจ.ลงนาม 15 · ผู้ว่าฯ ลงนาม 30 · เขตสุขภาพที่ 1 ลงรับ 2 · รอบประชุม 90 · กรรมการอ่านผลประเมิน 90 · แก้ไข 30 · อ่านซ้ำ 90 · มติผ่าน 30\nคำสั่งเลื่อน : เสนอแฟ้ม 5 · ผอ.ลงนาม 7 · นพ.สสจ.ลงนาม 15 · ผู้ว่าฯ ลงนาม 45\nระบบจะแสดงป้าย "ค้างนานกว่าปกติ" ให้เจ้าหน้าที่ติดตามเมื่อเกินเกณฑ์', 1],
-  ['ระยะเวลา', 'ต้องยื่นเล่ม 2 ภายในกี่วัน', 'ภายใน 180 วัน นับจากวันที่ผู้ว่าราชการจังหวัดลงนามอนุมัติเล่ม 1 ระบบแสดงจำนวนวันคงเหลือในหน้าติดตามสถานะ และแนบไฟล์เล่ม 2 ล่วงหน้าได้ที่การ์ด "แนบไฟล์เล่ม 2 เพิ่มเติม"', 1],
+  ['เริ่มต้นใช้งาน', 'กระบวนการประเมินมีกี่เล่ม และผ่านหน่วยงานใดบ้าง', 'มี 2 เล่ม คือ เล่ม 1 ประเมินบุคคล และเล่ม 2 ประเมินผลงาน แล้วจึงออกคำสั่งเลื่อน\nเล่ม 1 : โรงพยาบาลสันทราย → สำนักงานสาธารณสุขจังหวัด (สสจ.) → ศาลากลางจังหวัด (ผู้ว่าราชการจังหวัดลงนามชี้ตัว)\nเล่ม 2 ระดับชำนาญการ/ชำนาญงาน : โรงพยาบาล → สสจ. (ประชุมพิจารณา/กรรมการ) → รับหนังสือมติ\nเล่ม 2 ระดับชำนาญการพิเศษ (เส้นทางชำนาญการ → ชำนาญการพิเศษ: หลังผู้ว่าฯ ชี้ตัวเล่ม 1 กลุ่มงานทรัพยากรบุคคลออกคำสั่งรักษาการในตำแหน่ง แนบหนังสือและอัปเดตสถานะ แล้วจึงเริ่มนับ 180 วันเพื่อยื่นเล่ม 2) : โรงพยาบาล → สสจ. → ศาลากลางจังหวัด → สำนักงานเขตสุขภาพที่ 1 → รับหนังสือส่งกลับ', 1],
+  ['ระยะเวลา', 'ใช้เวลาแต่ละขั้นตอนนานเท่าไร', 'เกณฑ์สูงสุดต่อขั้นตอน (วัน) — นับจากวันที่เข้าสู่ขั้นตอนปัจจุบัน ไม่ใช่นับจากวันที่ยื่นเอกสาร\nเล่ม 1 : โรงพยาบาลตรวจสอบ 5 · แก้ไข 30 · ผอ.ลงนาม 5 · นพ.สสจ.ลงนาม 10 · ผู้ว่าฯ ลงนาม 30 · หลังผู้ว่าฯ ชี้ตัวมี 180 วันเพื่อส่งเล่ม 2\nเล่ม 2 ชำนาญการ/ชำนาญงาน : ตรวจสอบ 5 · แก้ไข 30 · ผอ.ลงนาม 7 · สสจ.ลงรับ 3 · เข้าประชุมพิจารณา 180 · แก้ไข 30 · กรรมการอ่านซ้ำ 90 · หนังสือมติ 30\nคำสั่งรักษาการในตำแหน่ง (เฉพาะชำนาญการ → ชำนาญการพิเศษ) : หลังผู้ว่าฯ ชี้ตัว กลุ่มงานทรัพยากรบุคคลออกคำสั่งและอัปเดตสถานะ จึงเริ่มนับ 180 วัน\nเล่ม 2 ชำนาญการพิเศษ : ตรวจสอบ 50 · แก้ไข 30 · ผอ.ลงนาม 7 · นพ.สสจ.ลงนาม 15 · ผู้ว่าฯ ลงนาม 30 · เขตสุขภาพที่ 1 ลงรับ 2 · รอบประชุม 90 · กรรมการอ่านผลประเมิน 90 · แก้ไข 30 · อ่านซ้ำ 90 · มติผ่าน 30\nคำสั่งเลื่อน : เสนอแฟ้ม 5 · ผอ.ลงนาม 7 · นพ.สสจ.ลงนาม 15 · ผู้ว่าฯ ลงนาม 45\nระบบจะแสดงป้าย "ค้างนานกว่าปกติ" ให้เจ้าหน้าที่ติดตามเมื่อเกินเกณฑ์', 1],
+  ['ระยะเวลา', 'ต้องยื่นเล่ม 2 ภายในกี่วัน', 'ภายใน 180 วัน นับจากวันที่ผู้ว่าราชการจังหวัดลงนามอนุมัติเล่ม 1 (เส้นทางชำนาญการ → ชำนาญการพิเศษ นับจากวันที่กลุ่มงานทรัพยากรบุคคลอัปเดตสถานะคำสั่งรักษาการในตำแหน่ง) ระบบแสดงจำนวนวันคงเหลือในหน้าติดตามสถานะ และแนบไฟล์เล่ม 2 ล่วงหน้าได้ที่การ์ด "แนบไฟล์เล่ม 2 เพิ่มเติม"', 1],
   ['ความหมายของสถานะ', 'สถานะ "ลงนาม" หมายความว่าอย่างไร', 'ทุกจุดที่ต้องลงนาม (ผู้อำนวยการโรงพยาบาล, นายแพทย์สาธารณสุขจังหวัด, ผู้ว่าราชการจังหวัด) มีสถานะเดียว เช่น "ผอ.โรงพยาบาลลงนาม" หมายถึงเอกสารอยู่ที่ผู้ลงนามภายในช่วงเวลาตามเกณฑ์ เมื่อลงนามเสร็จเอกสารจะเลื่อนไปสถานะของหน่วยงานถัดไปทันที', 0],
   ['การแก้ไขผลงาน', 'กรรมการให้แก้ไขผลงาน และแก้ไขมากกว่า 1 ครั้ง ต้องทำอย่างไร', 'ระบบนับเป็น "แก้ไข ครั้งที่ 1, 2, 3..." ให้อัตโนมัติ ได้ไม่จำกัดรอบ\n1) อ่านข้อเสนอแนะในหน้าติดตามสถานะ\n2) แก้ไขแล้วแนบไฟล์ฉบับแก้ไขที่การ์ด "แนบไฟล์เล่ม 2 เพิ่มเติม" เลือกประเภท "ฉบับแก้ไขตามข้อเสนอแนะกรรมการ"\n3) แจ้งกลุ่มงานทรัพยากรบุคคล เพื่อส่งต่อให้กรรมการอ่านซ้ำ\nแต่ละรอบมีเกณฑ์แก้ไขไม่เกิน 30 วัน และกรรมการอ่านซ้ำไม่เกิน 90 วัน', 1],
   ['การแนบไฟล์', 'แนบไฟล์เล่ม 2 หรือฉบับแก้ไขได้ที่ไหน', 'ที่หน้า "ติดตามสถานะ" ในรายการของท่าน เปิดการ์ด "แนบไฟล์เล่ม 2 เพิ่มเติม" รองรับ pdf, doc, docx, zip ขนาดไม่เกิน 8 MB หรือใส่ลิงก์ การแนบไฟล์ไม่ทำให้สถานะเปลี่ยน เจ้าหน้าที่จะเห็นและนำไปดำเนินการต่อ', 0],
@@ -507,7 +673,7 @@ var FAQ_SEED = [
 ];
 function faqRows_() {
   var s = sheet_('FAQ'), n = s.getLastRow(); if (n < 2) return [];
-  return s.getRange(2, 1, n - 1, 11).getValues().map(function (r, i) {
+  return V_(s.getRange(2, 1, n - 1, 11)).map(function (r, i) {
     return { row: i + 2, id: str_(r[0]), cat: str_(r[1]), q: str_(r[2]), a: String(r[3] == null ? '' : r[3]).replace(/\r/g, '').trim(), pub: str_(r[4]) !== 'N', pin: str_(r[5]) === 'Y', ord: +r[6] || 0, up: +r[7] || 0, down: +r[8] || 0, upd: str_(r[9]), by: str_(r[10]) };
   });
 }
@@ -552,10 +718,10 @@ function apiFaqSave_(token, p) {
     if (id && !cur) throw new Error('ไม่พบรายการ');
     var ord = isNaN(+p.ord) || p.ord === '' || p.ord == null ? (cur ? cur.ord : (all.reduce(function (m, r) { return Math.max(m, r.ord); }, 0) + 10)) : +p.ord;
     var vals = [cat, q, a, p.pub === false || p.pub === 'N' ? 'N' : 'Y', p.pin ? 'Y' : 'N', ord];
-    if (cur) { sh.getRange(cur.row, 2, 1, 6).setValues([vals]); sh.getRange(cur.row, 10, 1, 2).setValues([[now_(), u.n]]); out = cur.id; }
+    if (cur) { sh.getRange(cur.row, 2, 1, 6).setValues([vals]); setText_(sh.getRange(cur.row, 10), now_()); sh.getRange(cur.row, 11).setValue(u.n); out = cur.id; }
     else {
       var n = all.reduce(function (m, r) { var k = +String(r.id).replace(/\D/g, ''); return k > m ? k : m; }, 0) + 1; out = 'FAQ-' + ('00' + n).slice(-3);
-      sh.appendRow([out].concat(vals, [0, 0, now_(), u.n]));
+      appendText_(sh, [out].concat(vals, [0, 0, now_(), u.n]));
     }
   } finally { lock.releaseLock(); }
   log_('faq_save', u.u, 'success', out);
@@ -570,7 +736,7 @@ function apiFaqDelete_(token, id) {
 /* ---------- ไฟล์แนบจากผู้ยื่น (ไฟล์เล่ม 2 / ฉบับแก้ไข) ---------- */
 function attRows_() {
   var s = sheet_('ATT'), n = s.getLastRow(); if (n < 2) return [];
-  return s.getRange(2, 1, n - 1, 9).getValues().map(function (r, i) {
+  return V_(s.getRange(2, 1, n - 1, 9)).map(function (r, i) {
     return { row: i + 2, id: str_(r[0]), t: str_(r[1]), kind: str_(r[2]), round: str_(r[3]), name: str_(r[4]), url: str_(r[5]), by: str_(r[6]), note: str_(r[7]), read: str_(r[8]) };
   });
 }
@@ -582,459 +748,12 @@ function hrNotifyMail_(subject, body) {
   try { var to = prop_('HR_NOTIFY_EMAIL'); if (to) MailApp.sendEmail(to, subject, body + '\n\n' + ORG); } catch (e) {}
 }
 
-/* ======================================================================
- *  LINE Messaging API
- * ====================================================================== */
-function lineEnabled_() { return !!prop_('LINE_CHANNEL_ACCESS_TOKEN'); }
-function lineOaLink_() { var o = prop_('LINE_OA_ID'); return o ? 'https://line.me/R/ti/p/' + encodeURIComponent(o) : ''; }
-var SITE_DEFAULT = 'https://hrsansaihospital.vercel.app/';
-function siteUrl_() { var u = prop_('SITE_URL'); return /^https:\/\//i.test(u) ? u : SITE_DEFAULT; }
-function lineCall_(method, path, body, retryKey) {
-  var h = { Authorization: 'Bearer ' + prop_('LINE_CHANNEL_ACCESS_TOKEN') };
-  if (retryKey) h['X-Line-Retry-Key'] = retryKey;
-  var o = { method: method, headers: h, muteHttpExceptions: true };
-  if (body) { o.contentType = 'application/json'; o.payload = JSON.stringify(body); }
-  var r = UrlFetchApp.fetch('https://api.line.me' + path, o), code = r.getResponseCode(), txt = r.getContentText(), j = {};
-  try { j = JSON.parse(txt || '{}'); } catch (e) {}
-  var err = '';
-  if (code < 200 || code > 299) {
-    err = (j.message || txt || ('HTTP ' + code)).slice(0, 200);
-    if (code === 401) err = 'Channel access token ไม่ถูกต้องหรือหมดอายุ';
-    else if (code === 429) err = 'เกินโควตาข้อความ LINE ของเดือนนี้/ส่งถี่เกินไป';
-    else if (code === 400 && /friend|block|not\s*a\s*friend/i.test(err)) err = 'ผู้รับยังไม่ได้เพิ่มเพื่อน หรือบล็อกบัญชี LINE OA';
-  }
-  return { ok: !err, status: code, err: err, data: j };
-}
-function linePush_(uid, messages) { return lineCall_('post', '/v2/bot/message/push', { to: uid, messages: messages }, Utilities.getUuid()); }
-/* ===== คู่มือเชื่อมต่อ LINE: ส่งอัตโนมัติ 3 กรณี =====
- *  1) เพิ่มเพื่อนครั้งแรก (follow)                      → แนบคู่มือพร้อมข้อความต้อนรับ
- *  2) ผู้ใช้พิมพ์ "ช่วยเหลือ" / "คู่มือ" / help           → ส่งคำสั่งที่ใช้ได้ + คู่มือ
- *  3) บัญชีที่ยังไม่เชื่อมต่อ ส่งข้อความมาแล้วยังไม่สำเร็จ ครบ NOLINK_MANUAL_AT ครั้ง → แนบคู่มือท้ายข้อความตอบกลับ
- *     (นับเป็นรายบัญชี LINE · ไม่ส่งซ้ำภายใน NOLINK_MANUAL_COOLDOWN วินาที · เชื่อมต่อสำเร็จแล้วรีเซ็ตตัวนับ)
- *  ตั้ง Script Property MANUAL_URL เพื่อเปลี่ยนลิงก์คู่มือ (ค่าเริ่มต้น = SITE_URL + /manual/line.html) */
-var NOLINK_MANUAL_AT = 2;
-var NOLINK_MANUAL_COOLDOWN = 21600;   // วินาที (CacheService เก็บได้สูงสุด 6 ชม.)
-var NUDGE_UID_ = '';                   // uid ที่ต้องแนบคู่มือในการตอบกลับครั้งนี้ (ตั้งใน lineEvent_)
-function manualUrl_() { return prop_('MANUAL_URL') || (siteUrl_().replace(/\/+$/, '') + '/manual/line.html'); }
-function manualMsg_() {
-  var u = manualUrl_();
-  return { type: 'flex', altText: 'คู่มือเชื่อมต่อ LINE (ภาพประกอบ): ' + u, contents: { type: 'bubble', size: 'kilo',
-    body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: [
-      { type: 'text', text: '📖 คู่มือเชื่อมต่อ LINE', weight: 'bold', size: 'md', color: '#0b5a54' },
-      { type: 'text', text: 'ภาพประกอบชี้ทุกขั้นตอน อ่านไม่ถึง 1 นาที\nวิธี ก: พิมพ์เลขบัตร 13 หลักในแชท\nวิธี ข: รับรหัส 6 หลักที่เว็บ', wrap: true, size: 'sm', color: '#51676f' }] },
-    footer: { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#0f766e', height: 'sm', action: { type: 'uri', label: 'เปิดอ่านคู่มือ', uri: u } }] } } };
-}
-function noLinkTick_(uid) {           // นับครั้งที่บัญชีที่ยังไม่เชื่อมต่อส่งข้อความมา
-  try {
-    var c = CacheService.getScriptCache(), n = (parseInt(c.get('nl_' + uid), 10) || 0) + 1;
-    c.put('nl_' + uid, String(n), 21600);
-    if (n >= NOLINK_MANUAL_AT && !c.get('nm_' + uid)) NUDGE_UID_ = uid;
-  } catch (e) {}
-}
-function withManual_(messages) {      // แนบคู่มือท้ายข้อความ ถ้าเข้าเงื่อนไข (เชื่อมต่อสำเร็จ = ไม่แนบ + รีเซ็ตตัวนับ)
-  if (!NUDGE_UID_) return messages;
-  var uid = NUDGE_UID_, j = JSON.stringify(messages);
-  try {
-    var c = CacheService.getScriptCache();
-    if (j.indexOf('เชื่อมต่อสำเร็จ') >= 0) { c.remove('nl_' + uid); NUDGE_UID_ = ''; return messages; }
-    if (j.indexOf('/manual/line') >= 0 || messages.length >= 5) { NUDGE_UID_ = ''; return messages; }
-    c.put('nm_' + uid, '1', NOLINK_MANUAL_COOLDOWN); c.remove('nl_' + uid);
-  } catch (e) {}
-  NUDGE_UID_ = '';
-  return messages.concat([manualMsg_()]);
-}
-function lineReply_(token, messages) {
-  if (!token) return;
-  messages = withManual_(messages);
-  var r = lineCall_('post', '/v2/bot/message/reply', { replyToken: token, messages: messages });
-  if (!r.ok) log_('line_reply', '', 'fail', (r.err || ('HTTP ' + r.status)).slice(0, 150));   // เดิมกลืน error ทำให้ไม่รู้ว่าตอบกลับไม่สำเร็จ
-}
-function lineProfile_(uid) { try { var r = lineCall_('get', '/v2/bot/profile/' + uid); return r.ok ? str_(r.data.displayName) : ''; } catch (e) { return ''; } }
-
-/* --- Flex Message builders --- */
-function tx_(s, n) { s = String(s == null ? '' : s).trim(); return s ? s.slice(0, n || 300) : '-'; }
-function frow_(k, v) {
-  return { type: 'box', layout: 'baseline', spacing: 'sm', margin: 'md', contents: [
-    { type: 'text', text: k, color: '#51676f', size: 'sm', flex: 3 }, { type: 'text', text: tx_(v), wrap: true, size: 'sm', flex: 6 }] };
-}
-function logoUrl_() { var u = siteUrl_(); return u ? u.replace(/\/+$/, '') + '/assets/logo.png' : ''; }
-function ffoot_(label) {
-  var u = siteUrl_();
-  return u ? { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#0f766e', height: 'sm', action: { type: 'uri', label: label || 'ดูความคืบหน้า', uri: u + '#track' } }] } : null;
-}
-function fbubble_(headText, color, body, footLabel) {
-  var logo = logoUrl_();
-  var title = { type: 'text', text: headText, color: '#ffffff', weight: 'bold', size: 'md', wrap: true, flex: 1, gravity: 'center' };
-  var head = logo
-    ? { type: 'box', layout: 'horizontal', spacing: 'md', alignItems: 'center', contents: [{ type: 'image', url: logo, size: '40px', aspectMode: 'cover', flex: 0 }, title] }
-    : { type: 'box', layout: 'vertical', contents: [title] };
-  var b = { type: 'bubble', size: 'mega',
-    header: { type: 'box', layout: 'vertical', backgroundColor: color, paddingAll: '14px', contents: [head] },
-    body: { type: 'box', layout: 'vertical', contents: body } };
-  var f = ffoot_(footLabel); if (f) b.footer = f;
-  return b;
-}
-function flexStatus_(it, head) {
-  var st = stageObj_(it.status), col = { blue: '#1d4ed8', orange: '#d97706', green: '#15803d' }[st.c] || '#0f766e';
-  var body = [
-    { type: 'text', text: tx_(stageLabel_(it)), weight: 'bold', size: 'xl', wrap: true, color: col },
-    { type: 'text', text: tx_(st.h), size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
-    { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id)];
-  if (it.title) body.push(frow_('ชื่อผลงาน', it.title));
-  if (st.rng) body.push(frow_('ระยะเวลาขั้นตอนนี้', st.rng));
-  if (it.note) body.push(frow_('หมายเหตุ', it.note));
-  body.push(frow_('อัปเดตเมื่อ', thaiDT_()));
-  return { type: 'flex', altText: ('อวช. ' + stageLabel_(it) + ' (' + it.id + ')').slice(0, 380), contents: fbubble_(head || 'อัปเดตสถานะ อวช.', col, body) };
-}
-/* ระยะเวลาในขั้นตอนปัจจุบัน + วันคงเหลือของกำหนดส่งเล่ม 2 (180 วัน) — ใช้ในข้อความ "เช็คสถานะ" */
-function stageClock_(it) {
-  var st = stageObj_(it.status), cur = normKey_(it.status), mine = hisMine_(it.id, 3), firstSigned = '';
-  mine.forEach(function (h) { if (h.s === 'b1_signed' && !firstSigned) firstSigned = h.t; });
-  function days_(s) { var d = new Date(String(s).replace(' ', 'T') + '+07:00'); return isNaN(d) ? null : Math.floor((Date.now() - d.getTime()) / 864e5); }
-  /* นับจากวันที่เข้าขั้นตอนปัจจุบัน (ไม่ใช่วันที่ยื่น) */
-  var inStage = days_(sinceOfCurrent_(mine, cur, it.upd || it.ts)), left = null;
-  if (!st.end && (st.k === 'b1_signed' || st.clk === 'b1_signed') && firstSigned) { var e = days_(firstSigned); if (e !== null) left = 180 - e; }
-  return { inStage: inStage, left: left };
-}
-/* ข้อความตอบเมื่อผู้ใช้กด "เช็คสถานะ" (Rich Menu): สถานะปัจจุบัน + รายละเอียดเบื้องต้น + ลิงก์ไปเว็บแอป */
-function flexCheck_(it) {
-  var st = stageObj_(it.status), col = { blue: '#1d4ed8', orange: '#d97706', green: '#15803d' }[st.c] || '#0f766e', c = stageClock_(it);
-  var body = [
-    { type: 'text', text: tx_(stageLabel_(it)), weight: 'bold', size: 'xl', wrap: true, color: col },
-    { type: 'text', text: tx_(st.h), size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
-    { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id)];
-  if (it.title) body.push(frow_('ชื่อผลงาน', it.title));
-  if (st.o) body.push(frow_('ผู้รับผิดชอบ', st.o));
-  if (!st.end && c.inStage !== null) body.push(frow_('อยู่ในขั้นนี้ (นับจากวันเข้าขั้นตอน)', c.inStage + ' วัน'));
-  if (st.rng) body.push(frow_('ระยะเวลาขั้นตอนนี้', st.rng));
-  if (!st.end && st.sla && c.inStage !== null && c.inStage > st.sla && !(st.fix && !st.sla)) body.push(frow_('เทียบเกณฑ์', 'เกินเกณฑ์ ' + (c.inStage - st.sla) + ' วัน'));
-  if (c.left !== null) body.push(frow_('กำหนดส่งเล่ม 2', c.left >= 0 ? 'ส่งภายใน 180 วัน (เหลือ ' + c.left + ' วัน)' : 'เกินกำหนด 180 วันแล้ว ' + (-c.left) + ' วัน'));
-  if (it.note) body.push(frow_('หมายเหตุ', it.note));
-  body.push(frow_('ข้อมูล ณ', thaiDT_()));
-  body.push({ type: 'text', text: siteUrl_() ? 'ดูรายละเอียดครบถ้วนและประวัติทุกขั้นตอนได้ที่เว็บแอป (กดปุ่มด้านล่าง)' : 'กรุณาตรวจสอบรายละเอียดล่าสุดบนเว็บแอปติดตามสถานะ อวช.', size: 'xs', color: '#51676f', wrap: true, margin: 'lg' });
-  return { type: 'flex', altText: ('เช็คสถานะ อวช. ' + stageLabel_(it) + ' (' + it.id + ')').slice(0, 380), contents: fbubble_('แจ้งสถานะปัจจุบัน', col, body, 'ตรวจสอบบนเว็บแอป') };
-}
-function ms_(s) { var d = new Date(String(s || '').replace(' ', 'T') + '+07:00'); return isNaN(d) ? null : d.getTime(); }
-function spanTh_(ms) {
-  if (ms === null || ms === undefined || isNaN(ms)) return '-';
-  var m = Math.max(0, Math.floor(ms / 6e4)); if (m < 1) return 'ไม่ถึง 1 นาที';
-  var d = Math.floor(m / 1440), h = Math.floor(m % 1440 / 60), n = m % 60;
-  if (d) return d + ' วัน' + (h ? ' ' + h + ' ชั่วโมง' : '');
-  if (h) return h + ' ชั่วโมง' + (n ? ' ' + n + ' นาที' : '');
-  return n + ' นาที';
-}
-/* ระยะเวลารวมปัจจุบัน: เล่ม 1 (ยื่นเอกสาร→ผู้ว่าฯ ลงนามชี้ตัว) | ช่วงจัดทำเล่ม 2 (180 วัน) | เล่ม 2 (ยื่นเล่ม 2→ได้รับหนังสือแจ้งผล) | ออกคำสั่งเลื่อนระดับ (ได้รับผลเล่ม 2→ผู้ว่าฯ ลงนามคำสั่ง) | รวมตั้งแต่เริ่มต้น→ปัจจุบัน/ปิดเคส */
-/* เวลาที่เข้าขั้นตอนแรกสุดของเล่มที่ระบุ (ไม่นับยกเลิก) ; ไม่มี = undefined */
-function firstOfBook_(first, book) {
-  var m;
-  STAGES.forEach(function (x) { if (x.book === book && !x.cancel && first[x.k] !== undefined && (m === undefined || first[x.k] < m)) m = first[x.k]; });
-  return m;
-}
-function durationInfo_(it) {
-  var sh = sheet_('HIS'), hv = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues() : [], first = {}, firstAny = null, lastCx = null;
-  hv.forEach(function (h) { if (str_(h[0]) !== it.id) return; var k = normKey_(str_(h[2])), t = ms_(str_(h[1])); if (t === null) return; if (k === 'cancelled') lastCx = t; if (firstAny === null || t < firstAny) firstAny = t; if (first[k] === undefined || t < first[k]) first[k] = t; });
-  var now = Date.now(), sub = first.b1_submit !== undefined ? first.b1_submit : (ms_(it.ts) !== null ? ms_(it.ts) : firstAny);
-  var o = { rows: [], total: null, totalLabel: '', closed: first.promoted !== undefined };
-  if (sub === null || sub === undefined) return o;
-  var b1End = first.b1_signed, b2Start = first.b2_submit, b2End = first.b2_signed !== undefined ? first.b2_signed : (b2Start !== undefined ? firstOfBook_(first, 3) : undefined), cmdEnd = first.cmd_gov_ok !== undefined ? first.cmd_gov_ok : first.promoted, closed = first.promoted;
-  o.rows.push({ k: 'เล่ม 1 : ยื่นเอกสาร → ผู้ว่าราชการจังหวัดลงนามชี้ตัว', v: spanTh_((b1End !== undefined ? b1End : now) - sub), s: b1End !== undefined ? 'เสร็จสิ้นแล้ว' : 'กำลังดำเนินการ (นับถึงปัจจุบัน)', done: b1End !== undefined });
-  if (b1End !== undefined) {
-    var gapEnd = b2Start !== undefined ? b2Start : now, gd = Math.floor((gapEnd - b1End) / 864e5);
-    o.rows.push({ k: 'ช่วงจัดทำเล่ม 2 : อนุมัติเล่ม 1 → ยื่นเล่ม 2', v: spanTh_(gapEnd - b1End), s: b2Start !== undefined ? 'ยื่นเล่ม 2 แล้ว' + (gd > 180 ? ' (เกินกำหนด 180 วัน)' : '') : (gd <= 180 ? 'ยังไม่ยื่นเล่ม 2 · เหลืออีก ' + (180 - gd) + ' วัน (กำหนด 180 วัน)' : 'ยังไม่ยื่นเล่ม 2 · เกินกำหนด 180 วันแล้ว ' + (gd - 180) + ' วัน'), done: b2Start !== undefined });
-  }
-  if (b2Start !== undefined) o.rows.push({ k: 'เล่ม 2 : ยื่นเอกสาร → ได้รับหนังสือแจ้งผลการพิจารณา', v: spanTh_((b2End !== undefined ? b2End : now) - b2Start), s: b2End !== undefined ? 'เสร็จสิ้นแล้ว' : 'กำลังดำเนินการ (นับถึงปัจจุบัน)', done: b2End !== undefined });
-  if (b2End !== undefined) o.rows.push({ k: 'ออกคำสั่งเลื่อนระดับ : ได้รับผลเล่ม 2 → ผู้ว่าฯ ลงนามคำสั่ง', v: spanTh_((cmdEnd !== undefined ? cmdEnd : now) - b2End), s: cmdEnd !== undefined ? 'เสร็จสิ้นแล้ว' : 'กำลังดำเนินการ (นับถึงปัจจุบัน)', done: cmdEnd !== undefined });
-  if (closed === undefined && normKey_(it.status) === 'cancelled' && lastCx !== null) closed = lastCx;
-  if (closed !== undefined) o.closed = true;
-  o.total = (closed !== undefined ? closed : now) - sub;
-  o.totalLabel = closed !== undefined ? 'รวมตั้งแต่เริ่มต้นจนปิดเคส' : 'รวมตั้งแต่ยื่นเอกสารเล่ม 1 ถึงปัจจุบัน';
-  return o;
-}
-function flexDuration_(it) {
-  var st = stageObj_(it.status), col = { blue: '#1d4ed8', orange: '#d97706', green: '#15803d' }[st.c] || '#0f766e', d = durationInfo_(it), c = stageClock_(it);
-  var body = [{ type: 'text', text: 'เลขที่เอกสาร ' + it.id, size: 'sm', color: '#51676f', wrap: true },
-    { type: 'text', text: tx_(stageLabel_(it)), weight: 'bold', size: 'md', wrap: true, color: col, margin: 'xs' }, { type: 'separator', margin: 'lg' }];
-  function drow(k, v, s, ok) {
-    var kids = [{ type: 'text', text: k, size: 'xs', color: '#51676f', wrap: true }, { type: 'text', text: v, weight: 'bold', size: 'lg', color: ok ? '#15803d' : '#1f2d33', wrap: true }];
-    if (s) kids.push({ type: 'text', text: s, size: 'xs', color: '#64748b', wrap: true });
-    return { type: 'box', layout: 'vertical', margin: 'lg', spacing: 'xs', contents: kids };
-  }
-  d.rows.forEach(function (r) { body.push(drow(r.k, r.v, r.s, r.done)); });
-  if (!st.end && c.inStage !== null) body.push(drow('อยู่ในขั้นตอนปัจจุบันมาแล้ว', c.inStage + ' วัน', '', false));
-  if (d.total !== null) { body.push({ type: 'separator', margin: 'lg' }); body.push(drow(d.totalLabel, spanTh_(d.total), d.closed ? 'ปิดเคสแล้ว' : 'นับต่อเนื่องรวมช่วงจัดทำเล่ม 2 และช่วงส่งต่อระหว่างหน่วยงาน', d.closed)); }
-  else body.push(drow('ยังไม่มีข้อมูลเวลา', '-', '', false));
-  body.push(frow_('ข้อมูล ณ', thaiDT_()));
-  return { type: 'flex', altText: ('ระยะเวลารวมปัจจุบัน ' + it.id + (d.total !== null ? ': ' + spanTh_(d.total) : '')).slice(0, 380), contents: fbubble_('ระยะเวลารวมปัจจุบัน', col, body, 'ดูรายละเอียดบนเว็บ') };
-}
-function lineDurationReply_(ev, cid) {
-  if (!cid) return lineReply_(ev.replyToken, [helpMsg_('ยังไม่ได้เชื่อมต่อบัญชี กรุณาเปิดเว็บ → ติดตามสถานะ → "เชื่อมต่อ LINE" เพื่อรับรหัส หรือพิมพ์เลขบัตรประชาชน 13 หลักในแชทนี้')]);
-  var items = subs_().filter(function (r) { return r.cid === cid; }).reverse().slice(0, 3);
-  if (!items.length) return lineReply_(ev.replyToken, [helpMsg_('ยังไม่พบรายการยื่นผลงานของท่าน')]);
-  lineLog_(items[0].id, cid, 'bot', '', 'ระยะเวลารวม ' + items.length + ' รายการ', null, 'sent', '');
-  return lineReply_(ev.replyToken, items.map(flexDuration_));
-}
-function lineStatusReply_(ev, cid) {
-  if (!cid) return lineReply_(ev.replyToken, [helpMsg_('ยังไม่ได้เชื่อมต่อบัญชี กรุณาเปิดเว็บ → ติดตามสถานะ → "เชื่อมต่อ LINE" เพื่อรับรหัส 6 หลัก')]);
-  var items = subs_().filter(function (r) { return r.cid === cid; }).reverse().slice(0, 5);
-  if (!items.length) return lineReply_(ev.replyToken, [helpMsg_('ยังไม่พบรายการยื่นผลงานของท่าน')]);
-  lineLog_(items[0].id, cid, 'bot', '', 'เช็คสถานะ ' + items.length + ' รายการ', null, 'sent', '');
-  return lineReply_(ev.replyToken, items.map(flexCheck_));
-}
-function flexText_(it, text, head) {
-  var body = [{ type: 'text', text: tx_(text, 1000), wrap: true, size: 'md' }, { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id)];
-  return { type: 'flex', altText: tx_(text, 380), contents: fbubble_(head || 'ข้อความจากกลุ่มงานทรัพยากรบุคคล', '#0f766e', body) };
-}
-function flexFile_(fi) {
-  var b = { type: 'bubble', size: 'mega',
-    body: { type: 'box', layout: 'vertical', spacing: 'sm', contents: [
-      { type: 'text', text: fi.isImg ? 'รูปภาพแนบจากเจ้าหน้าที่' : 'ไฟล์แนบจากเจ้าหน้าที่', size: 'sm', color: '#51676f' },
-      { type: 'text', text: tx_(fi.name, 100), weight: 'bold', wrap: true }] },
-    footer: { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: fi.isImg ? 'เปิดรูปเต็ม' : 'เปิดไฟล์', uri: fi.url } }] } };
-  if (fi.isImg && fi.shared) b.hero = { type: 'image', url: 'https://drive.google.com/thumbnail?id=' + fi.id + '&sz=w1000', size: 'full', aspectRatio: '4:3', aspectMode: 'cover', action: { type: 'uri', uri: fi.url } };
-  return { type: 'flex', altText: 'ไฟล์แนบ: ' + tx_(fi.name, 100), contents: b };
-}
-function helpMsg_(text) {
-  return { type: 'text', text: text, quickReply: { items: [
-    { type: 'action', action: { type: 'message', label: 'แจ้งสถานะปัจจุบัน', text: 'แจ้งสถานะปัจจุบัน' } },
-    { type: 'action', action: { type: 'message', label: 'ระยะเวลารวมปัจจุบัน', text: 'ระยะเวลารวมปัจจุบัน' } },
-    { type: 'action', action: { type: 'message', label: 'ยกเลิกการผูก', text: 'ยกเลิกการผูก' } },
-    { type: 'action', action: { type: 'message', label: 'ช่วยเหลือ', text: 'ช่วยเหลือ' } }] } };
-}
-
-/* --- ผู้ใช้ LINE ที่ผูกกับเลขบัตร --- */
-function lnuRows_() {
-  var s = sheet_('LNU'), n = s.getLastRow();
-  if (n < 2) return [];
-  return s.getRange(2, 1, n - 1, 6).getValues().map(function (r, i) {
-    return { row: i + 2, cid: digits_(r[0]), uid: str_(r[1]), name: str_(r[2]), at: str_(r[3]), via: str_(r[4]), active: str_(r[5]) !== 'N' };
-  });
-}
-function lineUsersByCid_(cid) { return lnuRows_().filter(function (r) { return r.cid === cid && r.active; }).map(function (r) { return r.uid; }); }
-function linkLine_(cid, uid, name, via) {
-  var lock = LockService.getScriptLock(); lock.waitLock(15000);
-  try {
-    var s = sheet_('LNU'), rows = lnuRows_(), found = false;
-    rows.forEach(function (r) {                       // 1 บัญชี LINE = 1 คน: ปิดการผูกกับเลขบัตรอื่น
-      if (r.uid === uid && r.cid !== cid && r.active) s.getRange(r.row, 6).setValue('N');
-      if (r.uid === uid && r.cid === cid) { found = true; s.getRange(r.row, 3, 1, 4).setValues([[name || r.name, now_(), via, 'Y']]); }
-    });
-    var mine = rows.filter(function (r) { return r.cid === cid && r.active && r.uid !== uid; });
-    if (mine.length >= 3) s.getRange(mine[0].row, 6).setValue('N');   // จำกัด 3 บัญชี/คน
-    if (!found) s.appendRow([cid, uid, name || '', now_(), via, 'Y']);
-  } finally { lock.releaseLock(); }
-  pendUpsert_(uid, name, null, 'linked', cid);
-}
-function unlinkLine_(cid, uid) {
-  var s = sheet_('LNU'), n = 0;
-  lnuRows_().forEach(function (r) { if (r.active && (uid ? r.uid === uid : r.cid === cid) && (!cid || r.cid === cid)) { s.getRange(r.row, 6).setValue('N'); n++; } });
-  return n;
-}
-function lineLog_(id, cid, type, sender, text, file, result, detail) {
-  try { sheet_('LNL').appendRow([now_(), id || '', cid || '', type, sender || '', String(text || '').slice(0, 1000), file ? file.name : '', file ? file.url : '', result, String(detail || '').slice(0, 300)]); } catch (e) {}
-}
-function lnlRows_(max) {
-  var s = sheet_('LNL'), n = s.getLastRow();
-  if (n < 2) return [];
-  var from = Math.max(2, n - (max || 2000) + 1);
-  return s.getRange(from, 1, n - from + 1, 10).getValues().map(function (r) {
-    return { t: str_(r[0]), id: str_(r[1]), cid: digits_(r[2]), type: str_(r[3]), by: str_(r[4]), m: str_(r[5]), fn: str_(r[6]), fu: str_(r[7]), res: str_(r[8]), d: str_(r[9]) };
-  });
-}
-/* ตรวจก่อนส่ง: คืน {ok, users, reason} และบันทึกประวัติ (รวมครั้งที่กดแต่ส่งไม่ได้) */
-function linePre_(cid, id, type, sender, text) {
-  if (!lineEnabled_()) { lineLog_(id, cid, type, sender, text, null, 'skipped', 'ยังไม่ได้ตั้งค่า LINE_CHANNEL_ACCESS_TOKEN'); return { ok: false, reason: 'disabled', msg: 'ยังไม่ได้ตั้งค่า LINE (ผู้ดูแลระบบต้องใส่ Channel access token)' }; }
-  var users = lineUsersByCid_(cid);
-  if (!users.length) { lineLog_(id, cid, type, sender, text, null, 'no_line', 'ผู้ยื่นยังไม่ได้เชื่อมต่อ LINE'); return { ok: false, reason: 'none', msg: 'ผู้ยื่นรายนี้ยังไม่ได้เชื่อมต่อ LINE' }; }
-  return { ok: true, users: users };
-}
-function lineSend_(users, cid, id, type, sender, messages, text, file) {
-  var res = { sent: 0, failed: 0, errors: [] };
-  users.forEach(function (uid) {
-    var r = linePush_(uid, messages);
-    if (r.ok) { res.sent++; lineLog_(id, cid, type, sender, text, file, 'sent', ''); }
-    else { res.failed++; res.errors.push(r.err); lineLog_(id, cid, type, sender, text, file, 'failed', r.err); }
-  });
-  return res;
-}
-/* แจ้งเตือนอัตโนมัติเมื่อสถานะ/หมายเหตุเปลี่ยน (หรือยื่นเอกสาร) — ไม่ throw เพื่อไม่ให้กระทบการบันทึกหลัก */
-function autoNotify_(it, sender, head, file) {
-  try {
-    var text = (head || 'สถานะเปลี่ยนเป็น') + ' ' + stageLabel_(it) + (it.note ? ' — ' + it.note : '');
-    var pre = linePre_(it.cid, it.id, 'auto', sender, text);
-    if (!pre.ok) return { sent: 0, failed: 0, skipped: pre.reason, msg: pre.msg };
-    var msgs = [flexStatus_(it, head === 'ยื่นเอกสารแล้ว' ? 'ได้รับเอกสารของท่านแล้ว' : 'อัปเดตสถานะ อวช.')];
-    if (file && file.shared) msgs.push(flexFile_(file));          // ถ้า Drive ไม่อนุญาตแชร์ลิงก์ ผู้ยื่นจะเปิดไม่ได้ จึงไม่ส่งการ์ดไฟล์
-    return lineSend_(pre.users, it.cid, it.id, 'auto', sender, msgs, text, file);
-  } catch (e) { log_('line_auto', sender, 'error', String(e.message || e)); return { sent: 0, failed: 1, errors: [String(e.message || e)] }; }
-}
-
-/* --- Webhook (LINE → GAS) --- */
-function webhookKey_() {
-  var k = prop_('LINE_WEBHOOK_KEY');
-  if (!k) { k = Utilities.getUuid().replace(/-/g, ''); PropertiesService.getScriptProperties().setProperty('LINE_WEBHOOK_KEY', k); }
-  return k;
-}
-function lineWebhook_(e, b) {
-  var key = prop_('LINE_WEBHOOK_KEY').trim();
-  // GAS อ่าน header X-Line-Signature ไม่ได้ จึงใช้รหัสลับใน URL (?k=) แทน
-  var got = String((e && e.parameter && e.parameter.k) || '').trim();
-  try { got = decodeURIComponent(got); } catch (x) {}
-  if (!key || !got || got !== key) {
-    var pk = Object.keys((e && e.parameter) || {}).join(',');
-    log_('line_webhook', '', 'rejected', !key ? 'ไม่มี LINE_WEBHOOK_KEY' : 'k ไม่ตรง: รับ ' + got.length + ' ตัว/คาด ' + key.length + ' ตัว, 4 ตัวแรก' + (got.slice(0, 4) === key.slice(0, 4) ? 'ตรง' : 'ไม่ตรง') + ', params=[' + pk + '], qs=' + String((e && e.queryString) || '').length);
-    return json_({ ok: false });
-  }
-  var cache = CacheService.getScriptCache();
-  (b.events || []).forEach(function (ev) {
-    var eid = ev && ev.webhookEventId;                                     // LINE ส่งซ้ำ (redelivery) เมื่อ GAS ตอบช้า → กันประมวลผล/ตอบซ้ำ
-    if (eid) { if (cache.get('we_' + eid)) return; cache.put('we_' + eid, '1', 3600); }
-    try { lineEvent_(ev); } catch (err) { log_('line_event', '', 'error', String(err.message || err)); }
-  });
-  return json_({ ok: true });
-}
-function maskT_(t) { return String(t).replace(/\d[\d\- ]{11,15}\d/g, function (m) { var d = digits_(m); return d.length === 13 ? 'x-xxxx-xxxxx-xx-' + d.slice(-1) : m; }); }
-/* เก็บ LINE userId ของทุกคนที่เพิ่มเพื่อนตั้งแต่ต้น (แท็บ LinePending) เพื่อให้เจ้าหน้าที่ผูกให้ได้ แม้ผู้ยื่นยังไม่ได้รับรหัส */
-function pendUpsert_(uid, name, last, status, cid) {
-  try {
-    var s = sheet_('LNP'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 1).getValues() : [], row = 0;
-    for (var i = 0; i < v.length; i++) if (str_(v[i][0]) === uid) { row = i + 2; break; }
-    if (!row) { s.appendRow([uid, name || lineProfile_(uid), now_(), last || '', status, cid || '']); return; }
-    if (name) s.getRange(row, 2).setValue(name);
-    if (last != null) s.getRange(row, 4).setValue(String(last).slice(0, 80));
-    s.getRange(row, 5, 1, 2).setValues([[status, cid || '']]);
-  } catch (e) {}
-}
-function lineEvent_(ev) {
-  var uid = ev.source && ev.source.userId; if (!uid) return;
-  var rows = lnuRows_().filter(function (r) { return r.uid === uid; }), mine = rows.filter(function (r) { return r.active; })[0];
-  var s = sheet_('LNU'), c = CacheService.getScriptCache();
-  NUDGE_UID_ = '';
-  if (ev.type === 'message' && !mine && ev.source.type === 'user') noLinkTick_(uid);   // ยังไม่เชื่อมต่อ: นับ ครบ NOLINK_MANUAL_AT → แนบคู่มือ
-  if (ev.type === 'unfollow') { rows.forEach(function (r) { s.getRange(r.row, 6).setValue('N'); }); pendUpsert_(uid, '', null, 'unfollow', ''); lineLog_('', mine ? mine.cid : '', 'link', '', 'ผู้ใช้บล็อก/เลิกติดตาม LINE OA', null, 'info', ''); return; }
-  if (ev.type === 'follow') { lineLog_('', mine ? mine.cid : '', 'link', '', 'เพิ่มเพื่อน LINE OA', null, 'info', 'userId=' + uid);
-    pendUpsert_(uid, '', null, mine ? 'linked' : 'pending', mine ? mine.cid : '');
-    var back = rows.filter(function (r) { return !r.active; })[0];
-    lineReply_(ev.replyToken, [helpMsg_('ยินดีต้อนรับสู่ระบบแจ้งเตือน อวช. ' + ORG + '\n\nเชื่อมต่อได้ 2 วิธี\n1) พิมพ์เลขบัตรประชาชน 13 หลักที่นี่ ระบบเชื่อมต่อและส่งสถานะปัจจุบันให้ทันที ไม่ต้องยืนยันอะไรเพิ่ม\n2) ถ้าพิมพ์เลขบัตรไม่ได้หรือไม่สำเร็จ: เปิดเว็บติดตามสถานะ → "เชื่อมต่อ LINE" → รับรหัส 6 หลักด้วยตนเอง แล้วพิมพ์รหัสที่นี่\n\nหากเชื่อมต่อไม่ได้ เจ้าหน้าที่ HR สามารถผูกบัญชีให้ได้' + (back ? '\n\n(พิมพ์ "สถานะ" เพื่อดูสถานะล่าสุด)' : ''))].concat(mine || back ? [] : [manualMsg_()]));   // เพิ่มเพื่อนครั้งแรก: แนบคู่มือให้อ่านทันที
-    return;
-  }
-  /* Rich Menu แบบ Postback: ตั้ง data = action=status */
-  if (ev.type === 'postback') { var pd = str_(ev.postback && ev.postback.data);
-    if (/(^|&)action=(status|check_status|current_status)(&|$)/.test(pd)) return lineStatusReply_(ev, mine ? mine.cid : '');
-    if (/(^|&)action=(duration|total_time|elapsed|time|total_duration)(&|$)/.test(pd)) return lineDurationReply_(ev, mine ? mine.cid : '');
-    return; }
-  if (ev.type !== 'message' || !ev.message || ev.message.type !== 'text') {
-    if (ev.type === 'message') lineReply_(ev.replyToken, [helpMsg_('ระบบรับเฉพาะข้อความตัวอักษร พิมพ์ "ช่วยเหลือ" เพื่อดูคำสั่ง')]);
-    return;
-  }
-  var t = str_(ev.message.text).replace(/\s+/g, ' '), cid = mine ? mine.cid : '';
-  lineLog_('', cid, 'inbound', '', maskT_(t), null, 'received', '');
-  var dg = digits_(t), docm = /^AWC-\d{8}-\d{4}$/i.exec(t);
-  if ((/^[\d\- ]{13,17}$/.test(t) && dg.length === 13) || docm) {
-    if (!cid && !docm && ev.source.type === 'user' && bindMode_() === 'cid' && lineBindByCid_(ev, uid, dg)) return;   // ผูกจากเลขบัตรทันที (บันทึก userId)
-    if (!cid) pendUpsert_(uid, '', maskT_(t), 'pending', '');
-    return lineLookup_(ev, uid, cid, docm ? t.toUpperCase() : '', dg);
-  }
-  if (!cid) {
-    pendUpsert_(uid, '', maskT_(t), 'pending', '');
-    if (/^\d{4}$/.test(t) && c.get('lw_' + uid)) return lineVerifyPhone_(ev, uid, t);
-  }
-  /* รหัส 6 หลัก: รับรูปแบบที่ผู้ใช้คัดลอก/พิมพ์มา เช่น "123 456", "123-456", "รหัส 123456", เลขไทย/เลขเต็มความกว้าง */
-  var tn = t.normalize('NFKC').replace(/[๐-๙]/g, function (d) { return String(d.charCodeAt(0) - 0x0E50); }), cm = /^(?:รหัส|code)?\s*[:：]?\s*(\d{3})[\s\-]?(\d{3})$/i.exec(tn);
-  if (cm) return lineConsume_(ev, uid, cm[1] + cm[2]);
-  if (/^(สถานะ|status|ติดตาม|เช็คสถานะ|แจ้งสถานะ|แจ้งสถานะปัจจุบัน|สถานะปัจจุบัน)$/i.test(t)) return lineStatusReply_(ev, cid);
-  if (/^(ระยะเวลา|ระยะเวลารวม|ระยะเวลารวมปัจจุบัน|เวลา|duration)$/i.test(t)) return lineDurationReply_(ev, cid);
-  if (/^(ยกเลิกการผูก|ยกเลิก|unlink)$/i.test(t)) {
-    if (!cid) return lineReply_(ev.replyToken, [helpMsg_('บัญชี LINE นี้ยังไม่ได้เชื่อมต่อ')]);
-    unlinkLine_(cid, uid); pendUpsert_(uid, '', null, 'pending', ''); lineLog_('', cid, 'link', '', 'ผู้ใช้ยกเลิกการผูกเอง', null, 'info', '');
-    return lineReply_(ev.replyToken, [{ type: 'text', text: 'ยกเลิกการเชื่อมต่อแล้ว จะไม่ได้รับแจ้งเตือนอีก หากต้องการกลับมาใช้ ให้พิมพ์เลขบัตรประชาชนที่นี่หรือเชื่อมต่อใหม่จากหน้าเว็บ' }]);
-  }
-  var helpTxt_ = (cid ? 'คำสั่งที่ใช้ได้:\n• สถานะ (หรือ แจ้งสถานะปัจจุบัน) — ดูความคืบหน้าปัจจุบัน (หรือพิมพ์เลขบัตร/รหัสเอกสาร AWC-… เพื่อค้นหา)\n• ระยะเวลารวมปัจจุบัน — ดูระยะเวลาของเล่ม 1 / เล่ม 2 และรวมตั้งแต่เริ่มต้น\n• ถาม <ข้อความ> — ส่งคำถามถึงเจ้าหน้าที่ HR (เฉพาะเรื่องสำคัญ)\n• ยกเลิกการผูก — หยุดรับแจ้งเตือน' : 'ยังไม่ได้เชื่อมต่อบัญชี พิมพ์เลขบัตรประชาชน 13 หลักที่นี่เพื่อเชื่อมต่อ หรือขอรหัส 6 หลักที่หน้าเว็บแล้วพิมพ์รหัสที่นี่');
-  if (/^(ช่วยเหลือ|ช่วยด้วย|วิธีใช้|วิธีเชื่อมต่อ|คู่มือ|help|manual|\?)$/i.test(t)) { NUDGE_UID_ = ''; return lineReply_(ev.replyToken, [helpMsg_(helpTxt_), manualMsg_()]); }   // ขอความช่วยเหลือ → ส่งคู่มือเสมอ
-  lineReply_(ev.replyToken, [helpMsg_(helpTxt_)]);
-}
-/* โหมดผูกเมื่อพิมพ์เลขบัตร: 'cid' (ค่าเริ่มต้น) = บันทึก LINE userId ทันที | 'phone' = ต้องยืนยันเลข 4 ตัวท้ายเบอร์โทรก่อน (ตั้งที่ Script Properties: LINE_BIND_MODE) */
-function bindMode_() { return prop_('LINE_BIND_MODE') === 'phone' ? 'phone' : 'cid'; }
-/* พิมพ์เลขบัตร 13 หลักจากบัญชี LINE ที่ยังไม่ผูก → บันทึก userId ลงแท็บ LineUsers (วิธีผูก = cid) แล้วตอบสถานะ
- * คืน true = จัดการและตอบแล้ว | false = ให้ไหลไปขั้นตอนเดิม (ตรวจเบอร์โทร) เช่น เลขบัตรนี้มีบัญชี LINE อื่นผูกอยู่แล้ว */
-function lineBindByCid_(ev, uid, cid) {
-  if (!lineEnabled_()) return false;
-  if (!rateOk_('lb_' + uid, 6, 900)) { lineReply_(ev.replyToken, [{ type: 'text', text: 'ลองหลายครั้งเกินไป กรุณารอ 15 นาที หรือแจ้งเจ้าหน้าที่ HR ให้ผูกบัญชีให้' }]); return true; }
-  if (!validCid_(cid)) { lineReply_(ev.replyToken, [helpMsg_('เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง')]); return true; }
-  var items = subs_().filter(function (r) { return r.cid === cid; });
-  if (!staffByCid_(cid) && !items.length) {
-    pendUpsert_(uid, '', maskT_(cid), 'pending', '');
-    lineReply_(ev.replyToken, [helpMsg_('ไม่พบเลขบัตรนี้ในระบบ ตรวจสอบตัวเลขอีกครั้ง หรือหากยังไม่เคยยื่นเอกสาร ให้ยื่นเอกสารที่หน้าเว็บก่อน')]); return true;
-  }
-  var other = lnuRows_().some(function (r) { return r.cid === cid && r.active && r.uid !== uid; });
-  if (other) return false;                                  // เลขบัตรนี้มี LINE อื่นผูกอยู่แล้ว → ไม่ให้ผูกเพิ่มด้วยเลขบัตรอย่างเดียว (กันผู้อื่นสวมรอย) ใช้ขั้นยืนยันเบอร์โทร
-  linkLine_(cid, uid, lineProfile_(uid), 'cid');            // บันทึก LINE userId + เลขบัตร (แท็บ LineUsers) และอัปเดตแท็บ LinePending
-  lineLog_('', cid, 'link', '', 'ผูกบัญชี LINE สำเร็จ (พิมพ์เลขบัตรในแชท)', null, 'success', 'userId=' + uid);
-  log_('line_link', '', 'success', 'cid-chat cid …' + cid.slice(-4));
-  var msgs = [helpMsg_('เชื่อมต่อสำเร็จ ✅\nต่อไปนี้ท่านจะได้รับแจ้งเตือนเมื่อสถานะผลงาน อวช. เปลี่ยน\nพิมพ์ "สถานะ" เพื่อดูสถานะล่าสุด หรือ "ถาม ..." เพื่อส่งคำถามถึงเจ้าหน้าที่' + (items.length ? '' : '\n\n(ยังไม่พบรายการยื่นผลงาน อวช. ของท่าน)'))];
-  items.reverse().slice(0, 4).forEach(function (it) { msgs.push(flexStatus_(it, 'สถานะผลงาน ' + it.id)); });
-  lineReply_(ev.replyToken, msgs);
-  return true;
-}
-/* ผูกในแชทโดยตรง (กรณีเพิ่มเพื่อนก่อนได้รับรหัส): เลขบัตร → ถามเลข 4 ตัวท้ายเบอร์โทร (ปัจจัยเดียวกับหน้าเว็บ) */
-/* พิมพ์เลขบัตร 13 หลัก หรือรหัสเอกสาร (AWC-yyyymmdd-nnnn) → ตอบสถานะปัจจุบัน (ข้อมูลระดับเดียวกับหน้าติดตามสถานะที่เปิดสาธารณะ)
- * ถ้าบัญชี LINE นี้ยังไม่ผูก จะชวนผูกต่อด้วยเลข 4 ตัวท้ายเบอร์โทร */
-function lineLookup_(ev, uid, mineCid, code, cid) {
-  if (!rateOk_('lq_' + uid, 15, 600)) return lineReply_(ev.replyToken, [{ type: 'text', text: 'ค้นหาบ่อยเกินไป กรุณารอ 10 นาทีแล้วลองใหม่' }]);
-  var items = [];
-  if (code) { var one = findSub_(code); if (one) { items = [one]; cid = one.cid; } }
-  else if (validCid_(cid)) items = subs_().filter(function (r) { return r.cid === cid; }).reverse().slice(0, 4);
-  else return lineReply_(ev.replyToken, [helpMsg_('เลขบัตรประชาชนไม่ถูกต้อง ตรวจสอบตัวเลขอีกครั้ง')]);
-  if (!items.length) {
-    var known = cid && !code && !!staffByCid_(cid);
-    return lineReply_(ev.replyToken, [helpMsg_(known ? 'พบข้อมูลของท่านในทะเบียน แต่ยังไม่พบรายการยื่นผลงาน อวช. หากยังไม่เคยยื่น ให้ยื่นเอกสารที่หน้าเว็บ' : 'ไม่พบข้อมูล กรุณาตรวจสอบเลขบัตรหรือรหัสเอกสารอีกครั้ง')]);
-  }
-  var msgs = items.map(function (it) { return flexStatus_(it, 'สถานะผลงาน ' + it.id); });
-  if (!mineCid && lineEnabled_()) {
-    var tip = phonesOf_(cid).length ? 'ต้องการรับแจ้งเตือนอัตโนมัติเมื่อสถานะเปลี่ยน? พิมพ์เลข 4 ตัวท้ายของเบอร์โทรที่ลงทะเบียนไว้ (ภายใน 10 นาที)' : 'ต้องการรับแจ้งเตือนอัตโนมัติ? ยังไม่มีเบอร์โทรในระบบ กรุณาแจ้งเจ้าหน้าที่ HR ให้ผูกบัญชี LINE นี้ให้';
-    if (phonesOf_(cid).length) CacheService.getScriptCache().put('lw_' + uid, cid, 600);
-    msgs.push(helpMsg_(tip));
-  }
-  lineLog_(items[0].id, cid, 'bot', '', 'ตอบสถานะจากการพิมพ์' + (code ? 'รหัสเอกสาร' : 'เลขบัตร') + ' ' + items.length + ' รายการ', null, 'sent', '');
-  lineReply_(ev.replyToken, msgs);
-}
-function lineAskPhone_(ev, uid, cid) {
-  var c = CacheService.getScriptCache();
-  if (!rateOk_('lwr_' + uid, 8, 900)) return lineReply_(ev.replyToken, [{ type: 'text', text: 'ลองหลายครั้งเกินไป กรุณารอ 15 นาที หรือแจ้งเจ้าหน้าที่ HR ให้ผูกบัญชีให้' }]);
-  var known = validCid_(cid) && (!!staffByCid_(cid) || subs_().some(function (r) { return r.cid === cid; }));
-  if (!known) return lineReply_(ev.replyToken, [helpMsg_('ไม่พบเลขบัตรนี้ในระบบ ตรวจสอบตัวเลขอีกครั้ง หรือหากยังไม่เคยยื่นเอกสาร ให้ยื่นเอกสารที่หน้าเว็บก่อน')]);
-  if (!phonesOf_(cid).length) return lineReply_(ev.replyToken, [helpMsg_('ยังไม่มีเบอร์โทรของท่านในระบบ กรุณาแจ้งเจ้าหน้าที่ HR เจ้าหน้าที่จะผูกบัญชี LINE นี้ให้')]);
-  c.put('lw_' + uid, cid, 600);
-  lineReply_(ev.replyToken, [{ type: 'text', text: 'ขั้นต่อไป: พิมพ์เลข 4 ตัวท้ายของเบอร์โทรศัพท์ที่ลงทะเบียนไว้กับ HR (ภายใน 10 นาที)' }]);
-}
-function lineVerifyPhone_(ev, uid, l4) {
-  var c = CacheService.getScriptCache(), cid = c.get('lw_' + uid);
-  if (!cid) return lineReply_(ev.replyToken, [helpMsg_('หมดเวลาแล้ว กรุณาพิมพ์เลขบัตรประชาชน 13 หลักใหม่อีกครั้ง')]);
-  if (!rateOk_('lwr_' + uid, 8, 900)) return lineReply_(ev.replyToken, [{ type: 'text', text: 'ลองหลายครั้งเกินไป กรุณารอ 15 นาที หรือแจ้งเจ้าหน้าที่ HR ให้ผูกบัญชีให้' }]);
-  if (!phonesOf_(cid).some(function (p) { return p.slice(-4) === l4; })) return lineReply_(ev.replyToken, [{ type: 'text', text: 'เลข 4 ตัวท้ายไม่ตรงกับในระบบ ลองพิมพ์ใหม่ได้ หรือแจ้งเจ้าหน้าที่ HR ให้ผูกให้' }]);
-  c.remove('lw_' + uid);
-  linkLine_(cid, uid, lineProfile_(uid), 'chat');
-  lineLog_('', cid, 'link', '', 'ผูกบัญชี LINE สำเร็จ (ยืนยันในแชท)', null, 'success', '');
-  log_('line_link', '', 'success', 'chat cid …' + cid.slice(-4));
-  lineReply_(ev.replyToken, [helpMsg_('เชื่อมต่อสำเร็จ ✅\nต่อไปนี้ท่านจะได้รับแจ้งเตือนเมื่อสถานะผลงาน อวช. เปลี่ยน\nพิมพ์ "สถานะ" เพื่อดูสถานะล่าสุด หรือ "ถาม ..." เพื่อส่งคำถามถึงเจ้าหน้าที่')]);
-}
-function lineConsume_(ev, uid, code) {
-  var c = CacheService.getScriptCache();
-  if (!rateOk_('la_' + uid, 6, 600)) return lineReply_(ev.replyToken, [{ type: 'text', text: 'พิมพ์รหัสผิดหลายครั้ง กรุณารอ 10 นาทีแล้วลองใหม่' }]);
-  var cid = c.get('lc_' + code);
-  if (!cid) { log_('line_link', '', 'fail_code', 'รหัสไม่พบ/หมดอายุ uid …' + uid.slice(-4)); lineLog_('', '', 'link', '', 'พิมพ์รหัสผูกบัญชีแต่ไม่พบรหัสหรือหมดอายุ', null, 'fail', ''); }
-  if (!cid) return lineReply_(ev.replyToken, [helpMsg_('รหัสไม่ถูกต้องหรือหมดอายุ (รหัสใช้ได้ 10 นาที) กรุณากดขอรหัสใหม่ที่หน้าเว็บ')]);
-  linkLine_(cid, uid, lineProfile_(uid), 'code');
-  c.remove('lc_' + code); c.put('lk_' + code, '1', 600);
-  lineLog_('', cid, 'link', '', 'ผูกบัญชี LINE สำเร็จ (ผ่านรหัส)', null, 'success', '');
-  log_('line_link', '', 'success', 'cid …' + cid.slice(-4));
-  lineReply_(ev.replyToken, [helpMsg_('เชื่อมต่อสำเร็จ ✅\nต่อไปนี้ท่านจะได้รับแจ้งเตือนเมื่อสถานะผลงาน อวช. เปลี่ยน\nพิมพ์ "สถานะ" เพื่อดูสถานะล่าสุดได้ทุกเมื่อ')]);
-}
 
 /* ======================================================================
  *  Public API
  * ====================================================================== */
 function apiConfig_() {
-  return { org: ORG, title: TITLE, stages: STAGES, books: BOOKS, lv: LV, tracks: TRACKS, tiers: { map: TRACK_TIER, def: TIER_DEF, name: TIER_NAME }, line: { enabled: lineEnabled_(), oaLink: lineOaLink_(), oaId: prop_('LINE_OA_ID') } };
+  return { org: ORG, title: TITLE, gateTrack: GATE_TRACK, stages: STAGES, books: BOOKS, lv: LV, tracks: TRACKS, copyGate: COPY_GATE, tiers: { map: TRACK_TIER, def: TIER_DEF, name: TIER_NAME }, line: { enabled: lineEnabled_(), oaLink: lineOaLink_(), oaId: prop_('LINE_OA_ID') }, survey: { q: SV_Q, aspects: SV_ASPECTS, exp: SV_EXP } };
 }
 /* ติดตามสถานะ: เข้าได้ทุกคนที่มีเลขบัตรประชาชนอยู่ในระบบ (allstaff หรือเคยยื่นเอกสาร) */
 function apiTrack_(cidRaw) {
@@ -1043,7 +762,7 @@ function apiTrack_(cidRaw) {
   var mine = subs_().filter(function (r) { return r.cid === cid; });
   var staff = staffByCid_(cid);
   if (!mine.length && !staff) { log_('track', '', 'not_found', ''); throw new Error('ไม่พบเลขบัตรประชาชนนี้ในระบบ'); }
-  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? hisSort_(his.getRange(2, 1, his.getLastRow() - 1, 5).getValues()) : [];
+  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? hisSort_(V_(his.getRange(2, 1, his.getLastRow() - 1, 5))) : [];
   var qall = qaRows_(), aall = attRows_();
   var items = mine.map(function (r) {
     return {
@@ -1091,7 +810,7 @@ function apiSubmit_(p) {
     if (up) f.link = up.url;
     var sh = sheet_('SUB'), n = sh.getLastRow(); var taken = {}; subs_().forEach(function (r) { taken[r.id] = 1; }); usedIds_(taken); var day = Utilities.formatDate(new Date(), TZ, 'yyyyMMdd'); do { id = 'AWC-' + day + '-' + ('000' + n).slice(-4); n++; } while (taken[id]);   // กัน รหัสซ้ำเมื่อมีการลบแถว
     var t = now_();
-    appendText_(sh, [id, t, f.prefix, f.first, f.last, f.cid, f.position, f.group, f.posNo, f.start, tenure_(f.start), f.edu, f.title, f.link, f.phone, f.email, 'b1_submit', '', t, f.track]);
+    appendText_(sh, [id, t, f.prefix, f.first, f.last, f.cid, f.position, f.group, f.posNo, f.start, tenure_(f.start), f.edu, f.title, f.link, f.phone, f.email, 'b1_submit', '', t, f.track, '', t]);   /* คอลัมน์ 22 = timestamp จริงตอนระบบรับยื่น (ไม่มีหน้าจอไหนแก้ได้ — ต่างจาก "เวลายื่น" ที่ HR แก้ให้ตรงวันที่ในเอกสารได้) */
     appendText_(sheet_('HIS'), [id, t, 'b1_submit', 'ยื่นเอกสาร', f.first + ' ' + f.last]);
     it = { id: id, cid: f.cid, email: f.email, prefix: f.prefix, first: f.first, last: f.last, title: f.title, status: 'b1_submit', note: '' };
     notify_(it, 'ความคืบหน้าปัจจุบันของเลขที่เอกสาร ' + id + ' คือ "' + stageLabel_(it) + '"', 'received');
@@ -1125,8 +844,8 @@ function apiAdminList_(token) {
   var rows = subs_().reverse(), counts = {}, linked = {};
   lnuRows_().forEach(function (r) { if (r.active) linked[r.cid] = 1; });
   var qm = {}; qaRows_().forEach(function (m) { qm[m.id] = m.from === 'applicant' ? (qm[m.id] || 0) + 1 : 0; });
-  var am = {}; attRows_().forEach(function (a) { var o = am[a.id] || (am[a.id] = { n: 0, nw: 0, t: '', rv: '' }); o.n++; if (a.read !== 'Y') o.nw++; if (a.t > o.t) o.t = a.t; if (a.kind === 'revision' && a.t > o.rv) o.rv = a.t; });
-  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? hisSort_(his.getRange(2, 1, his.getLastRow() - 1, 3).getValues()) : [], fst = {}, prev = {}, since = {}, fxc = {}, fxk = {};
+  var am = {}; attRows_().forEach(function (a) { var o = am[a.id] || (am[a.id] = { n: 0, nw: 0, t: '', rv: '' }); o.n++; if (a.read !== 'Y') o.nw++; if (a.t > o.t) o.t = a.t; if (a.kind === 'revision' && a.t > o.rv) o.rv = a.t; if (a.kind === 'acting') { o.ac = (o.ac || 0) + 1; if (a.t > (o.at || '')) o.at = a.t; } });
+  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? hisSort_(V_(his.getRange(2, 1, his.getLastRow() - 1, 3))) : [], fst = {}, prev = {}, since = {}, fxc = {}, fxk = {};
   hv.forEach(function (h) {
     var id = str_(h[0]), k = normKey_(str_(h[2])), t = str_(h[1]), fk = id + '|' + k;
     if (!fst[fk]) fst[fk] = t;
@@ -1137,8 +856,8 @@ function apiAdminList_(token) {
     counts[r.status] = (counts[r.status] || 0) + 1; r.lk = !!linked[r.cid]; r.qa = qm[r.id] || 0;
     var ck = stageObj_(r.status).clk; if (ck && fst[r.id + '|' + ck]) r.ck = fst[r.id + '|' + ck];
     /* since = วันที่เข้าสู่ขั้นตอนปัจจุบัน (ช่วงต่อเนื่องล่าสุดของสถานะปัจจุบัน) ; ถ้าประวัติล่าสุดไม่ตรงกับสถานะในชีท ใช้เวลาอัปเดตล่าสุดของรายการ */
-    r.b1s = fst[r.id + '|b1_signed'] || ''; r.since = (since[r.id] && prev[r.id] === normKey_(r.status)) ? since[r.id] : (r.upd || r.ts); r.fx = fxc[r.id] || 0; r.fxk = fxk[r.id] || {};
-    var a = am[r.id]; r.attN = a ? a.n : 0; r.attNew = a ? a.nw : 0; r.attT = a ? a.t : ''; r.attRev = a ? a.rv : '';
+    r.b1s = fst[r.id + '|b1_signed'] || ''; r.b1a = fst[r.id + '|b1_acting'] || ''; r.since = (since[r.id] && prev[r.id] === normKey_(r.status)) ? since[r.id] : (r.upd || r.ts); r.fx = fxc[r.id] || 0; r.fxk = fxk[r.id] || {};
+    var a = am[r.id]; r.attN = a ? a.n : 0; r.attNew = a ? a.nw : 0; r.attT = a ? a.t : ''; r.attRev = a ? a.rv : ''; r.act = a ? (a.ac || 0) : 0; r.actT = a ? (a.at || '') : '';
   });
   return { rows: rows, counts: counts, total: rows.length, lineEnabled: lineEnabled_(), nowMs: Date.now() };
 }
@@ -1195,20 +914,41 @@ function statusCore_(u, id, p, internal) {
   var when = p.customTime ? parseWhen_(p.when) : '';
   var hasFile = !!(p.attach && p.attach.data);
   var up = hasFile ? saveUpload_(p.attach, LINE_EXT, true) : null;
-  var lock = LockService.getScriptLock(), cur, changed = [], at = '';
+  var lock = LockService.getScriptLock(), cur, changed = [], at = '', cp = null;   // cp = จำนวนเล่มที่ต้องทำสำเนา (เฉพาะตอนเข้าขั้น b2_dir และแอดมินไม่ได้ติ๊กออก — ดู COPY_GATE)
   lock.waitLock(15000);
   try {
     cur = findSub_(id);
     if (!cur) throw new Error('ไม่พบรายการ');
     var newStatus = status || cur.status, sCh = newStatus !== cur.status, nCh = note !== null && note !== cur.note;
+    if (up && newStatus === 'b1_acting' && gateOn_(cur.track) && attRows_().filter(function (a) { return a.id === id; }).length >= ATT_MAX) throw new Error('แนบไฟล์ครบ ' + ATT_MAX + ' รายการแล้ว กรุณาลบไฟล์เดิมที่ไม่ใช้ก่อน');
+    if (!internal && sCh && (newStatus === 'promoted' || newStatus === 'closing')) throw new Error('การปิดเคสต้องกดปุ่ม "ปิดเคส" และทำแบบประเมินความพึงพอใจ (ผู้ยื่นต้องประเมินด้วย) ระบบจึงจะปิดเคสให้');
     if (!internal && sCh && newStatus === 'cancelled') throw new Error('การยกเลิกรายการต้องกดปุ่ม "ยกเลิกรายการ" และระบุเหตุผล');
     if (!internal && sCh && cur.status === 'cancelled') throw new Error('รายการนี้ถูกยกเลิกแล้ว — หากต้องการดำเนินการต่อให้กด "กู้คืนรายการ" ก่อน');
     if (!internal && sCh) {
       var ns = stageObj_(newStatus);
       if (ns.lg) throw new Error('ขั้นตอนนี้เลิกใช้แล้ว กรุณาเลือกขั้นตอนใหม่จากรายการ');
+      /* เข้าขั้น ผอ.ลงนาม (เล่ม 2) → ถ้าแอดมินส่ง copies มา (ไม่ได้ติ๊กออก) ต้องกรอกจำนวนเล่มทั้ง 3 รายการ ตรวจก่อนเขียนชีท · ไม่ส่ง copies = ไม่แจ้ง */
+      if (needCopies_(cur.status, newStatus) && p.copies) {
+        cp = copiesOk_(p.copies);
+        /* เก็บจำนวนเล่มไว้ในหมายเหตุด้วย → อยู่ในชีท/ประวัติ/หน้าติดตาม/อีเมล ไม่ใช่แค่ LINE */
+        var cbase = note !== null ? note : cur.note;
+        note = (cbase ? cbase + ' — ' : '') + copiesLine_(cp);
+        nCh = note !== cur.note;
+      }
+      /* ชำนาญการ → ชำนาญการพิเศษ: คำสั่งรักษาการในตำแหน่ง (b1_acting) — ใช้เฉพาะเส้นทางนี้ · ต้องหลัง ผวจ.ชี้ตัวเล่ม 1 · ต้องมีหนังสือคำสั่งที่ HR แนบ */
+      if (ns.trk === 'gate' && !gateOn_(cur.track)) throw new Error('ขั้นตอน "คำสั่งรักษาการในตำแหน่ง" ใช้เฉพาะเส้นทาง ' + GATE_TRACK);
+      if (newStatus === 'b1_acting') {
+        if (!hisHas_(id, 'b1_signed')) throw new Error('ต้องผ่านขั้นตอน "ผู้ว่าราชการจังหวัดลงนามชี้ตัว (เล่ม 1)" ก่อน จึงจะบันทึกคำสั่งรักษาการในตำแหน่งได้');
+        if (!hasFile && !hasActingAtt_(id)) throw new Error('ต้องแนบหนังสือคำสั่งรักษาการในตำแหน่ง (ไฟล์จากกลุ่มงานทรัพยากรบุคคล) พร้อมการอัปเดตสถานะนี้ — กรุณาแนบไฟล์ในหน้าอัพเดทสถานะ (หัวข้อ "แนบหนังสือคำสั่งรักษาการในตำแหน่ง") ก่อนบันทึก');
+      }
+      /* ต้องอัปเดตสถานะคำสั่งรักษาการแล้ว (เริ่มนับ 180 วัน) จึงบันทึกยื่นเล่ม 2 ได้ */
+      if (newStatus === 'b2_submit' && gateOn_(cur.track) && !hisHas_(id, 'b1_acting')) throw new Error('เส้นทาง ชำนาญการ → ชำนาญการพิเศษ ต้องออกคำสั่งรักษาการในตำแหน่งก่อน จึงจะยื่นเล่ม 2 ได้ — กรุณาแนบหนังสือคำสั่งและอัปเดตสถานะเป็น "ออกคำสั่งรักษาการในตำแหน่ง" ก่อน');
       if (ns.tier && ns.tier !== tierOf_(cur.track)) throw new Error('ขั้นตอนนี้ใช้กับเล่ม 2 ระดับ "' + TIER_NAME[ns.tier] + '" เท่านั้น — รายการนี้เป็นระดับ "' + TIER_NAME[tierOf_(cur.track)] + '" (หากระดับตำแหน่งไม่ถูกต้อง ให้แก้ที่ปุ่ม "แก้ไข" ก่อน)');
     }
-    if (sCh && newStatus === 'promoted' && cur.status !== 'cmd_gov' && cur.status !== 'cmd_gov_ok') throw new Error('ปิดเคสได้เมื่อรายการอยู่ในขั้น "ผู้ว่าราชการจังหวัดลงนาม (คำสั่งเลื่อนระดับ)" และผู้ว่าฯ ลงนามแล้วเท่านั้น — กรุณาบันทึกสถานะขั้นดังกล่าวก่อน');
+    if (sCh && newStatus === 'promoted' && cur.status !== 'cancelled') {
+      if (cur.status !== 'closing') throw new Error('ปิดเคสได้เมื่อรายการอยู่ในขั้น "รอผู้ยื่นประเมินความพึงพอใจเพื่อปิดเคส" เท่านั้น');
+      if (!svHas_(id, 'admin') || !svHas_(id, 'applicant')) throw new Error('ปิดเคสไม่ได้ — ต้องมีแบบประเมินความพึงพอใจครบทั้งผู้ยื่นและเจ้าหน้าที่');
+    }
     if (sCh || nCh) {
       at = when || now_();
       if (when) {
@@ -1221,12 +961,82 @@ function statusCore_(u, id, p, internal) {
       setText_(sh.getRange(cur.row, KEYS.indexOf('upd') + 1), at); cur.upd = at;
       appendText_(sheet_('HIS'), [id, at, cur.status, cur.note, u.n]);
       notify_(cur, 'ความคืบหน้าปัจจุบันของเลขที่เอกสาร ' + id + ' คือ "' + stageLabel_(cur) + '"' + (cur.note ? ' — ' + cur.note : ''), 'status');
-      log_('admin_status', u.u, 'success', id + ': ' + changed.join(',') + ' → ' + cur.status + (when ? ' (ลงเวลาเอง ' + when + ')' : ''));
+      log_('admin_status', u.u, 'success', id + ': ' + changed.join(',') + ' → ' + cur.status + (when ? ' (ลงเวลาเอง ' + when + ')' : '') + (cp ? ' · ทำสำเนา บุคคล ' + cp.person + ' / ผลงาน ' + cp.work + ' / แนวคิด ' + cp.concept : ''));
+    }
+    /* คำสั่งรักษาการ: เก็บไฟล์ที่ HR แนบพร้อมสถานะไว้ในแท็บ "ไฟล์แนบ" ชนิด acting (ใช้ซ้ำในหน้าไฟล์แนบ/ตรวจย้อนหลัง) */
+    if (up && normKey_(cur.status) === 'b1_acting' && gateOn_(cur.track)) {
+      appendText_(sheet_('ATT'), [id, at || now_(), 'acting', '', up.name, up.url, u.n, (note || '').slice(0, 200), 'Y']);
+      log_('acting_add', u.u, 'success', id + ' (พร้อมอัปเดตสถานะ)');
     }
   } finally { lock.releaseLock(); }
   var line = null;
-  if ((changed.length || hasFile) && p.sendLine !== false) line = autoNotify_(cur, u.n, changed.length ? 'สถานะเปลี่ยนเป็น' : 'ไฟล์แนบจากเจ้าหน้าที่ สถานะปัจจุบัน', up);
-  return { changed: changed, line: line, file: up ? { name: up.name, url: up.url, shared: up.shared } : null, at: at, status: cur.status, nowMs: Date.now() };
+  if (changed.indexOf('status') >= 0 && normKey_(cur.status) === 'cmd_gov') closerNotify_(cur, u.n);   // แจ้ง LINE เจ้าหน้าที่ให้ปิดเคส/ประเมิน (ไม่ขึ้นกับตัวเลือกส่ง LINE ให้ผู้ยื่น)
+  if ((changed.length || hasFile) && p.sendLine !== false) line = autoNotify_(cur, u.n, changed.indexOf('status') >= 0 ? 'สถานะเปลี่ยนเป็น' : (changed.length ? 'อัปเดตหมายเหตุ สถานะปัจจุบัน' : 'ไฟล์แนบจากเจ้าหน้าที่ สถานะปัจจุบัน'), up);
+  var dispatch = null;
+  if (cp && changed.indexOf('status') >= 0 && p.sendLine !== false) dispatch = dispatchNotify_(cur, cp);   // การ์ด "สิ่งที่ต้องทำ" แยกจากการ์ดสถานะ (ส่งตามหลัง จึงอยู่ล่างสุดของแชท)
+  return { changed: changed, line: line, dispatch: dispatch, file: up ? { name: up.name, url: up.url, shared: up.shared } : null, at: at, status: cur.status, nowMs: Date.now() };
+}
+/* ---------- ผอ.ลงนามเล่ม 2 แล้ว: การ์ด LINE "สิ่งที่ต้องทำ" (ส่งเอกสารกี่เล่ม) แยกจากการ์ดอัปเดตสถานะ ---------- */
+/* กฎเดียวของ "เอกสารที่ต้องทำสำเนา": เมื่อเปลี่ยนสถานะเข้าขั้น b2_dir (ผอ.โรงพยาบาลลงนาม เล่ม 2) แอดมินระบุจำนวนเล่ม (ติ๊กออกได้ = ไม่แจ้ง)
+   หน้าเว็บอ่านกฎนี้จาก apiConfig_ (copyGate) ไม่ต้องแก้สองที่ */
+var COPY_GATE = { to: ['b2_dir'] };
+function needCopies_(from, to) { return normKey_(from) !== to && COPY_GATE.to.indexOf(to) >= 0; }
+function copiesLine_(cp) { return 'ต้องทำสำเนาเอกสาร เล่มบุคคล ' + cp.person + ' · เล่มผลงาน ' + cp.work + ' · เล่มแนวคิด ' + cp.concept + ' เล่ม'; }
+var COPY_ROWS = [{ k: 'person', t: 'เล่มบุคคล' }, { k: 'work', t: 'เล่มผลงาน' }, { k: 'concept', t: 'เล่มแนวคิด' }];
+function copiesOk_(c) {
+  c = c || {};
+  var o = {}, tot = 0;
+  COPY_ROWS.forEach(function (r) {
+    var raw = str_(c[r.k]);
+    if (!/^\d{1,2}$/.test(raw)) throw new Error('ใส่จำนวน' + r.t + ' (0–99) ก่อนบันทึก');
+    o[r.k] = +raw; tot += o[r.k];
+  });
+  if (!tot) throw new Error('ต้องทำสำเนาอย่างน้อย 1 เล่ม');
+  return o;
+}
+function flexDispatch_(it, cp, isTest) {
+  var rows = COPY_ROWS.map(function (r) {
+    return { type: 'box', layout: 'baseline', margin: 'md', contents: [
+      { type: 'text', text: r.t, size: 'md', color: '#12303a', flex: 4 },
+      { type: 'text', text: String(cp[r.k]), size: 'xxl', weight: 'bold', color: '#a1480a', align: 'end', flex: 2 },
+      { type: 'text', text: 'เล่ม', size: 'sm', color: '#51676f', align: 'end', flex: 1 }] };
+  });
+  var body = (isTest ? [{ type: 'text', text: '[ทดสอบ] ตัวอย่างจากหน้าผู้ดูแลระบบ ไม่ใช่การแจ้งจริง', size: 'xs', color: '#51676f', wrap: true }] : []).concat([
+    { type: 'text', text: 'ทำสำเนาเอกสารเล่ม 2', weight: 'bold', size: 'xl', wrap: true, color: '#a1480a' },
+    { type: 'text', text: 'เอกสารเล่ม 2 กำลังเสนอ ผอ.ลงนาม กรุณาทำสำเนาตามจำนวนนี้', size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
+    { type: 'separator', margin: 'lg' }]).concat(rows, [{ type: 'separator', margin: 'lg' }, idRows_(it)[0]]);
+  var b = fbubble_('ต้องทำสำเนาเอกสาร', '#a1480a', body);
+  var u = siteUrl_();
+  if (u) b.footer = { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#a1480a', height: 'sm', action: { type: 'uri', label: 'ดูความคืบหน้า', uri: u } }] };
+  var alt = (isTest ? '[ทดสอบ] ' : '') + 'ทำสำเนาเอกสาร เล่มบุคคล ' + cp.person + ' · เล่มผลงาน ' + cp.work + ' · เล่มแนวคิด ' + cp.concept + ' เล่ม (เคส ' + it.id + ')';
+  return { type: 'flex', altText: alt.slice(0, 380), contents: b };
+}
+/* ทดสอบการ์ด "ต้องทำสำเนาเอกสาร" จากแท็บ ทดสอบ LINE (ผู้ดูแลระบบ) — ส่งถึงบัญชีที่ผูกไว้ที่เลือกเท่านั้น ไม่เปลี่ยนสถานะ/หมายเหตุเคส
+   p = { uid, cid, copies:{person,work,concept} } · จำกัด 20 ครั้ง/10 นาที/ผู้ใช้ (เท่ากับการทดสอบแบบอื่น) */
+function apiLineTestDispatch_(token, p) {
+  var u = auth_(token, true), t0 = Date.now();
+  p = p || {};
+  var uid = str_(p.uid), cid = digits_(p.cid), cp = copiesOk_(p.copies);
+  if (!uid || cid.length !== 13) throw new Error('กรุณาเลือกบัญชี LINE ที่ผูกไว้');
+  var bound = lineUsersByCid_(cid).some(function (x) { return (x && x.uid ? str_(x.uid) : str_(x)) === uid; });
+  if (!bound) throw new Error('ส่งได้เฉพาะบัญชี LINE ที่ผูกไว้ในระบบเท่านั้น');
+  var cache = CacheService.getScriptCache(), ck = 'ltd_' + u.u, n = +(cache.get(ck) || 0);
+  if (n >= 20) throw new Error('ทดสอบส่งเกิน 20 ครั้งใน 10 นาที กรุณารอสักครู่');
+  cache.put(ck, String(n + 1), 600);
+  var mine = subs_().filter(function (r) { return r.cid === cid; });
+  var it = mine.length ? mine[mine.length - 1] : { id: 'ทดสอบ', cid: cid, status: 'b2_dir', note: '', title: '', track: '' };
+  var text = '[ทดสอบ] ' + copiesLine_(cp);
+  var r = lineSend_([uid], cid, it.id, 'test', u.n, [flexDispatch_(it, cp, true)], text);
+  return { delivered: r.sent > 0, ms: Date.now() - t0, mode: 'dispatch', name: '', note: r.sent > 0 ? '' : (r.errors && r.errors[0] ? String(r.errors[0]) : 'ส่งไม่สำเร็จ'), steps: [{ via: 'push', ok: r.sent > 0, status: r.sent > 0 ? 200 : 0, err: r.errors && r.errors[0] ? String(r.errors[0]) : '' }] };
+}
+function dispatchNotify_(it, cp) {
+  try {
+    var text = copiesLine_(cp) + ' (เคส ' + it.id + ')';
+    var pre = linePre_(it.cid, it.id, 'auto', 'ระบบ', text);
+    if (!pre.ok) return { sent: 0, failed: 0, skipped: pre.reason, msg: pre.msg };
+    Utilities.sleep(800);   // ให้การ์ดสถานะถึงก่อน การ์ดนี้จะอยู่ล่างสุดของแชท
+    return lineSend_(pre.users, it.cid, it.id, 'auto', 'ระบบ (จำนวนเล่ม)', [flexDispatch_(it, cp)], text);
+  } catch (e) { log_('line_dispatch', 'system', 'error', String(e.message || e)); return { sent: 0, failed: 1, errors: [String(e.message || e)] }; }
 }
 /* ---------- ไฟล์เล่ม 2 / ฉบับแก้ไข จากผู้ยื่น (ไม่เปลี่ยนสถานะ — เป็นข้อมูลให้งานทรัพยากรบุคคล) ---------- */
 function apiAttAdd_(cidRaw, id, p) {
@@ -1234,6 +1044,7 @@ function apiAttAdd_(cidRaw, id, p) {
   var cid = digits_(cidRaw), it = findSub_(str_(id));
   if (cid.length !== 13 || !it || it.cid !== cid) throw new Error('ไม่พบรายการของท่าน');
   if (stageObj_(it.status).end) throw new Error('รายการนี้เสร็จสิ้นแล้ว ไม่สามารถแนบไฟล์เพิ่มได้');
+  if (str_(p.kind) === 'acting') throw new Error('หนังสือคำสั่งรักษาการในตำแหน่ง กลุ่มงานทรัพยากรบุคคลเป็นผู้แนบ');
   var kind = ATT_KINDS[p.kind] ? p.kind : 'book2', note = str_(p.note).replace(/\r/g, '').slice(0, 200), link = str_(p.link);
   if (link && !/^https?:\/\//i.test(link)) throw new Error('ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://');
   if (!(p.file && p.file.data) && !link) throw new Error('กรุณาแนบไฟล์หรือใส่ลิงก์');
@@ -1241,10 +1052,37 @@ function apiAttAdd_(cidRaw, id, p) {
   var all = attRows_(); if (all.filter(function (a) { return a.id === it.id; }).length >= ATT_MAX) throw new Error('แนบไฟล์ครบ ' + ATT_MAX + ' รายการแล้ว กรุณาติดต่อกลุ่มงานทรัพยากรบุคคล');
   var up = (p.file && p.file.data) ? saveUpload_(p.file, SUBMIT_EXT, false) : null;
   var round = kind === 'revision' ? curFixRound_(it) : 0, by = (it.first + ' ' + it.last).trim();
-  sheet_('ATT').appendRow([it.id, now_(), kind, round || '', up ? up.name : 'ลิงก์ภายนอก', up ? up.url : link, by, note, 'N']);
+  appendText_(sheet_('ATT'), [it.id, now_(), kind, round || '', up ? up.name : 'ลิงก์ภายนอก', up ? up.url : link, by, note, 'N']);
   log_('att_add', '', 'success', it.id + ' ' + kind + (round ? ' ครั้งที่ ' + round : ''));
   hrNotifyMail_('[อวช.] ผู้ยื่นแนบ' + ATT_KINDS[kind] + ' ' + it.id, by + ' แนบ' + ATT_KINDS[kind] + (round ? ' (แก้ไขครั้งที่ ' + round + ')' : '') + ' รหัส ' + it.id + (note ? '\nหมายเหตุ: ' + note : '') + '\nสถานะปัจจุบัน: ' + stageLabel_(it));
   return { att: attPublic_(attRows_(), it.id) };
+}
+/* เจ้าหน้าที่ HR แนบ/เพิ่มหนังสือคำสั่งรักษาการในตำแหน่ง (เฉพาะเส้นทาง GATE_TRACK) — ไม่เปลี่ยนสถานะหลัก (การเริ่มนับ 180 วันต้องกด "อัพเดทสถานะ" เป็น b1_acting) ; p = { file | link, note } */
+function apiActingAdd_(token, id, p) {
+  var u = auth_(token); p = p || {};
+  var it = findSub_(str_(id)); if (!it) throw new Error('ไม่พบรายการ');
+  if (!gateOn_(it.track)) throw new Error('คำสั่งรักษาการในตำแหน่งใช้เฉพาะเส้นทาง ' + GATE_TRACK);
+  if (stageObj_(it.status).end) throw new Error('รายการนี้ปิดเคส/ยกเลิกแล้ว ไม่สามารถแนบไฟล์เพิ่มได้');
+  var note = str_(p.note).replace(/\r/g, '').slice(0, 200), link = str_(p.link);
+  if (link && !/^https?:\/\//i.test(link)) throw new Error('ลิงก์ต้องขึ้นต้นด้วย http:// หรือ https://');
+  if (!(p.file && p.file.data) && !link) throw new Error('กรุณาแนบไฟล์หรือใส่ลิงก์');
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    if (attRows_().filter(function (a) { return a.id === it.id; }).length >= ATT_MAX) throw new Error('แนบไฟล์ครบ ' + ATT_MAX + ' รายการแล้ว');
+    var up = (p.file && p.file.data) ? saveUpload_(p.file, SUBMIT_EXT, false) : null;
+    sheet_('ATT').appendRow([it.id, now_(), 'acting', '', up ? up.name : 'ลิงก์ภายนอก', up ? up.url : link, u.n, note, 'Y']);
+    log_('acting_add', u.u, 'success', it.id);
+  } finally { lock.releaseLock(); }
+  return { act: attRows_().filter(function (a) { return a.id === it.id && a.kind === 'acting'; }).length };
+}
+/* ลบหนังสือคำสั่งรักษาการที่แนบผิด (ลบเฉพาะแถวชนิด acting ของรายการนี้) */
+function apiActingDel_(token, id, row) {
+  var u = auth_(token); id = str_(id); row = +row;
+  var a = attRows_().filter(function (x) { return x.row === row && x.id === id && x.kind === 'acting'; })[0];
+  if (!a) throw new Error('ไม่พบไฟล์ที่ต้องการลบ (ข้อมูลอาจเปลี่ยนแล้ว กรุณาเปิดใหม่)');
+  sheet_('ATT').deleteRow(a.row);
+  log_('acting_del', u.u, 'success', id + ' ' + a.name);
+  return { act: attRows_().filter(function (x) { return x.id === id && x.kind === 'acting'; }).length };
 }
 /* เจ้าหน้าที่ดูไฟล์แนบของรายการ (มีลิงก์) และทำเครื่องหมายว่าอ่านแล้ว */
 function apiAttList_(token, id) {
@@ -1252,13 +1090,13 @@ function apiAttList_(token, id) {
   if (!findSub_(id)) throw new Error('ไม่พบรายการ');
   var sh = sheet_('ATT'), rows = attRows_().filter(function (a) { return a.id === id; });
   rows.forEach(function (a) { if (a.read !== 'Y') sh.getRange(a.row, 9).setValue('Y'); });
-  return { rows: rows.map(function (a) { return { t: a.t, kind: a.kind, round: a.round, name: a.name, url: a.url, by: a.by, note: a.note, isNew: a.read !== 'Y' }; }).reverse() };
+  return { rows: rows.map(function (a) { return { row: a.row, t: a.t, kind: a.kind, round: a.round, name: a.name, url: a.url, by: a.by, note: a.note, isNew: a.read !== 'Y' }; }).reverse() };
 }
 /* ประวัติสถานะของรายการ (ใช้แสดงรอบการแก้ไขในหน้าอัพเดทสถานะของเจ้าหน้าที่) */
 function apiHistory_(token, id) {
   auth_(token);
   if (!findSub_(id)) throw new Error('ไม่พบรายการ');
-  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? hisSort_(his.getRange(2, 1, his.getLastRow() - 1, 5).getValues()) : [];
+  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? hisSort_(V_(his.getRange(2, 1, his.getLastRow() - 1, 5))) : [];
   return { history: hv.filter(function (h) { return str_(h[0]) === id; }).map(function (h) { return { t: str_(h[1]), s: normKey_(str_(h[2])), n: str_(h[3]), by: str_(h[4]) }; }), att: attPublic_(attRows_(), id), nowMs: Date.now() };
 }
 /* แก้ไขเวลาของขั้นตอนหนึ่งในประวัติ (เช่น แก้ให้ตรงวันที่ตามเอกสาร)
@@ -1321,7 +1159,7 @@ function apiAdminRestore_(token, id, p) {
   var cur = findSub_(id);
   if (!cur) throw new Error('ไม่พบรายการ');
   if (cur.status !== 'cancelled') throw new Error('รายการนี้ไม่ได้อยู่ในสถานะยกเลิก');
-  var sh = sheet_('HIS'), hv = sh.getLastRow() > 1 ? hisSort_(sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues()) : [], prev = '';
+  var sh = sheet_('HIS'), hv = sh.getLastRow() > 1 ? hisSort_(V_(sh.getRange(2, 1, sh.getLastRow() - 1, 3))) : [], prev = '';
   hv.forEach(function (h) { if (str_(h[0]) !== id) return; var k = normKey_(str_(h[2])); if (k !== 'cancelled' && stageOk_(k)) prev = k; });
   if (!prev) prev = 'b1_submit';
   var r = statusCore_(u, id, { status: prev, note: 'กู้คืนรายการที่ยกเลิก' + (str_(p.detail) ? ' — ' + str_(p.detail).slice(0, 200) : ''), sendLine: p.sendLine === true }, true);
@@ -1332,15 +1170,15 @@ function apiAdminRestore_(token, id, p) {
 function rowsOfId_(sh, ncol, id) {
   var n = sh.getLastRow(); if (n < 2) return [];
   var out = [];
-  sh.getRange(2, 1, n - 1, ncol).getValues().forEach(function (r, i) { if (str_(r[0]) === id) out.push({ row: i + 2, vals: r.map(str_) }); });
+  V_(sh.getRange(2, 1, n - 1, ncol)).forEach(function (r, i) { if (str_(r[0]) === id) out.push({ row: i + 2, vals: r.map(str_) }); });
   return out;
 }
 function delRows_(sh, list) { list.slice().sort(function (a, b) { return b.row - a.row; }).forEach(function (o) { sh.deleteRow(o.row); }); }
 function vals_(list) { return list.map(function (o) { return o.vals; }); }
 /* รหัสที่เคยใช้แล้ว (ยังมีประวัติหรืออยู่ในถังขยะ) — กันออกรหัสใหม่ซ้ำแล้วไปรับประวัติเก่า */
 function usedIds_(taken) {
-  var h = sheet_('HIS'), n = h.getLastRow(); if (n > 1) h.getRange(2, 1, n - 1, 1).getValues().forEach(function (r) { taken[str_(r[0])] = 1; });
-  var t = sheet_('TRASH'), m = t.getLastRow(); if (m > 1) t.getRange(2, 3, m - 1, 1).getValues().forEach(function (r) { taken[str_(r[0])] = 1; });
+  var h = sheet_('HIS'), n = h.getLastRow(); if (n > 1) V_(h.getRange(2, 1, n - 1, 1)).forEach(function (r) { taken[str_(r[0])] = 1; });
+  var t = sheet_('TRASH'), m = t.getLastRow(); if (m > 1) V_(t.getRange(2, 3, m - 1, 1)).forEach(function (r) { taken[str_(r[0])] = 1; });
 }
 function apiAdminDelete_(token, id, p) {
   var u = auth_(token, true); id = str_(id);
@@ -1352,7 +1190,7 @@ function apiAdminDelete_(token, id, p) {
     if (!cur) throw new Error('ไม่พบรายการ');
     var sSub = sheet_('SUB'), sHis = sheet_('HIS'), sAtt = sheet_('ATT'), sQa = sheet_('QA');
     var dup = subs_().filter(function (r) { return r.id === id; }).length > 1;   /* มีแถวรหัสเดียวกันซ้ำ (เช่นแบ็กอัพซ้ำ) → ลบเฉพาะแถวนี้ ไม่แตะประวัติ */
-    var rs = [{ row: cur.row, vals: sSub.getRange(cur.row, 1, 1, KEYS.length).getValues()[0].map(str_) }];
+    var rs = [{ row: cur.row, vals: V_(sSub.getRange(cur.row, 1, 1, KEYS.length))[0].map(str_) }];
     var rh = dup ? [] : rowsOfId_(sHis, 5, id), ra = dup ? [] : rowsOfId_(sAtt, 9, id), rq = dup ? [] : rowsOfId_(sQa, 7, id);
     var cells = [JSON.stringify(rs[0].vals), JSON.stringify(vals_(rh)), JSON.stringify(vals_(ra)), JSON.stringify(vals_(rq))];
     cells.forEach(function (c) { if (c.length > 49000) throw new Error('ข้อมูลของรายการนี้มากเกินกว่าจะสำรองลงถังขยะได้ (ประวัติ/ถามตอบยาวมาก) — กรุณาสำเนาแท็บเก็บไว้ก่อน แล้วลบด้วยตนเอง'); });
@@ -1364,7 +1202,7 @@ function apiAdminDelete_(token, id, p) {
 }
 function trashRows_() {
   var s = sheet_('TRASH'), n = s.getLastRow(); if (n < 2) return [];
-  return s.getRange(2, 1, n - 1, 11).getValues().map(function (r, i) {
+  return V_(s.getRange(2, 1, n - 1, 11)).map(function (r, i) {
     return { row: i + 2, t: str_(r[0]), by: str_(r[1]), id: str_(r[2]), name: str_(r[3]), status: normKey_(str_(r[4])), reason: str_(r[5]), sub: str_(r[6]), his: str_(r[7]), att: str_(r[8]), qa: str_(r[9]), restored: str_(r[10]) };
   });
 }
@@ -1425,7 +1263,7 @@ function cleanOrphans() {
   var spec = [['HIS', 5, 'his'], ['ATT', 9, 'att'], ['QA', 7, 'qa']], by = {}, del = [];
   spec.forEach(function (sp) {
     var sh = sheet_(sp[0]), n = sh.getLastRow(); if (n < 2) return;
-    sh.getRange(2, 1, n - 1, sp[1]).getValues().forEach(function (r, i) {
+    V_(sh.getRange(2, 1, n - 1, sp[1])).forEach(function (r, i) {
       var id = str_(r[0]); if (!id || ids[id]) return;
       (by[id] = by[id] || { his: [], att: [], qa: [] })[sp[2]].push(r.map(str_)); del.push({ sh: sh, row: i + 2 });
     });
@@ -1448,17 +1286,58 @@ function apiUsersList_(token) {
   if (!users.some(function (x) { return x.username === 'admin'; })) users.unshift({ username: 'admin', name: 'ผู้ดูแลระบบ (บัญชีหลัก)', role: 'admin', active: true, cid: '', builtin: true });
   return { users: users };
 }
+/* หน้าแอดมิน LINE (ผูกให้): ค้นชื่อ-นามสกุลเพื่อหาเลขบัตร — รวมทะเบียน allstaff + ผู้ที่ยื่นอวช (apiLineAdd_ รับได้ทั้งสองแหล่ง) ตัดซ้ำตามเลขบัตร
+ * คืนเลขบัตรเต็มเฉพาะผู้ดูแล (auth_ admin) · linked = จำนวนบัญชี LINE ที่ผูกอยู่แล้ว (1 คนผูกได้สูงสุด 3 บัญชี จึงไม่ซ่อน แต่ติดป้ายให้เห็น) */
+function apiLineCidFind_(token, q) {
+  auth_(token, true); q = str_(q).toLowerCase().replace(/\s+/g, ''); if (q.length < 2) return { rows: [] };
+  var out = [], seen = {}, linked = {};
+  lnuRows_().forEach(function (r) { if (r.active) linked[r.cid] = (linked[r.cid] || 0) + 1; });
+  function add(cid, name, position, group, src) {
+    if (out.length >= 20 || seen[cid] || !validCid_(cid)) return;
+    if ((name.replace(/\s+/g, '') + cid).toLowerCase().indexOf(q) < 0) return;
+    seen[cid] = 1; out.push({ cid: cid, name: name.trim(), position: position, group: group, src: src, linked: linked[cid] || 0 });
+  }
+  var s = ss_().getSheetByName(SH.STAFF);
+  if (s && s.getLastRow() > 1) {
+    var c = staffCols_(s), v = s.getRange(2, 1, s.getLastRow() - 1, c.w).getValues();
+    for (var i = 0; i < v.length; i++) add(digits_(v[i][c.cid]), str_(v[i][c.prefix]) + str_(v[i][c.first]) + ' ' + str_(v[i][c.last]), str_(v[i][c.position]), str_(v[i][c.group]), 'allstaff');
+  }
+  subs_().forEach(function (r) { add(r.cid, r.prefix + r.first + ' ' + r.last, r.position, r.group, 'ยื่นอวช'); });
+  return { rows: out };
+}
 /* ค้นหาบุคลากรจากชีท allstaff (อ่านอย่างเดียว — ระบบนี้ไม่เขียน/แก้ไขชีท allstaff เด็ดขาด) ไว้อ้างอิงตอนสร้างผู้ใช้ */
 function apiStaffSearch_(token, q) {
   auth_(token, true); q = str_(q).toLowerCase().replace(/\s+/g, ''); if (q.length < 2) return { rows: [] };
   var s = ss_().getSheetByName(SH.STAFF); if (!s || s.getLastRow() < 2) return { rows: [] };
-  var v = s.getRange(2, 1, s.getLastRow() - 1, 34).getValues(), out = [];
+  var c = staffCols_(s), v = s.getRange(2, 1, s.getLastRow() - 1, c.w).getValues(), out = [];
   for (var i = 0; i < v.length && out.length < 20; i++) {
-    var cid = digits_(v[i][32]); if (cid.length !== 13) continue;
-    var nm = str_(v[i][1]) + str_(v[i][2]) + ' ' + str_(v[i][3]);
-    if ((nm.replace(/\s+/g, '') + cid).toLowerCase().indexOf(q) > -1) out.push({ cid: cid, name: nm, position: str_(v[i][4]), group: str_(v[i][19]) });
+    var cid = digits_(v[i][c.cid]); if (cid.length !== 13) continue;
+    var nm = str_(v[i][c.prefix]) + str_(v[i][c.first]) + ' ' + str_(v[i][c.last]);
+    if ((nm.replace(/\s+/g, '') + cid).toLowerCase().indexOf(q) > -1) out.push({ cid: cid, name: nm, position: str_(v[i][c.position]), group: str_(v[i][c.group]) });
   }
   return { rows: out };
+}
+/* ค้นหาชื่อจากทะเบียนบุคลากร (allstaff) ขณะผู้ยื่นพิมพ์ ชื่อ/นามสกุล ในหน้ายื่นเอกสาร (สาธารณะ ไม่ต้องล็อกอิน)
+ * p = { first, last, k } · ตรงเมื่อ "ขึ้นต้นด้วย" คำที่พิมพ์ (อย่างน้อย 2 ตัวอักษรในช่องใดช่องหนึ่ง) · คืนสูงสุด 8 รายการ
+ * ความเป็นส่วนตัว: ไม่คืนเลขบัตรประชาชน/เบอร์โทร/วันเกิด — คืนเฉพาะ คำนำหน้า ชื่อ นามสกุล ตำแหน่ง ระดับ กลุ่มงาน เลขที่ตำแหน่ง · จำกัดความถี่ต่อเบราว์เซอร์ (k) และรวมทั้งระบบ */
+function apiStaffPick_(p) {
+  p = p || {};
+  function nk(x) { return str_(x).replace(/\s+/g, '').toLowerCase(); }
+  var f = nk(p.first), l = nk(p.last);
+  if (f.length < 2 && l.length < 2) return { rows: [] };
+  if (f.length > 40 || l.length > 40) return { rows: [] };
+  var k = str_(p.k).replace(/[^\w\-]/g, '').slice(0, 40) || 'x';
+  if (!rateOk_('sp_' + k, 120, 600) || !rateOk_('sp_all', 1500, 600)) throw new Error('ค้นหาถี่เกินไป กรุณารอสักครู่แล้วพิมพ์ต่อ');
+  var s = ss_().getSheetByName(SH.STAFF); if (!s || s.getLastRow() < 2) return { rows: [] };
+  var c = staffCols_(s), v = s.getRange(2, 1, s.getLastRow() - 1, c.w).getValues(), out = [], more = false;
+  for (var i = 0; i < v.length; i++) {
+    var fn = nk(v[i][c.first]), ln = nk(v[i][c.last]); if (!fn || !ln) continue;     // ข้ามตำแหน่งว่าง (ไม่มีผู้ครอง)
+    if (f.length >= 2 && fn.indexOf(f) !== 0) continue;
+    if (l.length >= 2 && ln.indexOf(l) !== 0) continue;
+    if (out.length >= 8) { more = true; break; }
+    out.push({ prefix: str_(v[i][c.prefix]), first: str_(v[i][c.first]), last: str_(v[i][c.last]), position: str_(v[i][c.position]), level: str_(v[i][c.level]), group: str_(v[i][c.group]), posNo: str_(v[i][c.posNo]) });
+  }
+  return { rows: out, more: more };
 }
 /* สร้างผู้ใช้: อ้างอิงบุคลากรจาก allstaff (ต้องมีเลขบัตรในทะเบียน) แต่เก็บบัญชีในแท็บ Users แยกต่างหาก — ชื่อคัดลอกเป็นสำเนา การแก้ไขผู้ใช้ไม่กระทบ allstaff */
 function apiUserAdd_(token, p) {
@@ -1515,114 +1394,18 @@ function apiLogList_(token) {
   auth_(token, true);
   var s = sheet_('LOG'), n = s.getLastRow();
   if (n < 2) return { rows: [] };
-  var from = Math.max(2, n - 199);
-  return { rows: s.getRange(from, 1, n - from + 1, 5).getValues().map(function (r) { return r.map(str_); }).reverse() };
+  var from = Math.max(2, n - 599);   // อ่านย้อนหลัง 600 แถว แล้วเรียงตามเวลาจริง ใหม่สุดขึ้นก่อน แสดง 200 รายการ
+  var rows = V_(s.getRange(from, 1, n - from + 1, 5)).map(function (r) { return r.map(str_); });
+  return { rows: sortByTime_(rows, function (r) { return r[0]; }).reverse().slice(0, 200) };
 }
 
-/* ======================================================================
- *  LINE: ผู้ยื่น (สาธารณะ) — ขอรหัสผูกบัญชี
- * ====================================================================== */
-function phonesOf_(cid) {
-  var st = staffByCid_(cid);
-  if (st) return digits_(st.phone).length >= 4 ? [digits_(st.phone)] : [];   // บุคลากรใน allstaff: ใช้เบอร์ในทะเบียนเท่านั้น (กันผู้อื่นยื่นเอกสารแล้วใส่เบอร์ตัวเองเพื่อผูก LINE แทน)
-  var first = subs_().filter(function (r) { return r.cid === cid && digits_(r.phone).length >= 4; })[0];   // ไม่อยู่ใน allstaff: ใช้เบอร์จากการยื่นครั้งแรกเท่านั้น
-  return first ? [digits_(first.phone)] : [];
-}
-/* ยืนยันตัวตน 2 ปัจจัย: เลขบัตร + เลข 4 ตัวท้ายของเบอร์โทรที่มีในระบบ (ป้องกันผู้อื่นผูก LINE แทนเจ้าของ) */
-function apiLineLinkReq_(cidRaw, last4) {
-  if (!lineEnabled_()) throw new Error('ระบบ LINE ยังไม่เปิดใช้งาน กรุณาติดต่อ HR');
-  var cid = digits_(cidRaw), l4 = digits_(last4);
-  if (cid.length !== 13 || l4.length !== 4) throw new Error('กรุณากรอกเลขบัตร 13 หลัก และเลขท้ายเบอร์โทร 4 หลัก');
-  if (!rateOk_('lr_' + cid, 5, 900)) throw new Error('ขอรหัสบ่อยเกินไป กรุณารอ 15 นาที');
-  var known = !!staffByCid_(cid) || subs_().some(function (r) { return r.cid === cid; });
-  var ph = phonesOf_(cid);
-  if (!known || !ph.some(function (p) { return p.slice(-4) === l4; })) {
-    log_('line_linkreq', '', 'fail', 'cid …' + cid.slice(-4));
-    throw new Error(known && !ph.length ? 'ยังไม่มีเบอร์โทรของท่านในระบบ กรุณาติดต่อ HR เพื่อผูกบัญชี LINE' : 'ข้อมูลไม่ตรงกับในระบบ กรุณาตรวจสอบเลขบัตรและเลขท้ายเบอร์โทร');
-  }
-  var c = CacheService.getScriptCache(), code = '';
-  for (var i = 0; i < 8; i++) { code = ('00000' + Math.floor(Math.random() * 1000000)).slice(-6); if (!c.get('lc_' + code)) break; }
-  c.put('lc_' + code, cid, 600);
-  log_('line_linkreq', '', 'success', 'cid …' + cid.slice(-4));
-  return { code: code, ttl: 600, oaLink: lineOaLink_(), oaId: prop_('LINE_OA_ID') };
-}
-function apiLineLinkCheck_(code) {
-  code = digits_(code);
-  if (code.length !== 6) return { state: 'invalid' };
-  var c = CacheService.getScriptCache();
-  if (c.get('lk_' + code)) return { state: 'linked' };
-  return { state: c.get('lc_' + code) ? 'pending' : 'expired' };
-}
-
-/* ======================================================================
- *  LINE: เจ้าหน้าที่ HR
- * ====================================================================== */
-/* ข้อมูล LINE ของรายการเดียว: ผู้รับ + ประวัติการแจ้งเตือน/การกดทั้งหมด */
-function apiLineInfo_(token, id) {
-  auth_(token);
-  var cur = findSub_(id);
-  if (!cur) throw new Error('ไม่พบรายการ');
-  var users = lnuRows_().filter(function (r) { return r.cid === cur.cid && r.active; });
-  var log = lnlRows_().filter(function (r) { return r.id === id || (!r.id && r.cid === cur.cid); }).reverse().slice(0, 40);
-  return { enabled: lineEnabled_(), linked: users.length, names: users.map(function (r) { return r.name || 'LINE'; }), log: log, status: cur.status, note: cur.note };
-}
-/* กดแจ้งเตือน: mode=status (ส่งการ์ดสถานะปัจจุบัน) | text (ข้อความที่พิมพ์/สำเร็จรูป) + แนบไฟล์ได้ */
-function apiLineSend_(token, id, p) {
-  var u = auth_(token); p = p || {};
-  var cur = findSub_(id);
-  if (!cur) throw new Error('ไม่พบรายการ');
-  var type = p.kind === 'manual' ? 'manual' : 'typed', mode = p.mode === 'status' ? 'status' : 'text', text = str_(p.text);
-  if (mode === 'text') { if (!text) throw new Error('กรุณาพิมพ์ข้อความ'); if (text.length > 1000) throw new Error('ข้อความยาวเกิน 1,000 ตัวอักษร'); }
-  else { type = 'manual'; text = 'ส่งสถานะปัจจุบัน: ' + stageLabel_(cur); }
-  if (!rateOk_('ls_' + id, 10, 3600)) throw new Error('ส่งแจ้งเตือนรายการนี้ครบ 10 ครั้ง/ชั่วโมงแล้ว กรุณารอสักครู่');
-  if (!rateOk_('ld_' + id + Utilities.base64Encode(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, text + (p.file && p.file.name || ''))).slice(0, 10), 1, 15)) throw new Error('ข้อความเดียวกันเพิ่งถูกส่งไป กรุณารอสักครู่');
-  var pre = linePre_(cur.cid, id, type, u.n, text);
-  if (!pre.ok) throw new Error(pre.msg);
-  var up = (p.file && p.file.data) ? saveUpload_(p.file, LINE_EXT, true) : null;
-  var msgs = [mode === 'status' ? flexStatus_(cur, 'แจ้งสถานะปัจจุบัน') : flexText_(cur, text)];
-  if (up && up.shared) msgs.push(flexFile_(up));
-  var r = lineSend_(pre.users, cur.cid, id, type, u.n, msgs, text, up);
-  log_('line_send', u.u, r.sent ? 'success' : 'fail', id + ' ' + type + (up ? ' +file' : ''));
-  if (!r.sent) throw new Error('ส่งไม่สำเร็จ: ' + (r.errors[0] || 'ไม่ทราบสาเหตุ'));
-  return { sent: r.sent, failed: r.failed, file: up ? { name: up.name, url: up.url, shared: up.shared } : null };
-}
-/* ภาพรวม LINE (ผู้ดูแลระบบ): ผู้ใช้ที่ผูกแล้ว + ประวัติการแจ้งเตือนทั้งหมด */
-function apiLineAdmin_(token) {
-  auth_(token, true);
-  var users = lnuRows_().reverse().map(function (r) { return { cid: r.cid, uid: r.uid, name: r.name, at: r.at, via: r.via, active: r.active }; });
-  return { enabled: lineEnabled_(), users: users, log: lnlRows_(500).reverse() };
-}
-function apiLineCheck_(token) {
-  auth_(token, true);
-  var out = { token: false, bot: null, error: '', webhookUrl: '', siteUrl: siteUrl_(), oaId: prop_('LINE_OA_ID') };
-  try { out.webhookUrl = ScriptApp.getService().getUrl() + '?k=' + webhookKey_(); } catch (e) {}
-  if (!lineEnabled_()) { out.error = 'ยังไม่ได้ตั้งค่า LINE_CHANNEL_ACCESS_TOKEN ใน Script Properties'; return out; }
-  var r = lineCall_('get', '/v2/bot/info');
-  if (r.ok) { out.token = true; out.bot = { name: str_(r.data.displayName), id: str_(r.data.basicId) }; } else out.error = r.err;
-  return out;
-}
-function apiLineUnlink_(token, cid, uid) {
-  var u = auth_(token, true), n = unlinkLine_(digits_(cid), str_(uid));
-  lineLog_('', digits_(cid), 'link', u.n, 'ผู้ดูแลยกเลิกการผูก', null, 'info', '');
-  log_('line_unlink', u.u, 'success', 'cid …' + digits_(cid).slice(-4));
-  return { n: n };
-}
-function apiLineAdd_(token, cid, uid) {
-  var u = auth_(token, true); cid = digits_(cid); uid = str_(uid);
-  if (!/^U[0-9a-f]{32}$/i.test(uid)) throw new Error('LINE userId ต้องขึ้นต้นด้วย U ตามด้วยตัวอักษร 32 ตัว');
-  if (!validCid_(cid) || !(staffByCid_(cid) || subs_().some(function (r) { return r.cid === cid; }))) throw new Error('ไม่พบเลขบัตรนี้ในระบบ');
-  linkLine_(cid, uid, lineProfile_(uid), 'admin:' + u.u);
-  lineLog_('', cid, 'link', u.n, 'ผู้ดูแลผูกบัญชีให้', null, 'success', '');
-  log_('line_add', u.u, 'success', 'cid …' + cid.slice(-4));
-  return {};
-}
 
 /* ======================================================================
  *  ถาม-ตอบ (two-way): ผู้ยื่น ↔ เจ้าหน้าที่ — เฉพาะสาระสำคัญของรายการนั้น (จำกัด 500 ตัวอักษร / รอตอบได้ไม่เกิน 3 ข้อความ)
  * ====================================================================== */
 function qaRows_() {
   var s = sheet_('QA'), n = s.getLastRow(); if (n < 2) return [];
-  return s.getRange(2, 1, n - 1, 7).getValues().map(function (r, i) { return { row: i + 2, id: str_(r[0]), t: str_(r[1]), from: str_(r[2]), by: str_(r[3]), m: str_(r[4]), read: str_(r[5]), via: str_(r[6]) }; });
+  return V_(s.getRange(2, 1, n - 1, 7)).map(function (r, i) { return { row: i + 2, id: str_(r[0]), t: str_(r[1]), from: str_(r[2]), by: str_(r[3]), m: str_(r[4]), read: str_(r[5]), via: str_(r[6]) }; });
 }
 function qthread_(all, id) { return all.filter(function (m) { return m.id === id; }).slice(-40).map(function (m) { return { t: m.t, from: m.from, by: m.by, m: m.m }; }); }
 function qaOpen_(th) { var c = 0; th.forEach(function (m) { c = m.from === 'applicant' ? c + 1 : 0; }); return c; }
@@ -1636,7 +1419,7 @@ function qaAdd_(it, from, by, text, via) {
     if (qaOpen_(th) >= 3) throw new Error('ท่านมี 3 ข้อความที่ยังรอเจ้าหน้าที่ตอบ กรุณารอคำตอบก่อนส่งเพิ่ม');
     if (lastM && lastM.from === 'applicant' && lastM.m === text) throw new Error('ข้อความนี้ถูกส่งไปแล้ว');
   }
-  sheet_('QA').appendRow([it.id, now_(), from, by, text, 'N', via || 'web']);
+  appendText_(sheet_('QA'), [it.id, now_(), from, by, text, 'N', via || 'web']);
 }
 function apiQaAsk_(cidRaw, id, text) {
   var cid = digits_(cidRaw), it = findSub_(str_(id));
@@ -1661,86 +1444,855 @@ function apiQaReply_(token, id, text) {
   return { thread: qthread_(qaRows_(), id), line: line };
 }
 
+
+
+
 /* ======================================================================
- *  ระบบสำรอง: รายชื่อผู้เพิ่มเพื่อน LINE ที่ยังไม่ผูก (เจ้าหน้าที่ผูกให้เอง) — เสนอชื่อผู้ยื่นที่น่าจะตรงจากชื่อ LINE
+ *  แบบประเมินความพึงพอใจ (ผู้ยื่น + เจ้าหน้าที่) — บังคับก่อนปิดเคส
+ *  ลำดับ: เจ้าหน้าที่กด "ปิดเคส" → ประเมิน → สถานะ closing (รอผู้ยื่นประเมิน, ส่ง LINE/เว็บ)
+ *         → ผู้ยื่นประเมิน → ระบบเปลี่ยนเป็น promoted (ปิดเคส) ให้เอง
+ *  เจ้าหน้าที่: ประเมินเต็ม 16 ข้อ เดือนละ 1 ครั้งต่อคน ครั้งอื่นในเดือนเดียวกันให้คะแนนรวม 1 ข้อ (ข้อ 15) + ความเห็นสั้น ๆ
  * ====================================================================== */
-function apiLinePending_(token) {
-  auth_(token, true);
-  var s = sheet_('LNP'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 6).getValues() : [], linked = {};
-  lnuRows_().forEach(function (r) { if (r.active) linked[r.cid] = 1; });
-  var cand = subs_().filter(function (r) { return !linked[r.cid]; });
-  var rows = v.map(function (r) { return { uid: str_(r[0]), name: str_(r[1]), at: str_(r[2]), last: str_(r[3]), st: str_(r[4]) }; })
-    .filter(function (r) { return r.st === 'pending'; }).reverse().slice(0, 100);
-  rows.forEach(function (r) {
-    var nm = r.name.replace(/\s+/g, ''), seen = {}; r.cands = [];
-    if (nm.length < 2) return;
-    cand.forEach(function (c) { if (r.cands.length < 3 && !seen[c.cid] && ((c.first && nm.indexOf(c.first) > -1) || (c.last && nm.indexOf(c.last) > -1))) { seen[c.cid] = 1; r.cands.push({ cid: c.cid, name: c.prefix + c.first + ' ' + c.last, id: c.id }); } });
+var SV_EXP = ['น้อยกว่า 1 เดือน', '1–6 เดือน', '6–12 เดือน', '1 ปีขึ้นไป'];
+var SV_Q = [
+  'เว็บแอปพลิเคชันมีขั้นตอนการใช้งานที่เข้าใจง่าย', 'เมนูและฟังก์ชันต่าง ๆ จัดวางอย่างเป็นระเบียบและค้นหาได้ง่าย',
+  'สามารถเรียนรู้และเริ่มใช้งานเว็บแอปพลิเคชันได้โดยไม่ยุ่งยาก', 'สามารถใช้งานเว็บแอปพลิเคชันได้อย่างสะดวกผ่านอุปกรณ์ที่ใช้',
+  'เว็บแอปพลิเคชันตอบสนองต่อการใช้งานได้รวดเร็ว', 'ระบบสามารถทำงานได้ตามฟังก์ชันที่กำหนด',
+  'ระบบมีความเสถียรและไม่เกิดข้อผิดพลาดระหว่างใช้งานบ่อยครั้ง', 'ระบบสามารถบันทึก แสดงผล หรือประมวลผลข้อมูลได้อย่างถูกต้อง',
+  'ข้อมูลที่แสดงในระบบมีความชัดเจนและเข้าใจง่าย', 'รูปแบบการนำเสนอข้อมูลมีความเป็นระเบียบและเหมาะสม',
+  'ข้อมูลที่ได้รับจากระบบมีประโยชน์ต่อการปฏิบัติงาน', 'การแสดงผลบนหน้าจอมีความเหมาะสมและอ่านได้สะดวก',
+  'เว็บแอปพลิเคชันช่วยลดขั้นตอนหรือระยะเวลาในการปฏิบัติงาน', 'เว็บแอปพลิเคชันช่วยเพิ่มความสะดวกในการปฏิบัติงาน',
+  'โดยรวมแล้ว ท่านมีความพึงพอใจต่อการใช้งานเว็บแอปพลิเคชัน', 'ท่านมีความประสงค์ที่จะใช้งานเว็บแอปพลิเคชันนี้ต่อไป'];
+var SV_ASPECTS = [
+  { t: 'ความสะดวกและง่ายต่อการใช้งาน', q: [0, 1, 2, 3] }, { t: 'ประสิทธิภาพและการทำงานของระบบ', q: [4, 5, 6, 7] },
+  { t: 'คุณภาพของข้อมูลและการแสดงผล', q: [8, 9, 10, 11] }, { t: 'ประโยชน์และความพึงพอใจโดยรวม', q: [12, 13, 14, 15] }];
+var SV_QUICK_Q = 14;   // ดัชนีข้อ 15 (โดยรวมแล้ว ท่านมีความพึงพอใจ...)
+var SV_ROLE = { applicant: 'ผู้ยื่น อวช.', admin: 'เจ้าหน้าที่ (ผู้ใช้งานระบบ)' };
+
+function svRows_() {
+  var sh = sheet_('SV'), n = sh.getLastRow(); if (n < 2) return [];
+  return V_(sh.getRange(2, 1, n - 1, HEAD.SV.length)).map(function (r, i) {
+    var q = []; for (var k = 0; k < 16; k++) { var v = r[6 + k]; q.push(v === '' || v == null ? null : +v); }
+    return { row: i + 2, id: str_(r[0]), t: str_(r[1]), role: str_(r[2]), who: str_(r[3]), exp: str_(r[4]), mode: str_(r[5]), q: q, avg: str_(r[22]), c: [str_(r[23]), str_(r[24]), str_(r[25])] };
   });
-  return { rows: rows };
+}
+function svHas_(id, role) { return svRows_().some(function (r) { return r.id === id && r.role === role; }); }
+/* เจ้าหน้าที่: ประเมินเต็มได้เดือนละครั้ง (นับจากเวลาที่บันทึก) ครั้งอื่นให้แบบสั้น */
+function svMode_(u) {
+  var ym = now_().slice(0, 7);
+  return svRows_().some(function (r) { return r.role === 'admin' && r.who === u.u && r.mode === 'full' && r.t.slice(0, 7) === ym; }) ? 'quick' : 'full';
+}
+function svClean_(sv, mode) {
+  sv = sv || {};
+  var q = [], i, c = [0, 1, 2].map(function (k) { return str_((sv.c || [])[k]).slice(0, 500); });
+  if (mode === 'quick') {
+    var n = +sv.quick; if (!(n >= 1 && n <= 5) || n !== Math.floor(n)) throw new Error('กรุณาให้คะแนนความพึงพอใจโดยรวม (1-5)');
+    for (i = 0; i < 16; i++) q.push(i === SV_QUICK_Q ? n : '');
+    return { exp: '', q: q, avg: n, c: c };
+  }
+  if (!Array.isArray(sv.q) || sv.q.length !== 16) throw new Error('กรุณาตอบแบบประเมินให้ครบ 16 ข้อ');
+  var sum = 0;
+  for (i = 0; i < 16; i++) { var v = +sv.q[i]; if (!(v >= 1 && v <= 5) || v !== Math.floor(v)) throw new Error('กรุณาให้คะแนนข้อ ' + (i + 1) + ' (1-5)'); q.push(v); sum += v; }
+  var e = +sv.exp; if (!(e >= 0 && e < SV_EXP.length) || e !== Math.floor(e)) throw new Error('กรุณาเลือกประสบการณ์การใช้งานเว็บแอปพลิเคชัน');
+  return { exp: SV_EXP[e], q: q, avg: Math.round(sum / 16 * 100) / 100, c: c };
+}
+/* บันทึกแบบประเมิน (1 ชุดต่อบทบาทต่อเคส) — คืน false ถ้ามีอยู่แล้ว */
+function svSave_(id, role, who, sv, mode, at) {
+  var d = svClean_(sv, mode), lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    if (svHas_(id, role)) return false;
+    appendText_(sheet_('SV'), [id, at || now_(), role, who, d.exp, mode].concat(d.q, [d.avg], d.c));
+    return true;
+  } finally { lock.releaseLock(); }
+}
+function apiSurveyInfo_(token, id) {
+  var u = auth_(token); id = str_(id);
+  return { mode: svMode_(u), haveAdmin: svHas_(id, 'admin'), haveApplicant: svHas_(id, 'applicant') };
+}
+/* เจ้าหน้าที่กด "ปิดเคส": บันทึกแบบประเมินของเจ้าหน้าที่ → สถานะ closing → ส่งให้ผู้ยื่นประเมิน */
+function apiCloseRequest_(token, id, sv, note) {
+  var u = auth_(token); id = str_(id);
+  var cur = findSub_(id); if (!cur) throw new Error('ไม่พบรายการ');
+  if (cur.status === 'closing') throw new Error('รายการนี้อยู่ระหว่างรอผู้ยื่นประเมินแล้ว');
+  if (cur.status !== 'cmd_gov' && cur.status !== 'cmd_gov_ok') throw new Error('ปิดเคสได้เมื่อรายการอยู่ในขั้น "ผู้ว่าราชการจังหวัดลงนาม (คำสั่งเลื่อนระดับ)" เท่านั้น');
+  if (!svHas_(id, 'admin')) {
+    if (!sv) throw new Error('ต้องประเมินความพึงพอใจก่อนจึงจะปิดเคสได้');
+    svSave_(id, 'admin', u.u, sv, svMode_(u));
+  }
+  var cg = str_(note).replace(/\r/g, '').slice(0, 500);   // คำยินดี/หมายเหตุถึงผู้ยื่น (แนบไปกับการ์ดแบบประเมินทาง LINE และแสดงในหน้าติดตาม)
+  statusCore_(u, id, { status: 'closing', note: cg || 'เจ้าหน้าที่ประเมินแล้ว — รอผู้ยื่นประเมินความพึงพอใจเพื่อปิดเคส', sendLine: false }, true);
+  log_('survey_admin', u.u, 'success', id);
+  return { status: 'closing', line: svNotify_(findSub_(id), false, cg) };
+}
+/* ผู้ยื่น (ยืนยันด้วยเลขบัตรฯ ของรายการนั้น) ประเมิน → ระบบปิดเคสให้ */
+function apiSurveyApplicant_(cidRaw, id, sv) {
+  var cid = digits_(cidRaw); id = str_(id);
+  if (cid.length !== 13) throw new Error('กรุณากรอกเลขบัตรประชาชน 13 หลัก');
+  if (!rateOk_('svA_' + cid, 12, 600)) throw new Error('ส่งแบบประเมินถี่เกินไป กรุณารอสักครู่แล้วลองใหม่');
+  var it = findSub_(id);
+  if (!it || it.cid !== cid) throw new Error('ไม่พบรายการของท่าน');
+  if (it.status === 'promoted' && svHas_(id, 'applicant')) throw new Error('รายการนี้ปิดเคสเรียบร้อยแล้ว ขอบคุณสำหรับการประเมิน');
+  if (it.status !== 'closing') throw new Error('รายการนี้ยังไม่ถึงขั้นตอนประเมินเพื่อปิดเคส');
+  if (!svHas_(id, 'admin')) throw new Error('รายการนี้รอเจ้าหน้าที่ประเมินก่อน');
+  svSave_(id, 'applicant', mailName_(it), sv, 'full');
+  var r = statusCore_({ u: 'system', n: 'ระบบ (ผู้ยื่นประเมินแล้ว)', r: 'system' }, id, { status: 'promoted', note: 'ผู้ยื่นประเมินความพึงพอใจแล้ว — ปิดเคส' }, true);
+  log_('survey_applicant', '', 'success', id);
+  return { status: 'promoted', line: r.line };
+}
+/* บันทึกแบบประเมินความพึงพอใจ "ย้อนหลัง" (เฉพาะผู้ดูแลระบบ) — ไม่เปลี่ยนสถานะเคส ไม่ส่ง LINE ไม่ยุ่งกับขั้นตอนปิดเคส
+ * p = { role:'applicant'|'admin', date:'yyyy-MM-dd' (วันที่ประเมินจริง), mode:'full'|'quick', id?:รหัสเคสที่ปิดแล้ว, who?:ชื่อผู้ประเมิน, sv:{...} }
+ * - เว้นรหัสเคสว่างได้ (ระบบสร้างรหัส RETRO-... ให้) · ถ้าระบุรหัส ต้องเป็นเคสที่ปิดแล้ว (promoted) และยังไม่มีแบบประเมินของบทบาทนั้น
+ * - เวลาที่บันทึกลงชีท = วันที่ระบุ 12:00 น. เพื่อให้นับเข้ารายงานเดือนนั้น · คอลัมน์ "ผู้ใช้/ชื่อ" ขึ้นต้นด้วย "(ย้อนหลัง)" เพื่อแยกจากข้อมูลปกติ */
+function apiSurveyBackfill_(token, p) {
+  var u = auth_(token, true); p = p || {};
+  var role = str_(p.role); if (!SV_ROLE[role]) throw new Error('ประเภทผู้ตอบไม่ถูกต้อง');
+  var date = str_(p.date);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date + 'T00:00:00+07:00').getTime())) throw new Error('วันที่ประเมินไม่ถูกต้อง');
+  if (date > now_().slice(0, 10)) throw new Error('วันที่ประเมินต้องไม่เกินวันนี้');
+  var mode = p.mode === 'quick' ? 'quick' : 'full', id = str_(p.id);
+  if (id) {
+    var it = findSub_(id); if (!it) throw new Error('ไม่พบรหัสเคส ' + id);
+    if (it.status !== 'promoted') throw new Error('ผูกกับเคสได้เฉพาะเคสที่ปิดแล้วเท่านั้น (ถ้าไม่ต้องการผูกเคส ให้เว้นรหัสเคสว่างไว้)');
+    if (svHas_(id, role)) throw new Error('เคสนี้มีแบบประเมินของ' + SV_ROLE[role] + 'อยู่แล้ว');
+  } else id = 'RETRO-' + date.replace(/-/g, '') + '-' + Utilities.getUuid().slice(0, 6).toUpperCase();
+  var who = '(ย้อนหลัง) ' + (str_(p.who).slice(0, 80) || (role === 'admin' ? (u.n || u.u) : 'ไม่ระบุชื่อ'));
+  if (!svSave_(id, role, who, p.sv, mode, date + ' 12:00:00')) throw new Error('บันทึกไม่สำเร็จ (มีแบบประเมินของเคสนี้อยู่แล้ว)');
+  log_('survey_backfill', u.u, 'success', id + ' · ' + role + ' · ' + date);
+  return { id: id, date: date };
+}
+/* ---------- ลิงก์ประเมินความพึงพอใจ "ย้อนหลัง" ให้ผู้ยื่น (เคสที่ปิดแล้วแต่ผู้ยื่นยังไม่ได้ประเมิน) ----------
+ * ลิงก์ = เว็บ/#retro-<รหัสเคส>.<ลายเซ็น> — ลายเซ็น = HMAC-SHA256 ของรหัสเคสด้วยกุญแจลับ (Script Property RETRO_KEY สร้างเองครั้งแรก)
+ * ใช้ได้เฉพาะเคสนั้น · ผู้ยื่นต้องกรอกเลขบัตรของตนให้ตรงกับเคส · ประเมินได้ครั้งเดียว · ไม่เปลี่ยนสถานะเคส ไม่ส่ง LINE เอง */
+function retroKey_() {
+  var k = prop_('RETRO_KEY'); if (k) return k;
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    k = prop_('RETRO_KEY');
+    if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); PropertiesService.getScriptProperties().setProperty('RETRO_KEY', k); }
+  } finally { lock.releaseLock(); }
+  return k;
+}
+function retroSig_(id) {
+  var raw = Utilities.computeHmacSha256Signature('retro|' + id, retroKey_());
+  return raw.map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('').slice(0, 16);
+}
+function retroUri_(it) { var u = siteUrl_(); return u ? u.replace(/\/+$/, '') + '/#retro-' + encodeURIComponent(it.id) + '.' + retroSig_(it.id) : ''; }
+/* รายการเคสที่ปิดแล้วและผู้ยื่นยังไม่ได้ประเมิน + ลิงก์ (เฉพาะผู้ดูแลระบบ) */
+/* วันเปิดใช้ระบบจริง (ข้อมูลก่อนหน้านี้ถือเป็นข้อมูลนำเข้า/สำรอง) — เปลี่ยนได้ที่ Script Property GO_LIVE (yyyy-MM-dd) */
+var GO_LIVE_DEFAULT = '2026-10-21';
+function goLive_() { var v = prop_('GO_LIVE'); return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : GO_LIVE_DEFAULT; }
+function apiSurveyRetroList_(token) {
+  auth_(token, true); var gl = goLive_();
+  var done = {}; svRows_().forEach(function (r) { if (r.role === 'applicant') done[r.id] = 1; });
+  /* นับรายการในประวัติสถานะต่อเคส + ช่วงเวลาที่ใช้ระบบ (วันแรก→วันล่าสุด) — เคสที่นำเข้า/สำรองข้อมูลมักมีประวัติน้อยและเวลาไล่ใกล้กัน */
+  var his = sheet_('HIS'), hv = his.getLastRow() > 1 ? V_(his.getRange(2, 1, his.getLastRow() - 1, 5)) : [], hs = {};
+  hv.forEach(function (h) {
+    var k = str_(h[0]), t = ms_(str_(h[1])), o = hs[k] || (hs[k] = { n: 0, nw: 0, a: null, b: null });
+    o.n++; if (str_(h[1]).slice(0, 10) >= gl) o.nw++; if (t !== null) { if (o.a === null || t < o.a) o.a = t; if (o.b === null || t > o.b) o.b = t; }
+  });
+  var items = subs_().filter(function (r) { return r.status === 'promoted' && !done[r.id]; }).map(function (r) {
+    var o = hs[r.id] || { n: 0, nw: 0, a: null, b: null };
+    return { id: r.id, name: mailName_(r), title: r.title || '', upd: r.upd || '', uri: retroUri_(r), hisN: o.n, hisNew: o.nw, days: o.a !== null ? Math.round((o.b - o.a) / 864e5) : 0 };
+  }).sort(function (x, y) { return y.hisN - x.hisN || y.days - x.days; });
+  return { items: items, goLive: gl };
+}
+function flexSurveyRetro_(it) {
+  var uri = retroUri_(it);
+  var body = [
+    { type: 'text', text: 'ขอเชิญประเมินความพึงพอใจ', weight: 'bold', size: 'xl', wrap: true, color: '#d97706' },
+    { type: 'text', text: 'เอกสารของท่านปิดเคสเรียบร้อยแล้ว ขอเชิญท่านประเมินความพึงพอใจต่อระบบย้อนหลัง ใช้เวลาประมาณ 2 นาที และไม่มีผลต่อสถานะเอกสาร', size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
+    { type: 'separator', margin: 'lg' }, frow_('รหัสติดตาม', it.id), frow_('แบบประเมิน', '16 ข้อ · 4 หน้า')];
+  var b = fbubble_('ประเมินความพึงพอใจย้อนหลัง', '#d97706', body);
+  b.footer = { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#d97706', height: 'sm', action: { type: 'uri', label: 'ประเมินความพึงพอใจ', uri: uri } }] };
+  return { type: 'flex', altText: ('ขอเชิญประเมินความพึงพอใจ เคส ' + it.id).slice(0, 380), contents: b };
+}
+/* ส่งลิงก์ประเมินย้อนหลังทาง LINE ให้ผู้ยื่น (เฉพาะผู้ดูแลระบบ) */
+function apiSurveyRetroSend_(token, id) {
+  var u = auth_(token, true); id = str_(id);
+  var it = findSub_(id); if (!it) throw new Error('ไม่พบรายการ');
+  if (it.status !== 'promoted') throw new Error('ส่งลิงก์ย้อนหลังได้เฉพาะเคสที่ปิดแล้ว');
+  if (svHas_(id, 'applicant')) throw new Error('เคสนี้ผู้ยื่นประเมินแล้ว');
+  if (!siteUrl_()) throw new Error('ยังไม่ได้ตั้งค่า SITE_URL');
+  var text = 'ขอเชิญประเมินความพึงพอใจต่อระบบ (เคส ' + id + ')', sender = u.n || u.u;
+  var pre = linePre_(it.cid, id, 'manual', sender, text);
+  var r = pre.ok ? lineSend_(pre.users, it.cid, id, 'manual', sender, [flexSurveyRetro_(it)], text) : { sent: 0, failed: 0, skipped: pre.reason, msg: pre.msg };
+  log_('survey_retro_send', u.u, (r && r.sent) ? 'success' : 'skipped', id);
+  return { line: r };
+}
+/* ผู้ยื่นเปิดลิงก์ → ยืนยันด้วยเลขบัตร → ประเมิน (sv = null คือตรวจลิงก์อย่างเดียว ยังไม่บันทึก) */
+function apiSurveyRetro_(cidRaw, id, sig, sv) {
+  var cid = digits_(cidRaw); id = str_(id); sig = str_(sig);
+  if (cid.length !== 13) throw new Error('กรุณากรอกเลขบัตรประชาชน 13 หลัก');
+  if (!rateOk_('svR_' + cid, 12, 600)) throw new Error('ส่งแบบประเมินถี่เกินไป กรุณารอสักครู่แล้วลองใหม่');
+  var it = findSub_(id);
+  if (!it || it.cid !== cid || !sig || sig !== retroSig_(id)) throw new Error('ลิงก์ไม่ถูกต้อง หรือเลขบัตรไม่ตรงกับรายการนี้');
+  if (it.status !== 'promoted') throw new Error('ลิงก์นี้ใช้ได้เฉพาะรายการที่ปิดเคสแล้ว');
+  if (svHas_(id, 'applicant')) throw new Error('รายการนี้ได้รับแบบประเมินแล้ว ขอบคุณสำหรับความร่วมมือ');
+  if (sv === null || sv === undefined) return { check: true };
+  if (!svSave_(id, 'applicant', '(ย้อนหลัง) ' + mailName_(it), sv, 'full', now_())) throw new Error('รายการนี้ได้รับแบบประเมินแล้ว ขอบคุณสำหรับความร่วมมือ');
+  log_('survey_retro', '', 'success', id);
+  return { id: id };
+}
+function svUri_(it) { var u = siteUrl_(); return u ? u.replace(/\/+$/, '') + '/#rate-' + encodeURIComponent(it.id) : ''; }
+function svFooter_(it) { var uri = svUri_(it); return uri ? { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#d97706', height: 'sm', action: { type: 'uri', label: 'ประเมินความพึงพอใจ', uri: uri } }] } : null; }
+/* ข้อความ LINE ทุกชนิดของเคสที่ "รอผู้ยื่นประเมิน" (แจ้งสถานะ / เช็คสถานะ / ระยะเวลา / ข้อความจาก HR / ตอบคำถาม) —
+ * เติมกรอบเตือนด้านบน + เปลี่ยนปุ่มท้ายข้อความเป็น "ประเมินความพึงพอใจ" : ไม่ประเมิน = เจ้าหน้าที่ปิดเคสให้ไม่ได้ */
+function svWrap_(it, msg) {
+  try {
+    if (!it || it.status !== 'closing' || svHas_(it.id, 'applicant')) return msg;
+    var b = msg.contents;
+    b.body.contents.unshift({ type: 'box', layout: 'vertical', backgroundColor: '#fff7ed', cornerRadius: '8px', paddingAll: '10px', margin: 'none', contents: [
+      { type: 'text', text: '⚠ ต้องประเมินความพึงพอใจก่อน', weight: 'bold', size: 'sm', color: '#b45309', wrap: true },
+      { type: 'text', text: 'เคสนี้ดำเนินการครบแล้ว แต่ถ้าท่านยังไม่ประเมินความพึงพอใจ เจ้าหน้าที่จะปิดเคสให้ไม่ได้ (ใช้เวลาประมาณ 2 นาที)', size: 'xs', color: '#92400e', wrap: true, margin: 'xs' }] });
+    var f = svFooter_(it); if (f) b.footer = f;
+    msg.altText = ('⚠ ต้องประเมินความพึงพอใจเพื่อปิดเคส ' + it.id + ' — ' + msg.altText).slice(0, 380);
+  } catch (e) { }
+  return msg;
+}
+function flexSurvey_(it, remind, congrats) {
+  var uri = svUri_(it);
+  var body = [
+    { type: 'text', text: remind ? 'รอการประเมินของท่านอยู่' : (congrats ? 'ขอแสดงความยินดี' : 'ขอเวลาประมาณ 2 นาที'), weight: 'bold', size: 'xl', wrap: true, color: '#d97706' }];
+  if (congrats && !remind) body.push({ type: 'text', text: tx_(congrats, 500), size: 'sm', color: '#0f766e', wrap: true, margin: 'sm' });
+  body.push({ type: 'text', text: 'เอกสารของท่านดำเนินการครบทุกขั้นตอนแล้ว กรุณาประเมินความพึงพอใจต่อระบบ ถ้ายังไม่ประเมิน เจ้าหน้าที่จะปิดเคสให้ไม่ได้', size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
+    { type: 'separator', margin: 'lg' }, idRows_(it)[0], frow_('แบบประเมิน', '16 ข้อ · 4 หน้า'));
+  var b = fbubble_(remind ? 'เตือน: ประเมินเพื่อปิดเคส' : (congrats ? 'ยินดีด้วย · ประเมินเพื่อปิดเคส' : 'ประเมินความพึงพอใจเพื่อปิดเคส'), '#d97706', body);
+  var ft = svFooter_(it); if (ft) b.footer = ft;
+  return { type: 'flex', altText: ('กรุณาประเมินความพึงพอใจเพื่อปิดเคส ' + it.id).slice(0, 380), contents: b };
+}
+function svNotify_(it, remind, congrats) {
+  try {
+    var text = (remind ? 'เตือน: ' : '') + 'ขอให้ประเมินความพึงพอใจเพื่อปิดเคส ' + it.id;
+    var pre = linePre_(it.cid, it.id, 'auto', 'ระบบ', text);
+    if (!pre.ok) return { sent: 0, failed: 0, skipped: pre.reason, msg: pre.msg };
+    return lineSend_(pre.users, it.cid, it.id, 'auto', 'ระบบ', [flexSurvey_(it, remind, congrats)], text);
+  } catch (e) { log_('line_survey', 'system', 'error', String(e.message || e)); return { sent: 0, failed: 1, errors: [String(e.message || e)] }; }
+}
+/* แจ้ง LINE เจ้าหน้าที่ (ผู้ปิดเคส) เมื่อเคสเข้าขั้น "ผู้ว่าราชการจังหวัดลงนาม (คำสั่งเลื่อนระดับ)" — ถึงขั้นปิดเคสได้แล้ว ขอให้ประเมินความพึงพอใจ
+ * ผู้รับ = ผู้ใช้ที่ยังใช้งานในแท็บ Users (admin/officer) ที่มีเลขบัตรอ้างอิงและผูก LINE ไว้ในแท็บ LineUsers ; ไม่ throw เพื่อไม่กระทบการบันทึกสถานะ */
+function closerNotify_(it, by) {
+  try {
+    if (!lineEnabled_()) return { sent: 0, failed: 0, skipped: 'disabled' };
+    var s = sheet_('USR'), n = s.getLastRow(), v = n > 1 ? s.getRange(2, 1, n - 1, 7).getValues() : [], seen = {}, res = { sent: 0, failed: 0, skipped: 'none' };
+    var u = siteUrl_();
+    var body = [
+      { type: 'text', text: 'ถึงขั้นปิดเคสแล้ว', weight: 'bold', size: 'xl', wrap: true, color: '#d97706' },
+      { type: 'text', text: 'ผู้ว่าราชการจังหวัดอยู่ในขั้นลงนามคำสั่งเลื่อนระดับ — เจ้าหน้าที่กดปิดเคสและประเมินความพึงพอใจได้เลย (ระบบจะส่ง LINE ให้ผู้ยื่นประเมินต่อ แล้วปิดเคสให้อัตโนมัติ)', size: 'sm', color: '#51676f', wrap: true, margin: 'sm' },
+      { type: 'separator', margin: 'lg' }].concat(idRows_(it), [
+      frow_('ตำแหน่ง', it.position), frow_('กลุ่มงาน', it.group), frow_('ผลงาน', it.title),
+      frow_('สถานะปัจจุบัน', stageLabel_(it)), frow_('เข้าขั้นตอนเมื่อ', it.upd), frow_('บันทึกโดย', by),
+      { type: 'text', text: 'วิธีทำ: เข้าระบบ → กดปุ่ม "เลื่อนระดับแล้ว" (หรือ อัพเดทสถานะ → ได้รับการเลื่อนระดับแล้ว) → ทำแบบประเมิน 16 ข้อ', size: 'xs', color: '#51676f', wrap: true, margin: 'lg' }]);
+    var b = fbubble_('ขอให้ประเมินเพื่อปิดเคส', '#d97706', body);
+    if (u) b.footer = { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#d97706', height: 'sm', action: { type: 'uri', label: 'เปิดระบบเพื่อปิดเคส', uri: u } }] };
+    var msg = { type: 'flex', altText: ('เคส ' + it.id + ' ถึงขั้นปิดเคส กรุณาประเมินความพึงพอใจ').slice(0, 380), contents: b };
+    var text = 'แจ้งเจ้าหน้าที่: เคส ' + it.id + ' ถึงขั้นปิดเคส ขอให้ประเมินความพึงพอใจ';
+    v.forEach(function (r) {
+      var cid = digits_(r[6]); if (str_(r[5]) === 'N' || cid.length !== 13 || seen[cid]) return; seen[cid] = 1;
+      var us = lineUsersByCid_(cid); if (!us.length) return;
+      var x = lineSend_(us, cid, it.id, 'auto', 'ระบบ (แจ้งผู้ปิดเคส)', [msg], text);
+      res.sent += x.sent; res.failed += x.failed; res.skipped = '';
+    });
+    return res;
+  } catch (e) { log_('line_closer', 'system', 'error', String(e.message || e)); return { sent: 0, failed: 1, errors: [String(e.message || e)] }; }
+}
+/* ตั้งเวลารายวัน: เตือนผู้ยื่นที่ยังไม่ประเมินทุก 3 วัน (สูงสุด 6 ครั้งต่อเคส) */
+var SV_REMIND_GAP = 3, SV_REMIND_MAX = 6;
+function remindSurvey() { return sandRun_('เตือนประเมินผู้ยื่น', remindSurvey_); }
+function remindSurvey_() {
+  var sent = 0, props = PropertiesService.getScriptProperties();
+  subs_().filter(function (r) { return r.status === 'closing'; }).forEach(function (it) {
+    if (svHas_(it.id, 'applicant')) return;
+    var since = sinceOfCurrent_(hisMine_(it.id, 3), 'closing', it.upd || it.ts), t = ms_(since); if (t === null) return;
+    var n = Math.floor((Date.now() - t) / 864e5 / SV_REMIND_GAP), key = 'svr_' + it.id, done = +props.getProperty(key) || 0;
+    if (n >= 1 && n > done && done < SV_REMIND_MAX) { var r = svNotify_(it, true); props.setProperty(key, String(n)); if (r && r.sent) sent++; }
+  });
+  Logger.log('ส่งเตือนประเมินแล้ว ' + sent + ' ราย'); return sent;
+}
+function installSurveyRemindTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'remindSurvey') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('remindSurvey').timeBased().everyDays(1).atHour(9).inTimezone(TZ).create();
+  Logger.log('ตั้งเวลาแล้ว: เตือนผู้ยื่นประเมินทุกวัน 09:00 (ส่งเมื่อครบทุก 3 วัน)');
 }
 
 /* ======================================================================
- *  ส่งข้อความเตือน "ผู้ที่เพิ่มเพื่อน LINE แล้วแต่ยังไม่ได้ผูก / ผูกไม่สำเร็จ" พร้อมแนบคู่มือ
- *  ข้อความบอกว่า: 1) พิมพ์เลขบัตรประชาชน 13 หลักในแชทก่อน  2) ถ้าไม่ได้ ให้ไปรับรหัส 6 หลักที่เว็บ  (+ การ์ดคู่มือ)
- *  ใช้งาน (รันจาก Apps Script editor):
- *    remindUnlinkedDryRun()   ดูก่อนว่าจะส่งถึงกี่คน (ไม่ส่งจริง)
- *    remindUnlinked()         ส่งจริง (ครั้งละไม่เกิน REMIND_MAX_PER_RUN คน)
- *    installRemindTrigger()   ตั้งให้รันเองทุกวันจันทร์ 09:00 · removeRemindTrigger() ยกเลิก
- *  หมายเหตุ: ข้อความแบบ Push นับโควตา LINE OA (แผนฟรีประมาณ 200 ข้อความ/เดือน) จึงจำกัดจำนวนครั้ง/คน และไม่ส่งซ้ำถี่
+ *  รายงานประจำเดือน (ส่งอีเมลอัตโนมัติวันสุดท้ายของเดือน)
  * ====================================================================== */
-var REMIND_MIN_HOURS = 2;       // เพิ่มเพื่อนแล้วอย่างน้อยกี่ชั่วโมงจึงเตือน (ให้เวลาทำตามข้อความต้อนรับก่อน)
-var REMIND_GAP_DAYS = 3;        // เตือนซ้ำได้ไม่ถี่กว่ากี่วัน
-var REMIND_MAX_TIMES = 2;       // เตือนได้มากสุดกี่ครั้งต่อบัญชี LINE
-var REMIND_MAX_PER_RUN = 50;    // ส่งสูงสุดกี่คนต่อการรัน 1 ครั้ง (กันโควตาหมด)
-function remindText_(tried) {
-  var site = siteUrl_().replace(/\/+$/, '');
-  return (tried ? 'ดูเหมือนการเชื่อมต่อ LINE ยังไม่สำเร็จ' : 'บัญชี LINE นี้ยังไม่ได้เชื่อมต่อกับระบบติดตามสถานะ อวช.') +
-    ' จึงยังไม่ได้รับแจ้งเตือนเมื่อสถานะผลงานเปลี่ยน\n\nวิธีเชื่อมต่อ (เลือกวิธีใดวิธีหนึ่ง)\n' +
-    '1) พิมพ์เลขบัตรประชาชน 13 หลักของท่านที่นี่ในแชทนี้ก่อน ระบบเชื่อมต่อให้ทันที (ต้องเคยยื่นเอกสารในระบบแล้ว)\n' +
-    '2) ถ้าเชื่อมต่อด้วยเลขบัตรไม่ได้ ให้ไปรับรหัสในระบบเอง: เปิด ' + site + ' → ติดตามสถานะ → กด "เชื่อมต่อ LINE" รับรหัส 6 หลัก แล้วพิมพ์รหัสที่นี่\n\n' +
-    'ดูคู่มือภาพประกอบได้ที่การ์ดด้านล่าง หากยังไม่สำเร็จ พิมพ์ "ช่วยเหลือ" หรือแจ้งเจ้าหน้าที่ HR ให้ผูกให้ได้';
+var REPORT_TO_DEFAULT = 'hrm@sansaihospital.go.th';
+function reportTo_() { return prop_('REPORT_TO') || REPORT_TO_DEFAULT; }
+function ymOk_(ym) { return /^\d{4}-(0[1-9]|1[0-2])$/.test(String(ym || '')); }
+function ymNext_(ym) { var y = +ym.slice(0, 4), m = +ym.slice(5, 7) + 1; if (m > 12) { m = 1; y++; } return y + '-' + (m < 10 ? '0' : '') + m; }
+function metRows_() {
+  var sh = sheet_('MET'), n = sh.getLastRow(); if (n < 2) return [];
+  return V_(sh.getRange(2, 1, n - 1, 5)).map(function (r, i) { return { row: i + 2, ym: str_(r[0]), calls: str_(r[1]), note: str_(r[2]), by: str_(r[3]), t: str_(r[4]) }; });
 }
-function remindUnlinked_(dry) {
-  if (!lineEnabled_()) return { ok: false, err: 'ยังไม่ได้ตั้งค่า LINE (LINE_CHANNEL_ACCESS_TOKEN)' };
-  var lock = LockService.getScriptLock(); if (!lock.tryLock(10000)) return { ok: false, err: 'มีงานส่งข้อความเตือนกำลังทำงานอยู่' };
+function metOf_(ym) { var m = metRows_().filter(function (r) { return r.ym === ym; })[0]; return m ? { calls: m.calls === '' ? null : +m.calls, note: m.note } : { calls: null, note: '' }; }
+function metBase_() { var m = metRows_().filter(function (r) { return r.ym === 'baseline'; })[0]; return m && m.calls !== '' ? +m.calls : null; }
+function avg_(a) { a = a.filter(function (x) { return typeof x === 'number' && !isNaN(x); }); return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length * 100) / 100 : null; }
+function r1_(x) { return x === null || x === undefined ? null : Math.round(x * 10) / 10; }
+
+function reportData_(ym) {
+  var a = ym + '-01 00:00:00', b = ymNext_(ym) + '-01 00:00:00', nowMs = Date.now();
+  function inM(t) { return !!t && t >= a && t < b; }
+  var subs = subs_(), sh = sheet_('HIS'), hv = [];
+  if (sh.getLastRow() > 1) V_(sh.getRange(2, 1, sh.getLastRow() - 1, 5)).forEach(function (r, i) { hv.push({ id: str_(r[0]), t: str_(r[1]), s: normKey_(str_(r[2])), i: i }); });
+  var by = {}; hv.forEach(function (h) { (by[h.id] = by[h.id] || []).push(h); });
+  Object.keys(by).forEach(function (k) { by[k].sort(function (x, y) { return x.t < y.t ? -1 : x.t > y.t ? 1 : x.i - y.i; }); });
+  var closed = {}, cancelled = {};
+  hv.forEach(function (h) { if (!inM(h.t)) return; if (h.s === 'promoted') closed[h.id] = 1; if (h.s === 'cancelled') cancelled[h.id] = 1; });
+  var submitted = subs.filter(function (r) { return inM(r.sts || r.ts); }).length;
+  /* ระยะเวลาเฉลี่ยต่อขั้นตอน (เฉพาะขั้นตอนที่จบในเดือนนี้) เทียบเกณฑ์ SLA */
+  var acc = {};
+  Object.keys(by).forEach(function (id) {
+    var L = by[id];
+    for (var i = 0; i + 1 < L.length; i++) {
+      var st = stageObj_(L[i].s), t0 = ms_(L[i].t), t1 = ms_(L[i + 1].t);
+      if (!inM(L[i + 1].t) || st.end || L[i].s === L[i + 1].s || t0 === null || t1 === null) continue;
+      var o = acc[L[i].s] = acc[L[i].s] || { k: L[i].s, n: 0, sum: 0 }; o.n++; o.sum += Math.max(0, (t1 - t0) / 864e5);
+    }
+  });
+  var stages = Object.keys(acc).map(function (k) { var st = stageObj_(k); return { k: k, t: st.t, ord: st.ord || 0, sla: st.sla || 0, n: acc[k].n, avg: r1_(acc[k].sum / acc[k].n) }; })
+    .sort(function (x, y) { return x.ord - y.ord; });
+  /* งานค้างปัจจุบัน (ณ เวลาที่ออกรายงาน) */
+  var active = subs.filter(function (r) { return !stageObj_(r.status).end; }), overdue = [], near180 = 0, over180 = 0, rows = [];
+  active.forEach(function (it) {
+    var st = stageObj_(it.status), L = by[it.id] || [], since = sinceOfCurrent_(L.map(function (h) { return { t: h.t, s: h.s }; }), normKey_(it.status), it.upd || it.ts), t = ms_(since);
+    var d = t === null ? null : Math.floor((nowMs - t) / 864e5), left = null, first = '';
+    var k180 = start180Key_(it.track);
+    L.forEach(function (h) { if (h.s === k180 && !first) first = h.t; });
+    if ((st.k === k180 || st.clk === k180) && first) { var e = ms_(first); if (e !== null) left = 180 - Math.floor((nowMs - e) / 864e5); }
+    var od = st.sla > 0 && d !== null && d > st.sla;
+    if (od) overdue.push(it.id);
+    if (left !== null) { if (left < 0) over180++; else if (left <= 30) near180++; }
+    rows.push([it.id, mailName_(it), it.position, it.track, it.ts, it.sts, stageLabel_(it), d === null ? '' : d, st.sla || '', od ? 'เกินเกณฑ์' : '', left === null ? '' : left]);
+  });
+  var qa = qaRows_().filter(function (m) { return m.from === 'applicant' && inM(m.t); }).length;
+  var met = metOf_(ym), base = metBase_();
+  var sv = svRows_().filter(function (r) { return inM(r.t); }), svOut = {};
+  ['applicant', 'admin'].forEach(function (role) {
+    var R = sv.filter(function (r) { return r.role === role; }), full = R.filter(function (r) { return r.mode === 'full'; });
+    svOut[role] = { n: R.length, full: full.length, overall: r1_(avg_(R.map(function (r) { return r.q[SV_QUICK_Q]; }))) };
+    svOut[role].aspects = SV_ASPECTS.map(function (g) { return { t: g.t, avg: avg_(full.map(function (r) { return avg_(g.q.map(function (k) { return r.q[k]; })); })) }; });
+  });
+  var comments = sv.filter(function (r) { return r.c.some(function (x) { return x; }); }).map(function (r) { return [SV_ROLE[r.role] || r.role, r.id, r.t, r.avg, r.c[0], r.c[1], r.c[2]]; });
+  return {
+    ym: ym, generated: now_(), submitted: submitted, closed: Object.keys(closed).length, cancelled: Object.keys(cancelled).length,
+    active: active.length, overdue: overdue.length, near180: near180, over180: over180, waitingRate: subs.filter(function (r) { return r.status === 'closing'; }).length,
+    qa: qa, calls: met.calls, callsNote: met.note, baseline: base, stages: stages, sv: svOut, rows: rows, comments: comments
+  };
+}
+function csvOf_(head, rows) {
+  function c(v) { v = String(v == null ? '' : v); return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  return '\ufeff' + [head].concat(rows).map(function (r) { return r.map(c).join(','); }).join('\r\n');
+}
+function thMonth_(ym) { var N = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม']; return N[+ym.slice(5, 7) - 1] + ' ' + (+ym.slice(0, 4) + 543); }
+function reportHtml_(d) {
+  function esc(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function card(l, v, col) { return '<td style="padding:10px 12px;background:#f3f8f8;border-radius:8px;width:33%"><div style="font-size:12px;color:#51676f">' + l + '</div><div style="font-size:22px;font-weight:bold;color:' + (col || '#12303a') + '">' + v + '</div></td>'; }
+  function f(v, u) { return v === null || v === undefined ? '-' : v + (u || ''); }
+  var callTxt = d.calls === null ? 'ยังไม่ได้บันทึก' : d.calls + ' สาย', cmp = '';
+  if (d.calls !== null && d.baseline) { var pc = Math.round((d.baseline - d.calls) / d.baseline * 100); cmp = ' (เทียบฐานก่อนใช้ระบบ ' + d.baseline + ' สาย/เดือน ' + (pc >= 0 ? 'ลดลง ' + pc : 'เพิ่มขึ้น ' + (-pc)) + '%)'; }
+  var h = '<div style="font-family:Tahoma,Arial,sans-serif;color:#12303a;max-width:680px">'
+    + '<h2 style="margin:0 0 4px">รายงานประจำเดือน ' + esc(thMonth_(d.ym)) + '</h2><div style="color:#51676f;font-size:13px;margin-bottom:14px">' + esc(TITLE) + ' · ' + esc(ORG) + ' · สร้างเมื่อ ' + esc(d.generated) + '</div>'
+    + '<table style="width:100%;border-spacing:6px"><tr>' + card('ยื่นใหม่ในเดือน', d.submitted) + card('ปิดเคสสำเร็จ', d.closed, '#15803d') + card('ยกเลิก', d.cancelled) + '</tr><tr>'
+    + card('งานค้างอยู่ในระบบ', d.active) + card('ค้างนานกว่าเกณฑ์', d.overdue, d.overdue ? '#b91c1c' : '') + card('ใกล้ครบ/เกิน 180 วัน', d.near180 + ' / ' + d.over180, d.over180 ? '#b91c1c' : '#a1480a') + '</tr></table>'
+    + '<p style="font-size:13px;margin:6px 0">ถาม-ตอบผ่านระบบ ' + d.qa + ' ข้อความ · สายโทรสอบถาม ' + esc(callTxt + cmp) + (d.waitingRate ? ' · รอผู้ยื่นประเมินเพื่อปิดเคส ' + d.waitingRate + ' ราย' : '') + '</p>'
+    + '<h3 style="margin:16px 0 6px;font-size:15px">ระยะเวลาเฉลี่ยต่อขั้นตอน (ขั้นตอนที่จบในเดือนนี้) เทียบเกณฑ์</h3>';
+  h += d.stages.length ? '<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="background:#f3f8f8"><th align="left" style="padding:6px">ขั้นตอน</th><th>จำนวน</th><th>เฉลี่ย (วัน)</th><th>เกณฑ์ (วัน)</th></tr>'
+    + d.stages.map(function (s) { var over = s.sla && s.avg > s.sla; return '<tr style="border-top:1px solid #d5e3e5"><td style="padding:6px">' + esc(s.t) + '</td><td align="center">' + s.n + '</td><td align="center" style="color:' + (over ? '#b91c1c' : '#12303a') + ';font-weight:' + (over ? 'bold' : 'normal') + '">' + s.avg + '</td><td align="center">' + (s.sla || '-') + '</td></tr>'; }).join('') + '</table>'
+    : '<p style="font-size:13px;color:#51676f">ไม่มีขั้นตอนที่จบในเดือนนี้</p>';
+  h += '<h3 style="margin:16px 0 6px;font-size:15px">ความพึงพอใจ (เต็ม 5)</h3>';
+  ['applicant', 'admin'].forEach(function (role) {
+    var o = d.sv[role];
+    h += '<div style="font-size:13px;margin:6px 0 2px"><b>' + esc(SV_ROLE[role]) + '</b> · ตอบ ' + o.n + ' ราย (เต็มชุด ' + o.full + ') · ความพึงพอใจโดยรวม ' + f(o.overall) + '</div>';
+    if (o.full) h += '<table style="width:100%;border-collapse:collapse;font-size:13px">' + o.aspects.map(function (a) { return '<tr style="border-top:1px solid #d5e3e5"><td style="padding:5px">' + esc(a.t) + '</td><td align="right" style="width:60px">' + f(a.avg) + '</td></tr>'; }).join('') + '</table>';
+  });
+  h += '<p style="font-size:12px;color:#51676f;margin-top:16px">แนบไฟล์ CSV: รายละเอียดงานค้างรายเคส และข้อเสนอแนะจากแบบประเมิน · อีเมลนี้ส่งอัตโนมัติจากระบบทุกวันสุดท้ายของเดือน</p></div>';
+  return h;
+}
+function sendMonthlyReport_(ym, opt) {
+  opt = opt || {};
+  var d = reportData_(ym), to = opt.to || reportTo_();
+  var att = [
+    Utilities.newBlob(csvOf_(['รหัส', 'ชื่อ-สกุล', 'ตำแหน่ง', 'ระดับตำแหน่ง', 'เวลายื่น', 'เวลาบันทึกระบบ', 'สถานะ', 'วันในขั้นตอนนี้', 'เกณฑ์ (วัน)', 'เทียบเกณฑ์', 'วันคงเหลือส่งเล่ม 2 (180 วัน)'], d.rows), 'text/csv', 'งานค้าง_' + ym + '.csv'),
+    Utilities.newBlob(csvOf_(['ผู้ตอบ', 'รหัสเคส', 'เวลา', 'คะแนนเฉลี่ย', 'ปัญหา/อุปสรรค', 'อยากให้ปรับปรุง', 'ข้อเสนอแนะอื่น'], d.comments), 'text/csv', 'แบบประเมิน_' + ym + '.csv')];
+  var text = 'รายงานประจำเดือน ' + thMonth_(ym) + '\nยื่นใหม่ ' + d.submitted + ' · ปิดเคส ' + d.closed + ' · ยกเลิก ' + d.cancelled + ' · ค้าง ' + d.active + ' (เกินเกณฑ์ ' + d.overdue + ') · ใกล้/เกิน 180 วัน ' + d.near180 + '/' + d.over180 + '\n(ดูรายละเอียดในอีเมลรูปแบบ HTML และไฟล์แนบ)\n\n' + ORG;
+  MailApp.sendEmail({ to: to, subject: (opt.prefix || '') + '[รายงานประจำเดือน] ' + TITLE + ' ประจำเดือน' + thMonth_(ym), body: text, htmlBody: reportHtml_(d), attachments: att, name: TITLE });
+  log_('report_mail', 'system', 'success', ym + ' → ' + to + (opt.prefix ? ' ' + opt.prefix : ''));
+  return { ym: ym, to: to };
+}
+/* ตั้งเวลารายวัน 18:00 — ส่งเมื่อ "พรุ่งนี้เป็นวันที่ 1" (= วันนี้คือวันสุดท้ายของเดือน) และมีตัวกันส่งซ้ำ / ส่งชดเชยวันที่ 1 ถ้าเดือนก่อนยังไม่ได้ส่ง */
+function monthlyReportTick() { return sandRun_('รายงานประจำเดือน', monthlyReportTick_); }
+function monthlyReportTick_() {
+  var props = PropertiesService.getScriptProperties();
+  var tomorrowDay = Utilities.formatDate(new Date(Date.now() + 864e5), TZ, 'd'), today = Utilities.formatDate(new Date(), TZ, 'd');
+  var ym = '';
+  if (tomorrowDay === '1') ym = Utilities.formatDate(new Date(), TZ, 'yyyy-MM');
+  else if (today === '1') ym = Utilities.formatDate(new Date(Date.now() - 864e5), TZ, 'yyyy-MM');
+  if (!ym || props.getProperty('RPT_SENT_' + ym)) return;
+  try { sendMonthlyReport_(ym); props.setProperty('RPT_SENT_' + ym, now_()); }
+  catch (e) { log_('report_mail', 'system', 'error', ym + ': ' + String(e.message || e)); throw e; }
+}
+function installReportTrigger() {
+  removeReportTrigger();
+  ScriptApp.newTrigger('monthlyReportTick').timeBased().everyDays(1).atHour(18).inTimezone(TZ).create();
+  Logger.log('ตั้งเวลาแล้ว: ตรวจทุกวัน 18:00 และส่งรายงานในวันสุดท้ายของเดือน → ' + reportTo_());
+}
+function removeReportTrigger() { ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'monthlyReportTick') ScriptApp.deleteTrigger(t); }); }
+/** ทดสอบ: ส่งรายงานเดือนปัจจุบันถึงอีเมลของผู้รันสคริปต์ (ไม่ส่งถึงปลายทางจริง และไม่ทำเครื่องหมายว่าส่งแล้ว) */
+function sendMonthlyReportTest() {
+  var me = Session.getEffectiveUser().getEmail(), r = sendMonthlyReport_(now_().slice(0, 7), { to: me, prefix: '[ทดสอบ] ' });
+  Logger.log('ส่งรายงานทดสอบถึง ' + r.to);
+}
+function apiReportGet_(token, ym) {
+  auth_(token); ym = ymOk_(ym) ? ym : now_().slice(0, 7);
+  var d = reportData_(ym); delete d.rows; delete d.comments;
+  d.to = reportTo_(); d.sent = prop_('RPT_SENT_' + ym);
+  return { report: d };
+}
+/* ===== ส่งออกรายงานผลการใช้งานประจำเดือนเป็นไฟล์ Word / Excel / PDF + พรีวิว (ผู้ดูแลระบบ) =====
+   ใช้ข้อมูลชุดเดียวกับรายงานเดิม (reportData_) สร้างเป็น Google Docs/Sheets ชั่วคราว แล้วส่งออกเป็นไฟล์ ลบไฟล์ชั่วคราวทิ้งทุกครั้ง
+   สิทธิ์ที่ต้องอนุมัติเพิ่ม: Google Docs (DocumentApp) — เจ้าของสคริปต์กดรัน rxAuthorize 1 ครั้ง แล้ว Deploy ใหม่ */
+var RX_FONT = 'Sarabun';
+var RX_MIME = { docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', pdf: 'application/pdf' };
+var RX_BACK_MAX = 40, RX_COMM_MAX = 15;
+function rxDT_(s) { var m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/.exec(str_(s)); return m ? m[3] + '/' + m[2] + '/' + (+m[1] + 543) + ' ' + m[4] + ':' + m[5] + ' น.' : str_(s); }
+function rxV_(v) { return v === null || v === undefined || v === '' ? '-' : String(v); }
+function rxYmAdd_(ym, k) { var y = +ym.slice(0, 4), mo = +ym.slice(5, 7) + k; while (mo < 1) { mo += 12; y--; } while (mo > 12) { mo -= 12; y++; } return y + '-' + (mo < 10 ? '0' : '') + mo; }
+function rxMonLbl_(ym) { return ym.slice(5, 7) + '/' + (+ym.slice(0, 4) + 543); }   /* MM/ปี พ.ศ. */
+/* สรุปของเดือนที่ผ่านมา (เก็บแคช 6 ชม.) — ใช้เฉพาะค่าที่เป็นของเดือนนั้นจริง (ยื่น/ปิด/ยกเลิก) ส่วนงานค้างเป็นภาพ ณ ตอนออกรายงาน จึงไม่เทียบข้ามเดือน */
+function rxPast_(ym) {
+  var c = CacheService.getScriptCache(), key = 'rxm_' + ym, hit = c.get(key);
+  if (hit) { try { return JSON.parse(hit); } catch (e) { } }
+  var d = reportData_(ym), o = { submitted: d.submitted, closed: d.closed, cancelled: d.cancelled };
+  try { c.put(key, JSON.stringify(o), 21600); } catch (e2) { }
+  return o;
+}
+function rxDelta_(cur, prev, goodUp) {   /* → [ข้อความเทียบเดือนก่อน, good|bad|''] */
+  if (prev === null || prev === undefined) return ['', ''];
+  var df = cur - prev; if (!df) return ['เท่าเดือนก่อน', ''];
+  return [(df > 0 ? 'เพิ่มขึ้น ' + df : 'ลดลง ' + (-df)) + ' จากเดือนก่อน', goodUp === null ? '' : ((df > 0) === goodUp ? 'good' : 'bad')];
+}
+function rxModel_(ym) {
+  var d = reportData_(ym), callTxt = d.calls === null ? 'ยังไม่ได้บันทึก' : d.calls + ' สาย', cmp = '';
+  if (d.calls !== null && d.baseline) { var pc = Math.round((d.baseline - d.calls) / d.baseline * 100); cmp = ' (เทียบฐานก่อนใช้ระบบ ' + d.baseline + ' สาย/เดือน ' + (pc >= 0 ? 'ลดลง ' + pc : 'เพิ่มขึ้น ' + (-pc)) + '%)'; }
+  var m = { ym: ym, name: 'รายงานผลการใช้งาน_' + ym, title: 'รายงานผลการใช้งานประจำเดือน ' + thMonth_(ym), sub: TITLE + ' · ' + ORG, gen: 'สร้างเมื่อ ' + rxDT_(d.generated) };
+  /* แนวโน้ม 6 เดือน + เดือนก่อน (ถ้าอ่านเดือนใดไม่ได้ ข้ามเดือนนั้น) */
+  var tr = [], prev = null;
+  for (var k = 5; k >= 0; k--) {
+    var y2 = rxYmAdd_(ym, -k), o = null;
+    try { o = k ? rxPast_(y2) : { submitted: d.submitted, closed: d.closed, cancelled: d.cancelled }; } catch (e) { o = null; }
+    if (o) tr.push([rxMonLbl_(y2), o.submitted, o.closed]);
+    if (k === 1) prev = o;
+  }
+  var dS = rxDelta_(d.submitted, prev && prev.submitted, null), dC = rxDelta_(d.closed, prev && prev.closed, true), dX = rxDelta_(d.cancelled, prev && prev.cancelled, false);
+  m.kpis = [['ยื่นใหม่ในเดือน', d.submitted, ''].concat(dS), ['ปิดเคสสำเร็จ', d.closed, 'good'].concat(dC), ['ยกเลิก', d.cancelled, ''].concat(dX),
+    ['งานค้างอยู่ในระบบ (ขณะออกรายงาน)', d.active, '', '', ''], ['ค้างนานกว่าเกณฑ์', d.overdue, d.overdue ? 'bad' : '', '', ''], ['ใกล้ครบ / เกิน 180 วัน', d.near180 + ' / ' + d.over180, d.over180 ? 'bad' : '', '', '']];
+  /* สรุปประเด็นสำคัญ (สร้างจากข้อมูลจริงของเดือน) */
+  var hl = [], worst = null;
+  hl.push('เดือนนี้มีผู้ยื่นใหม่ ' + d.submitted + ' ราย' + (dS[0] ? ' (' + dS[0] + ')' : '') + ' และปิดเคสสำเร็จ ' + d.closed + ' ราย' + (dC[0] ? ' (' + dC[0] + ')' : ''));
+  d.stages.forEach(function (s) { if (s.sla && s.avg !== null && s.avg !== undefined && !isNaN(+s.avg) && +s.avg > s.sla) { var r = +s.avg / s.sla; if (!worst || r > worst.r) worst = { s: s, r: r }; } });
+  hl.push(worst ? 'ขั้นตอนที่ช้ากว่าเกณฑ์มากที่สุด: ' + worst.s.t + ' เฉลี่ย ' + worst.s.avg + ' วัน (เกณฑ์ ' + worst.s.sla + ' วัน)' : (d.stages.length ? 'ทุกขั้นตอนที่จบในเดือนนี้อยู่ในเกณฑ์' : 'เดือนนี้ยังไม่มีขั้นตอนที่จบให้เทียบเกณฑ์'));
+  hl.push('งานค้างในระบบ ' + d.active + ' ราย — ค้างเกินเกณฑ์ ' + d.overdue + ' ราย · ใกล้ครบ 180 วัน ' + d.near180 + ' ราย · เกิน 180 วันแล้ว ' + d.over180 + ' ราย');
+  var sa = d.sv.applicant;
+  if (sa.full) { var low = null; sa.aspects.forEach(function (x) { if (!isNaN(+x.avg) && (low === null || +x.avg < +low.avg)) low = x; }); hl.push('ผู้ยื่นพึงพอใจโดยรวม ' + rxV_(sa.overall) + ' / 5 (ตอบครบ ' + sa.full + ' ราย)' + (low ? ' · ด้านที่คะแนนต่ำสุด: ' + low.t + ' (' + low.avg + ')' : '')); }
+  m.hl = hl;
+  m.notes = ['ถาม-ตอบผ่านระบบ ' + d.qa + ' ข้อความ', 'สายโทรสอบถาม ' + callTxt + cmp].concat(d.waitingRate ? ['รอผู้ยื่นประเมินเพื่อปิดเคส ' + d.waitingRate + ' ราย'] : []);
+  m.stageHead = ['ขั้นตอน', 'จำนวน (ราย)', 'เฉลี่ย (วัน)', 'เกณฑ์ (วัน)', 'ผล'];
+  m.stages = d.stages.map(function (s) { var over = !!(s.sla && s.avg > s.sla); return { cells: [s.t, s.n, rxV_(s.avg), s.sla || '-', over ? 'เกินเกณฑ์' : (s.sla ? 'ตามเกณฑ์' : '-')], bad: over }; });
+  m.sv = ['applicant', 'admin'].map(function (role) { var o = d.sv[role]; return { t: SV_ROLE[role], line: 'ตอบ ' + o.n + ' ราย (เต็มชุด ' + o.full + ') · ความพึงพอใจโดยรวม ' + rxV_(o.overall) + ' / 5', aspects: o.full ? o.aspects.map(function (a) { return [a.t, rxV_(a.avg)]; }) : [] }; });
+  m.backHead = ['รหัส', 'ชื่อ-สกุล', 'ตำแหน่ง', 'ระดับตำแหน่ง', 'เวลายื่น', 'เวลาบันทึกระบบ', 'สถานะ', 'วันในขั้นตอนนี้', 'เกณฑ์ (วัน)', 'เทียบเกณฑ์', 'วันคงเหลือส่งเล่ม 2 (180 วัน)'];
+  m.back = d.rows.map(function (r) { return [r[0], r[1], r[2], r[3], rxDT_(r[4]), rxDT_(r[5]), r[6], r[7], r[8], r[9], r[10]]; });
+  m.commHead = ['ผู้ตอบ', 'รหัสเคส', 'เวลา', 'คะแนนเฉลี่ย', 'ปัญหา/อุปสรรค', 'อยากให้ปรับปรุง', 'ข้อเสนอแนะอื่น'];
+  m.comm = d.comments.map(function (r) { return [r[0], r[1], rxDT_(r[2]), rxV_(r[3]), r[4], r[5], r[6]]; });
+  m.cd = {   /* ข้อมูลตัวเลขสำหรับกราฟ (ใช้ร่วมกันทั้ง Word / PDF / Excel / พรีวิว) */
+    tr: tr,
+    st: d.stages.filter(function (s) { return s.sla && s.avg !== null && s.avg !== undefined && s.avg !== '' && !isNaN(+s.avg); })
+      .sort(function (x, y) { return (+y.avg / y.sla) - (+x.avg / x.sla); }).slice(0, 8)
+      .map(function (s) { return [s.t + (+s.avg > s.sla ? ' (เกินเกณฑ์)' : ''), +s.avg, +s.sla]; }),
+    sat: m.sv.map(function (o) { return { t: o.t, rows: o.aspects.map(function (a) { return [a[0], +a[1]]; }).filter(function (r) { return !isNaN(r[1]); }) }; }),
+    bk: [['ค้างเกินเกณฑ์', d.overdue], ['อยู่ในเกณฑ์', Math.max(0, d.active - d.overdue)]]
+  };
+  /* Word / PDF / พรีวิว แสดงเฉพาะเคสที่ต้องติดตาม (เกินเกณฑ์ หรือเหลือ ≤ 30 วัน) — Excel มีครบทุกเคส */
+  m.brief = m.back.filter(function (r) { return r[9] === 'เกินเกณฑ์' || (r[10] !== '' && r[10] <= 30); });
+  m.briefHead = ['รหัส', 'ชื่อ-สกุล', 'สถานะ', 'วันในขั้นตอนนี้', 'เกณฑ์ (วัน)', 'วันคงเหลือส่งเล่ม 2'];
+  m.briefRows = m.brief.slice(0, RX_BACK_MAX).map(function (r) { return [r[0], r[1], r[6], rxV_(r[7]), rxV_(r[8]), rxV_(r[10])]; });
+  return m;
+}
+function rxHtml_(m, fmt) {
+  function e(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var th = 'padding:6px 8px;background:#e8f1f1;text-align:left;border:1px solid #d5e3e5;font-size:13px', td = 'padding:6px 8px;border:1px solid #d5e3e5;font-size:13px;vertical-align:top';
+  function tbl(head, rows, badLast) { return '<table style="width:100%;border-collapse:collapse;margin:6px 0 14px"><tr>' + head.map(function (h) { return '<th style="' + th + '">' + e(h) + '</th>'; }).join('') + '</tr>' + rows.map(function (r) { var bad = badLast && r.bad, c = r.cells || r; return '<tr>' + c.map(function (v, i) { return '<td style="' + td + (bad && i === c.length - 1 ? ';color:#b91c1c;font-weight:bold' : '') + '">' + e(v) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>'; }
+  function bar(label, v, max, col, txt) { var w = max > 0 ? Math.max(0, Math.min(100, v / max * 100)) : 0; return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><div style="width:200px;font-size:13px">' + e(label) + '</div><div style="flex:1;background:#eef3f3;border-radius:6px;height:16px"><div style="width:' + w + '%;background:' + col + ';height:16px;border-radius:6px"></div></div><div style="width:92px;font-size:13px;text-align:right">' + e(txt == null ? v : txt) + '</div></div>'; }
+  var cd = m.cd, trMax = Math.max.apply(null, cd.tr.map(function (r) { return Math.max(r[1], r[2]); }).concat([1]));
+  var cTr = '<div style="margin:6px 0 4px">' + cd.tr.map(function (r) { return bar(r[0] + ' ยื่นใหม่', r[1], trMax, '#0f766e') + bar('ปิดเคสสำเร็จ', r[2], trMax, '#15803d'); }).join('') + '</div>';
+  var stMax = Math.max.apply(null, cd.st.map(function (r) { return Math.max(r[1], r[2]); }).concat([1]));
+  var cSt = cd.st.length ? '<div style="margin:6px 0 10px">' + cd.st.map(function (r) { return bar(r[0], r[1], stMax, r[1] > r[2] ? '#b91c1c' : '#0f766e', 'เฉลี่ย ' + r[1]) + bar('', r[2], stMax, '#f0b45a', 'เกณฑ์ ' + r[2]); }).join('') + '</div>' : '';
+  var bkTot = cd.bk[0][1] + cd.bk[1][1], cBk = bkTot ? '<div style="margin:6px 0 10px">' + bar(cd.bk[0][0], cd.bk[0][1], bkTot, '#b91c1c', cd.bk[0][1] + ' (' + Math.round(cd.bk[0][1] / bkTot * 100) + '%)') + bar(cd.bk[1][0], cd.bk[1][1], bkTot, '#15803d', cd.bk[1][1] + ' (' + Math.round(cd.bk[1][1] / bkTot * 100) + '%)') + '</div>' : '';
+  function bars5(rows) { return '<div style="margin:6px 0 10px">' + rows.map(function (a) { var n = +a[1]; return isNaN(n) ? '' : bar(a[0], n, 5, '#0f766e', n + ' / 5'); }).join('') + '</div>'; }
+  var tone = { good: '#15803d', bad: '#b91c1c', '': '#51676f' };
+  return '<!doctype html><html lang="th"><head><meta charset="utf-8"><style>body{font-family:Sarabun,Tahoma,sans-serif;color:#12303a;margin:0;line-height:1.5}.hero{background:#0f766e;color:#fff;padding:22px 26px}.hero h1{font-size:23px;margin:0 0 2px}.hero p{margin:0;font-size:13px;opacity:.9}.pg{padding:16px 26px 22px}h2{font-size:16px;margin:20px 0 4px;color:#0b5a54}p{margin:3px 0;font-size:14px}.take{background:#eef7f6;border:1px solid #cfe5e2;border-radius:10px;padding:12px 16px}.take b{color:#0b5a54}.take li{margin:4px 0;font-size:14px}.k{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.k div{background:#f3f8f8;border-radius:10px;padding:10px 14px}.k span{display:block;font-size:12px;color:#51676f}.k b{font-size:26px;line-height:1.3}.k small{display:block;font-size:12px;min-height:16px}</style></head><body>'
+    + '<div class="hero"><h1>' + e(m.title) + '</h1><p>' + e(m.sub) + ' · ' + e(m.gen) + '</p></div><div class="pg">'
+    + '<h2 style="margin-top:4px">สรุปประเด็นสำคัญ</h2><div class="take"><ul style="margin:0;padding-left:20px">' + m.hl.map(function (t) { return '<li>' + e(t) + '</li>'; }).join('') + '</ul></div>'
+    + '<div class="k">' + m.kpis.map(function (k) { return '<div><span>' + e(k[0]) + '</span><b style="color:' + (k[2] === 'bad' ? '#b91c1c' : k[2] === 'good' ? '#15803d' : '#12303a') + '">' + e(k[1]) + '</b><small style="color:' + tone[k[4] || ''] + '">' + e(k[3] || '') + '</small></div>'; }).join('') + '</div>'
+    + m.notes.map(function (n) { return '<p>' + e(n) + '</p>'; }).join('')
+    + '<h2>แนวโน้ม 6 เดือน — ยื่นใหม่เทียบปิดเคสสำเร็จ</h2>' + cTr
+    + '<h2>ระยะเวลาเฉลี่ยต่อขั้นตอน (ขั้นตอนที่จบในเดือนนี้) เทียบเกณฑ์</h2>' + cSt + (m.stages.length ? tbl(m.stageHead, m.stages, true) : '<p style="color:#51676f">ไม่มีขั้นตอนที่จบในเดือนนี้</p>')
+    + '<h2>ความพึงพอใจ (เต็ม 5)</h2>' + m.sv.map(function (o) { return '<p><b>' + e(o.t) + '</b> · ' + e(o.line) + '</p>' + (o.aspects.length ? bars5(o.aspects) + tbl(['ด้าน', 'คะแนนเฉลี่ย'], o.aspects) : ''); }).join('')
+    + '<h2>เคสที่ต้องติดตาม (เกินเกณฑ์ หรือเหลือไม่เกิน 30 วันก่อนครบ 180 วัน)</h2>' + cBk + (m.briefRows.length ? tbl(m.briefHead, m.briefRows) + (m.brief.length > RX_BACK_MAX ? '<p style="color:#51676f">แสดง ' + RX_BACK_MAX + ' จาก ' + m.brief.length + ' เคส — ดูครบทุกเคสในไฟล์ Excel</p>' : '') : '<p style="color:#51676f">ไม่มีเคสที่ต้องติดตามเป็นพิเศษ</p>')
+    + '<h2>ข้อเสนอแนะจากแบบประเมิน</h2>' + (m.comm.length ? tbl(['ผู้ตอบ', 'รหัสเคส', 'เวลา', 'คะแนน', 'ปัญหา/อุปสรรค', 'อยากให้ปรับปรุง', 'ข้อเสนอแนะอื่น'], m.comm.slice(0, RX_COMM_MAX)) + (m.comm.length > RX_COMM_MAX ? '<p style="color:#51676f">แสดง ' + RX_COMM_MAX + ' จาก ' + m.comm.length + ' รายการ — ดูครบในไฟล์ Excel</p>' : '') : '<p style="color:#51676f">ไม่มีข้อเสนอแนะในเดือนนี้</p>')
+    + '</div></body></html>';
+}
+var RX_COL = ['#0f766e', '#f0b45a', '#1d4ed8', '#b91c1c', '#7c3aed', '#15803d'];
+/* สร้างภาพกราฟ (PNG) ด้วย Charts service — kind: column | bar | pie · head: ['ชื่อแกน', 'ชุดที่ 1', ...] · rows: [[ป้าย, ค่า, ...]] */
+function rxChartBlob_(kind, head, rows, o) {
+  o = o || {};
+  var dt = Charts.newDataTable();
+  head.forEach(function (h, i) { dt.addColumn(i ? Charts.ColumnType.NUMBER : Charts.ColumnType.STRING, h); });
+  rows.forEach(function (r) { dt.addRow(r); });
+  var b = kind === 'pie' ? Charts.newPieChart() : kind === 'bar' ? Charts.newBarChart() : Charts.newColumnChart();
+  b.setDataTable(dt.build()).setDimensions(o.w || 640, o.h || 300).setColors(o.colors || RX_COL);
+  if (kind === 'pie') b.setOption('legend.position', 'right').setOption('pieSliceText', 'value');
+  else { b.setLegendPosition(head.length > 2 ? Charts.Position.BOTTOM : Charts.Position.NONE); if (o.max) b.setRange(0, o.max); }
+  return b.build().getBlob().setName('chart.png');
+}
+function rxDoc_(m) {
+  var doc = DocumentApp.create('rx_' + m.ym + '_' + Date.now()), body = doc.getBody(), at = {};
+  at[DocumentApp.Attribute.FONT_FAMILY] = RX_FONT; body.setAttributes(at);
+  body.setPageWidth(595).setPageHeight(842).setMarginTop(42).setMarginBottom(42).setMarginLeft(50).setMarginRight(50);
+  /* หมายเหตุ: ย่อหน้า/เซลล์ที่ว่างเปล่า editAsText() อาจคืน null จึงไม่ปล่อยข้อความว่าง (ใช้ช่องว่าง 1 ตัว) และตรวจ null ก่อนจัดรูปแบบทุกครั้ง */
+  function txt(v) { var s = String(v == null ? '' : v); return s === '' ? ' ' : s; }
+  function fmt(el, fn) { var x = el.editAsText(); if (x) fn(x); }
+  function P(t, size, bold, color, after, before) {
+    var p = body.appendParagraph(txt(t));
+    fmt(p, function (x) { x.setFontFamily(RX_FONT).setFontSize(size).setBold(!!bold).setForegroundColor(color || '#12303a'); });
+    p.setSpacingAfter(after == null ? 4 : after).setSpacingBefore(before || 0);
+    return p;
+  }
+  function gap() { var p = body.appendParagraph(' '); fmt(p, function (x) { x.setFontSize(4); }); }
+  function H(t, before) { return P(t, 14, true, '#0b5a54', 4, before == null ? 8 : before); }
+  function T(head, rows, widths, badLast) {
+    var data = [head].concat(rows.map(function (r) { return (r.cells || r).map(txt); }));
+    data[0] = data[0].map(txt);
+    var t = body.appendTable(data); t.setBorderColor('#d5e3e5').setBorderWidth(0.5);
+    for (var i = 0; i < data.length; i++) for (var j = 0; j < data[i].length; j++) {
+      var c = t.getRow(i).getCell(j), isBad = i > 0 && badLast && rows[i - 1].bad && j === data[i].length - 1;
+      fmt(c, function (x) { x.setFontFamily(RX_FONT).setFontSize(10).setBold(i === 0 || isBad); if (isBad) x.setForegroundColor('#b91c1c'); });
+      c.setPaddingTop(3).setPaddingBottom(3).setPaddingLeft(5).setPaddingRight(5);
+      if (i === 0) c.setBackgroundColor('#e8f1f1');
+    }
+    widths.forEach(function (w, j) { t.setColumnWidth(j, w); });
+    gap();
+    return t;
+  }
+  function IMG(make) {   /* ใส่กราฟเป็นรูป — ถ้าสร้างไม่สำเร็จ ข้ามกราฟนั้น ไม่ให้เอกสารทั้งฉบับพัง */
+    try { var im = body.appendImage(make()), w = im.getWidth(), h = im.getHeight(); im.setWidth(495).setHeight(Math.round(495 * h / w)); gap(); }
+    catch (ei) { log_('rx_chart', '', 'error', String(ei && ei.message || ei).slice(0, 160)); }
+  }
+  /* ===== หน้า 1: หัวรายงาน · สรุปประเด็นสำคัญ · ตัวชี้วัด · แนวโน้ม ===== */
+  var tt = body.appendTable([[' ']]); tt.setBorderWidth(0);
+  var tc = tt.getRow(0).getCell(0); tc.setBackgroundColor('#0f766e').setPaddingTop(14).setPaddingBottom(14).setPaddingLeft(16).setPaddingRight(16);
+  tc.setText(m.title); fmt(tc, function (x) { x.setFontFamily(RX_FONT).setFontSize(22).setBold(true).setForegroundColor('#ffffff'); });
+  var sp = tc.appendParagraph(m.sub + ' · ' + m.gen); fmt(sp, function (x) { x.setFontFamily(RX_FONT).setFontSize(10).setBold(false).setForegroundColor('#d7efec'); });
+  gap();
+  var kb = body.appendTable([[' ']]); kb.setBorderColor('#cfe5e2').setBorderWidth(0.75);
+  var kc = kb.getRow(0).getCell(0); kc.setBackgroundColor('#eef7f6').setPaddingTop(8).setPaddingBottom(8).setPaddingLeft(12).setPaddingRight(12);
+  kc.setText('สรุปประเด็นสำคัญ'); fmt(kc, function (x) { x.setFontFamily(RX_FONT).setFontSize(12).setBold(true).setForegroundColor('#0b5a54'); });
+  m.hl.forEach(function (t) { var pp = kc.appendParagraph('• ' + t); fmt(pp, function (x) { x.setFontFamily(RX_FONT).setFontSize(11).setBold(false).setForegroundColor('#12303a'); }); pp.setSpacingAfter(3); });
+  gap();
+  var kt = body.appendTable([[' ', ' ', ' '], [' ', ' ', ' ']]);
+  kt.setBorderColor('#ffffff');
+  m.kpis.forEach(function (k, i) {
+    var c = kt.getRow(Math.floor(i / 3)).getCell(i % 3), lab = String(k[0]), val = txt(k[1]), dl = k[3] || '', color = k[2] === 'bad' ? '#b91c1c' : k[2] === 'good' ? '#15803d' : '#12303a';
+    c.setText(lab + '\n' + val + (dl ? '\n' + dl : '')); c.setBackgroundColor('#f3f8f8').setPaddingTop(6).setPaddingBottom(6).setPaddingLeft(8).setPaddingRight(8);
+    var v0 = lab.length + 1, v1 = lab.length + val.length;
+    fmt(c, function (x) {
+      x.setFontFamily(RX_FONT).setFontSize(0, lab.length - 1, 10).setForegroundColor(0, lab.length - 1, '#51676f');
+      x.setFontSize(v0, v1, 24).setBold(v0, v1, true).setForegroundColor(v0, v1, color);
+      if (dl) x.setFontSize(v1 + 2, v1 + 1 + dl.length, 9.5).setForegroundColor(v1 + 2, v1 + 1 + dl.length, k[4] === 'good' ? '#15803d' : k[4] === 'bad' ? '#b91c1c' : '#51676f');
+    });
+  });
+  gap();
+  m.notes.forEach(function (n) { P(n, 10.5, false, '#51676f', 2); });
+  H('แนวโน้ม 6 เดือน — ยื่นใหม่เทียบปิดเคสสำเร็จ', 10);
+  if (m.cd.tr.length) IMG(function () { return rxChartBlob_('column', ['เดือน', 'ยื่นใหม่', 'ปิดเคสสำเร็จ'], m.cd.tr, { w: 640, h: 280, colors: ['#0f766e', '#15803d'] }); });
+  /* ===== หน้า 2: ระยะเวลาตามขั้นตอน · ความพึงพอใจ ===== */
+  body.appendPageBreak();
+  H('ระยะเวลาเฉลี่ยต่อขั้นตอน เทียบเกณฑ์ (ขั้นตอนที่จบในเดือนนี้)', 0);
+  if (m.cd.st.length) IMG(function () { return rxChartBlob_('bar', ['ขั้นตอน', 'เฉลี่ย (วัน)', 'เกณฑ์ (วัน)'], m.cd.st, { w: 640, h: Math.min(760, 90 + 46 * m.cd.st.length), colors: ['#0f766e', '#f0b45a'] }); });
+  if (m.stages.length) T(m.stageHead, m.stages, [215, 60, 70, 70, 80], true); else P('ไม่มีขั้นตอนที่จบในเดือนนี้', 10.5, false, '#51676f');
+  H('ความพึงพอใจ (เต็ม 5)');
+  m.sv.forEach(function (o, oi) { P(o.t + ' · ' + o.line, 11, true, '#12303a', 3); var sr = m.cd.sat[oi].rows; if (sr.length) IMG(function () { return rxChartBlob_('bar', ['ด้าน', 'คะแนนเฉลี่ย'], sr, { w: 640, h: Math.min(700, 80 + 40 * sr.length), max: 5, colors: ['#0f766e'] }); }); if (o.aspects.length) T(['ด้าน', 'คะแนนเฉลี่ย'], o.aspects, [395, 100]); });
+  /* ===== หน้า 3: เคสที่ต้องติดตาม · ข้อเสนอแนะ ===== */
+  body.appendPageBreak();
+  H('เคสที่ต้องติดตาม (เกินเกณฑ์ หรือเหลือไม่เกิน 30 วันก่อนครบ 180 วัน)', 0);
+  if (m.cd.bk[0][1] + m.cd.bk[1][1] > 0) IMG(function () { return rxChartBlob_('pie', ['กลุ่ม', 'จำนวน'], m.cd.bk, { w: 520, h: 240, colors: ['#b91c1c', '#15803d'] }); });
+  if (m.briefRows.length) { T(m.briefHead, m.briefRows, [75, 130, 130, 55, 45, 60]); if (m.brief.length > RX_BACK_MAX) P('แสดง ' + RX_BACK_MAX + ' จาก ' + m.brief.length + ' เคส — ดูครบทุกเคสในไฟล์ Excel', 10, false, '#51676f'); } else P('ไม่มีเคสที่ต้องติดตามเป็นพิเศษ', 10.5, false, '#51676f');
+  H('ข้อเสนอแนะจากแบบประเมิน');
+  if (m.comm.length) { T(['ผู้ตอบ', 'รหัสเคส', 'เวลา', 'คะแนน', 'ปัญหา/อุปสรรค', 'อยากให้ปรับปรุง', 'ข้อเสนอแนะอื่น'], m.comm.slice(0, RX_COMM_MAX), [55, 68, 70, 36, 90, 90, 86]); if (m.comm.length > RX_COMM_MAX) P('แสดง ' + RX_COMM_MAX + ' จาก ' + m.comm.length + ' รายการ — ดูครบในไฟล์ Excel', 10, false, '#51676f'); } else P('ไม่มีข้อเสนอแนะในเดือนนี้', 10.5, false, '#51676f');
+  /* ย่อหน้าว่างแรกสุดที่เอกสารใหม่สร้างมาให้ — ลบทิ้ง */
+  try { var f0 = body.getChild(0); if (f0.getType() === DocumentApp.ElementType.PARAGRAPH && f0.asParagraph().getText() === '' && body.getNumChildren() > 1) body.removeChild(f0); } catch (e0) { }
+  var id = doc.getId(); doc.saveAndClose(); return id;
+}
+/* ตรวจปัญหาการสร้างไฟล์: กดรันจากเมนู Apps Script → ดูลิงก์เอกสารที่สร้างใน Execution log (ไฟล์นี้ไม่ถูกลบ ลบเองเมื่อดูเสร็จ) */
+function rxDebug() {
+  var ym = now_().slice(0, 7), m = rxModel_(ym), id = rxDoc_(m), sid = rxSheet_(m);
+  Logger.log('Docs: https://docs.google.com/document/d/' + id + '/edit'); Logger.log('Sheets: https://docs.google.com/spreadsheets/d/' + sid + '/edit');
+}
+function rxSheet_(m) {
+  var ss = SpreadsheetApp.create('rx_' + m.ym + '_' + Date.now());
+  function safe(v) { return typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v; }   /* กันสูตรแฝงจากข้อความที่ผู้ใช้พิมพ์ */
+  function put(sh, rows, hdr, widths) {
+    var w = 1; rows.forEach(function (r) { if (r.length > w) w = r.length; });
+    var grid = rows.map(function (r) { var o = r.map(safe); while (o.length < w) o.push(''); return o; });
+    if (grid.length) sh.getRange(1, 1, grid.length, w).setValues(grid);
+    sh.getRange(1, 1, Math.max(grid.length, 1), w).setFontFamily(RX_FONT).setVerticalAlignment('top');
+    (hdr || []).forEach(function (i) { sh.getRange(i, 1, 1, w).setFontWeight('bold').setBackground('#e8f1f1'); });
+    (widths || []).forEach(function (px, j) { sh.setColumnWidth(j + 1, px); });
+    return w;
+  }
+  var s1 = ss.getSheets()[0].setName('สรุป'), r = [[m.title], [m.sub], [m.gen], [''], ['สรุปประเด็นสำคัญ']], hdr = [];
+  m.hl.forEach(function (t) { r.push(['• ' + t]); });
+  r.push(['']); hdr.push(r.length + 1); r.push(['ตัวชี้วัด', 'ค่า', 'เทียบเดือนก่อน']);
+  m.kpis.forEach(function (k) { r.push([k[0], k[1], k[3] || '']); });
+  r.push(['']); m.notes.forEach(function (n) { r.push([n]); });
+  r.push([''], ['ระยะเวลาเฉลี่ยต่อขั้นตอน (ขั้นตอนที่จบในเดือนนี้) เทียบเกณฑ์']); hdr.push(r.length + 1); r.push(m.stageHead);
+  m.stages.forEach(function (s) { r.push(s.cells); });
+  put(s1, r, hdr, [330, 110, 150, 110, 110]);
+  s1.getRange(1, 1).setFontSize(14).setFontWeight('bold'); s1.getRange(5, 1).setFontWeight('bold');
+  var s2 = ss.insertSheet('ความพึงพอใจ'), r2 = [], h2 = [];
+  m.sv.forEach(function (o) { r2.push([o.t + ' · ' + o.line]); h2.push(r2.length); r2.push(['ด้าน', 'คะแนนเฉลี่ย']); o.aspects.forEach(function (a) { r2.push(a); }); r2.push(['']); });
+  put(s2, r2, h2, [420, 120]);
+  var s3 = ss.insertSheet('งานค้างรายเคส'); put(s3, [m.backHead].concat(m.back), [1], [130, 160, 150, 90, 130, 130, 260, 90, 80, 90, 130]); s3.setFrozenRows(1);
+  var s4 = ss.insertSheet('ข้อเสนอแนะ'); put(s4, [m.commHead].concat(m.comm), [1], [90, 130, 130, 80, 280, 280, 280]); s4.getRange(1, 1, Math.max(m.comm.length + 1, 1), 7).setWrap(true); s4.setFrozenRows(1);
+  try {   /* แผ่นงาน "กราฟ": ตารางตัวเลข + กราฟแบบ Excel (แก้ไขได้) */
+    var sc = ss.insertSheet('กราฟ', 1), row = 1, cd = m.cd, pos = 1;
+    function tab(title, head, rows) {
+      sc.getRange(row, 1).setValue(title).setFontWeight('bold'); row++;
+      sc.getRange(row, 1, 1, head.length).setValues([head]).setFontWeight('bold').setBackground('#e8f1f1'); row++;
+      var from = row - 1;
+      if (rows.length) { sc.getRange(row, 1, rows.length, head.length).setValues(rows.map(function (rr) { return rr.map(safe); })); row += rows.length; }
+      row++;
+      return sc.getRange(from, 1, rows.length + 1, head.length);
+    }
+    function chart(type, rng, title, o) {
+      var c = sc.newChart().setChartType(type).addRange(rng).setNumHeaders(1).setPosition(pos, 5, 0, 0).setOption('title', title).setOption('width', 560).setOption('height', 300).setOption('legend.position', (o && o.legend) || 'none');
+      if (o && o.colors) c = c.setOption('colors', o.colors);
+      if (o && o.max) c = c.setOption('vAxis.viewWindow.max', o.max).setOption('hAxis.viewWindow.max', o.max);
+      sc.insertChart(c.build()); pos += 17;
+    }
+    if (cd.tr.length) { var t1 = tab('แนวโน้ม 6 เดือน', ['เดือน', 'ยื่นใหม่', 'ปิดเคสสำเร็จ'], cd.tr); chart(Charts.ChartType.COLUMN, t1, 'แนวโน้ม 6 เดือน — ยื่นใหม่เทียบปิดเคสสำเร็จ', { legend: 'bottom', colors: ['#0f766e', '#15803d'] }); }
+    if (cd.st.length) { var t2 = tab('ระยะเวลาเฉลี่ยต่อขั้นตอนเทียบเกณฑ์ (วัน)', ['ขั้นตอน', 'เฉลี่ย (วัน)', 'เกณฑ์ (วัน)'], cd.st); chart(Charts.ChartType.BAR, t2, 'ระยะเวลาเฉลี่ยเทียบเกณฑ์ (วัน)', { legend: 'bottom', colors: ['#0f766e', '#f0b45a'] }); }
+    cd.sat.forEach(function (o) { if (o.rows.length) { var t3 = tab('ความพึงพอใจ · ' + o.t + ' (เต็ม 5)', ['ด้าน', 'คะแนนเฉลี่ย'], o.rows); chart(Charts.ChartType.BAR, t3, 'ความพึงพอใจ · ' + o.t, { max: 5, colors: ['#0f766e'] }); } });
+    if (cd.bk[0][1] + cd.bk[1][1] > 0) { var t4 = tab('สัดส่วนงานค้าง', ['กลุ่ม', 'จำนวน'], cd.bk); chart(Charts.ChartType.PIE, t4, 'สัดส่วนงานค้าง', { legend: 'right', colors: ['#b91c1c', '#15803d'] }); }
+    sc.getRange(1, 1, Math.max(row, 2), 3).setFontFamily(RX_FONT); sc.setColumnWidth(1, 230); sc.setColumnWidth(2, 110); sc.setColumnWidth(3, 110);
+  } catch (ec) { log_('rx_chart', '', 'error', String(ec && ec.message || ec).slice(0, 160)); }
+  SpreadsheetApp.flush();
+  return ss.getId();
+}
+function rxFetch_(id, fmt) {
+  var res = UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/files/' + id + '/export?mimeType=' + encodeURIComponent(RX_MIME[fmt]), { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true });
+  if (res.getResponseCode() !== 200) throw new Error('สร้างไฟล์ไม่สำเร็จ (รหัส ' + res.getResponseCode() + ') — ตรวจสิทธิ์ Google Docs/Drive ของสคริปต์');
+  return res.getBlob();
+}
+/* fmt: docx | xlsx | pdf = ไฟล์ (base64) · html = พรีวิวเนื้อหา (ไม่สร้างไฟล์) */
+function apiReportExport_(token, ym, fmt) {
+  var u = auth_(token, true); ym = ymOk_(ym) ? ym : now_().slice(0, 7); fmt = str_(fmt).toLowerCase();
+  if (['docx', 'xlsx', 'pdf', 'html'].indexOf(fmt) < 0) throw new Error('ประเภทไฟล์ไม่ถูกต้อง');
+  if (!rateOk_('rx_' + u.u, 12, 600)) throw new Error('ส่งออกบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่');
+  var m = rxModel_(ym);
+  if (fmt === 'html') return { ym: ym, html: rxHtml_(m, 'html'), name: m.name };
+  var id = fmt === 'xlsx' ? rxSheet_(m) : rxDoc_(m), blob;
+  try { blob = rxFetch_(id, fmt); } finally { try { DriveApp.getFileById(id).setTrashed(true); } catch (e) { } }
+  var bytes = blob.getBytes();
+  log_('report_export', u.u, 'success', ym + ' ' + fmt + ' ' + bytes.length + 'B');
+  return { ym: ym, name: m.name + '.' + fmt, mime: RX_MIME[fmt], b64: Utilities.base64Encode(bytes), size: bytes.length };
+}
+/* เจ้าของสคริปต์กดรัน 1 ครั้งเพื่ออนุมัติสิทธิ์ Google Docs / Sheets / Drive สำหรับการส่งออกรายงาน (ไม่ทิ้งไฟล์ค้าง) */
+function rxAuthorize() {
+  var d = DocumentApp.create('rx_auth'); DriveApp.getFileById(d.getId()).setTrashed(true);
+  var s = SpreadsheetApp.create('rx_auth'); DriveApp.getFileById(s.getId()).setTrashed(true);
+  UrlFetchApp.fetch('https://www.googleapis.com/drive/v3/about?fields=user', { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() } });
+  Logger.log('อนุมัติสิทธิ์ครบแล้ว — Deploy เวอร์ชันใหม่ได้');
+}
+function apiMetSave_(token, p) {
+  var u = auth_(token); p = p || {};
+  var ym = str_(p.ym); if (ym !== 'baseline' && !ymOk_(ym)) throw new Error('เดือนไม่ถูกต้อง');
+  var c = str_(p.calls); if (c !== '' && !(/^\d{1,5}$/.test(c))) throw new Error('จำนวนสายต้องเป็นตัวเลข 0-99999');
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
   try {
-    var s = sheet_('LNP'), n = s.getLastRow(); if (n < 2) return { ok: true, eligible: 0, sent: 0, failed: 0, dry: !!dry };
-    var linked = {}; lnuRows_().forEach(function (r) { if (r.active) linked[r.uid] = 1; });
-    var v = s.getRange(2, 1, n - 1, 8).getValues(), now = Date.now(), todo = [];
-    v.forEach(function (r, i) {
-      var uid = str_(r[0]), st = str_(r[4]); if (!uid || st !== 'pending' || linked[uid]) return;     // เฉพาะที่ยังไม่ผูก (ไม่รวมผูกแล้ว/เลิกติดตาม)
-      var added = Date.parse(str_(r[2]).replace(' ', 'T') + '+07:00'), last = Date.parse(str_(r[6]).replace(' ', 'T') + '+07:00'), cnt = parseInt(r[7], 10) || 0;
-      if (cnt >= REMIND_MAX_TIMES) return;
-      if (!isNaN(added) && now - added < REMIND_MIN_HOURS * 36e5) return;
-      if (!isNaN(last) && now - last < REMIND_GAP_DAYS * 864e5) return;
-      todo.push({ row: i + 2, uid: uid, tried: !!str_(r[3]), cnt: cnt });
-    });
-    var out = { ok: true, eligible: todo.length, sent: 0, failed: 0, dry: !!dry, left: Math.max(0, todo.length - REMIND_MAX_PER_RUN) };
-    if (dry) return out;
-    todo.slice(0, REMIND_MAX_PER_RUN).forEach(function (t) {
-      var r = linePush_(t.uid, [{ type: 'text', text: remindText_(t.tried) }, manualMsg_()]);
-      if (r.ok) {
-        out.sent++;
-        var rg = s.getRange(t.row, 7, 1, 2); rg.setNumberFormat('@'); rg.setValues([[now_(), String(t.cnt + 1)]]);
-        lineLog_('', '', 'bot', 'ระบบ', 'ส่งข้อความเตือนให้เชื่อมต่อ LINE + คู่มือ (ครั้งที่ ' + (t.cnt + 1) + ')', null, 'sent', 'userId=' + t.uid);
-      } else {
-        out.failed++;
-        lineLog_('', '', 'bot', 'ระบบ', 'ส่งข้อความเตือนให้เชื่อมต่อ LINE ไม่สำเร็จ', null, 'fail', ((r.err || ('HTTP ' + r.status)) + '').slice(0, 150) + ' userId=' + t.uid);
-      }
-    });
-    log_('line_remind', '', 'success', 'ส่ง ' + out.sent + ' / ไม่สำเร็จ ' + out.failed + ' / ผู้มีสิทธิ์ ' + out.eligible);
-    return out;
+    var cur = metRows_().filter(function (r) { return r.ym === ym; })[0], sh = sheet_('MET');
+    if (cur) { setText_(sh.getRange(cur.row, 2, 1, 1), c); setText_(sh.getRange(cur.row, 3, 1, 1), str_(p.note).slice(0, 200)); setText_(sh.getRange(cur.row, 4, 1, 1), u.u); setText_(sh.getRange(cur.row, 5, 1, 1), now_()); }
+    else appendText_(sh, [ym, c, str_(p.note).slice(0, 200), u.u, now_()]);
   } finally { lock.releaseLock(); }
+  log_('met_save', u.u, 'success', ym + ': ' + c);
+  return { ym: ym };
 }
-function remindUnlinkedDryRun() { var r = remindUnlinked_(true); Logger.log('ทดสอบ (ยังไม่ส่งจริง): ' + JSON.stringify(r)); return r; }
-function remindUnlinked() { var r = remindUnlinked_(false); Logger.log('ผลการส่ง: ' + JSON.stringify(r)); return r; }
-function installRemindTrigger() {
-  removeRemindTrigger();
-  ScriptApp.newTrigger('remindUnlinked').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).inTimezone(TZ).create();
-  Logger.log('ตั้งเวลาแล้ว: ส่งข้อความเตือนทุกวันจันทร์ 09:00 (ไทย)');
+function apiReportSend_(token, ym) {
+  var u = auth_(token, true); ym = ymOk_(ym) ? ym : now_().slice(0, 7);
+  var r = sendMonthlyReport_(ym, { prefix: '[ส่งเอง] ' });
+  log_('report_send', u.u, 'success', ym);
+  return r;
 }
-function removeRemindTrigger() {
-  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'remindUnlinked') ScriptApp.deleteTrigger(t); });
+
+/* ======================================================================
+ *  ติดตามเคสที่ล่าช้า (เจาะรายเคสจากตารางในรายงานประจำเดือน) + บันทึกผลทบทวนปัจจัยความล่าช้า
+ *  แท็บ "ทบทวนความล่าช้า" ถูกสร้างอัตโนมัติเมื่อบันทึกผลทบทวนครั้งแรก
+ * ====================================================================== */
+var DLY_SHEET = 'ทบทวนความล่าช้า';
+var DLY_HEAD = ['รหัสเคส', 'รหัสขั้นตอน', 'ครั้งที่เข้าขั้นตอน', 'ชื่อขั้นตอน', 'เวลาเข้าขั้นตอน', 'เวลาออกขั้นตอน', 'จำนวนวัน', 'เกณฑ์ (วัน)', 'รหัสปัจจัย', 'ปัจจัยความล่าช้า', 'หมายเหตุ', 'ผู้ทบทวน', 'เวลาทบทวน'];
+var DLY_NOTE_MAX = 300;
+/* ทบทวนเฉพาะขั้นตอนที่ "จบ" ตั้งแต่วันนี้เป็นต้นไป และเคสที่ยังค้างอยู่ขณะนี้ (ข้อมูลที่จบก่อน ต.ค. 2569 มาจากการกู้ข้อมูลที่ไม่สมบูรณ์ วัน-เวลาอาจไม่ตรง) */
+var DLY_FROM = '2026-10-01 00:00:00';
+var DLY_CAUSES = [
+  { k: 'applicant', g: 'ฝั่งผู้ยื่น', t: 'ผู้ยื่นแก้ไข / ส่งเอกสารล่าช้า' },
+  { k: 'withdraw', g: 'ฝั่งผู้ยื่น', t: 'ยกเลิกการส่งประเมิน (ผู้ยื่นไม่ดำเนินการต่อ)' },
+  { k: 'docs', g: 'ฝั่งผู้ยื่น', t: 'เอกสารไม่ครบ หรือต้องแก้ไขหลายรอบ' },
+  { k: 'hr', g: 'ภายในกลุ่มงานทรัพยากรบุคคล', t: 'ตรวจสอบ / เสนอลงนามภายในล่าช้า' },
+  { k: 'sysdelay', g: 'ภายในกลุ่มงานทรัพยากรบุคคล', t: 'บันทึกสถานะในระบบช้ากว่าที่ดำเนินการจริง' },
+  { k: 'sign', g: 'หน่วยงานภายนอก', t: 'รอลงนาม (ผอ. / นพ.สสจ. / ผวจ.)' },
+  { k: 'round', g: 'หน่วยงานภายนอก', t: 'รอรอบประชุม / คณะกรรมการอ่านผลงาน' },
+  { k: 'external', g: 'หน่วยงานภายนอก', t: 'สสจ. / เขตสุขภาพที่ 1 ตอบกลับช้า' },
+  { k: 'other', g: 'อื่น ๆ', t: 'อื่น ๆ (ระบุในหมายเหตุ)' }
+];
+
+function dlySheet_() {
+  var ss = ss_(), s = ss.getSheetByName(DLY_SHEET);
+  if (!s) {
+    s = ss.insertSheet(DLY_SHEET);
+    s.getRange(1, 1, 1, DLY_HEAD.length).setValues([DLY_HEAD]).setFontWeight('bold');
+    s.setFrozenRows(1);
+    fmt_(s.getRange(1, 1, s.getMaxRows(), DLY_HEAD.length), '@');
+  }
+  return s;
+}
+/* ช่วงเวลาที่เคสอยู่ในแต่ละขั้นตอน — L = ประวัติเรียงตามเวลา [{t, s}]
+ * เริ่มนับจากแถวแรกที่เข้าสถานะ (แถวที่แก้เฉพาะหมายเหตุของสถานะเดิมไม่เริ่มนับใหม่) ถึงแถวแรกของสถานะถัดไป
+ * คืน [{k, occ (ครั้งที่เข้าขั้นตอน), t0, t1 (null = ยังอยู่), d (วัน | null)}] */
+function stageRuns_(L, nowMs) {
+  var out = [], occ = {};
+  for (var i = 0; i < L.length; i++) {
+    if (i > 0 && L[i].s === L[i - 1].s) continue;
+    var k = L[i].s, j = i + 1;
+    while (j < L.length && L[j].s === k) j++;
+    occ[k] = (occ[k] || 0) + 1;
+    var a = ms_(L[i].t), ended = j < L.length, b = ended ? ms_(L[j].t) : nowMs;
+    out.push({ k: k, occ: occ[k], t0: L[i].t, t1: ended ? L[j].t : null, d: (a === null || b === null) ? null : Math.max(0, (b - a) / 864e5) });
+  }
+  return out;
+}
+function hisByCase_() {
+  var sh = sheet_('HIS'), hv = [], by = {};
+  if (sh.getLastRow() > 1) V_(sh.getRange(2, 1, sh.getLastRow() - 1, 5)).forEach(function (r, i) { hv.push({ id: str_(r[0]), t: str_(r[1]), s: normKey_(str_(r[2])), i: i }); });
+  hv.forEach(function (h) { (by[h.id] = by[h.id] || []).push(h); });
+  Object.keys(by).forEach(function (k) { by[k].sort(function (x, y) { return x.t < y.t ? -1 : x.t > y.t ? 1 : x.i - y.i; }); });
+  return by;
+}
+function dlyRows_() {
+  var sh = dlySheet_(), n = sh.getLastRow(); if (n < 2) return [];
+  return V_(sh.getRange(2, 1, n - 1, DLY_HEAD.length)).map(function (r, i) {
+    return { row: i + 2, id: str_(r[0]), k: normKey_(str_(r[1])), occ: +r[2] || 0, causes: str_(r[8]).split(',').filter(Boolean), note: str_(r[10]), by: str_(r[11]), at: str_(r[12]) };
+  });
+}
+function dlyMap_() { var m = {}; dlyRows_().forEach(function (r) { m[r.id + '|' + r.k + '|' + r.occ] = r; }); return m; }
+
+/* รายงานประจำเดือนเดิม + จำนวนเคสเกินเกณฑ์/ทบทวนแล้วต่อขั้นตอน (คำนวณจาก stageRuns_ ชุดเดียวกับหน้ารายเคส ตัวเลขจึงตรงกัน) */
+function apiReportGetDly_(token, ym) {
+  var res = apiReportGet_(token, ym), rep = res.report, nowMs = Date.now();
+  var a = rep.ym + '-01 00:00:00', b = ymNext_(rep.ym) + '-01 00:00:00', rv = dlyMap_(), by = hisByCase_(), acc = {};
+  Object.keys(by).forEach(function (id) {
+    stageRuns_(by[id], nowMs).forEach(function (r) {
+      var st = stageObj_(r.k);
+      if (r.t1 === null || !(r.t1 >= a && r.t1 < b) || st.end || r.d === null) return;
+      var o = acc[r.k] = acc[r.k] || { n: 0, sum: 0, late: 0, rev: 0, pre: 0 };
+      o.n++; o.sum += r.d;
+      if (st.sla > 0 && r1_(r.d) > st.sla) { if (r.t1 < DLY_FROM) o.pre++; else { o.late++; if (rv[id + '|' + r.k + '|' + r.occ]) o.rev++; } }
+    });
+  });
+  rep.stages = Object.keys(acc).map(function (k) { var st = stageObj_(k), o = acc[k]; return { k: k, t: st.t, ord: st.ord || 0, sla: st.sla || 0, n: o.n, avg: r1_(o.sum / o.n), late: o.late, rev: o.rev, pre: o.pre }; })
+    .sort(function (x, y) { return x.ord - y.ord; });
+  rep.dlyFrom = DLY_FROM.slice(0, 7);
+  return res;
+}
+
+/* รายชื่อเคสของขั้นตอนหนึ่ง (stageKey ว่าง = ทุกขั้นตอน เฉพาะที่ค้างเกินเกณฑ์ขณะนี้) */
+function apiStageCases_(token, ym, stageKey) {
+  auth_(token); ym = ymOk_(ym) ? ym : now_().slice(0, 7);
+  stageKey = str_(stageKey) ? normKey_(str_(stageKey)) : '';
+  if (stageKey && !stageOk_(stageKey)) throw new Error('ขั้นตอนไม่ถูกต้อง');
+  var a = ym + '-01 00:00:00', b = ymNext_(ym) + '-01 00:00:00', nowMs = Date.now();
+  var subs = subs_(), byId = {}, by = hisByCase_(), rv = dlyMap_(), done = [], open = [], pre = 0;
+  subs.forEach(function (r) { byId[r.id] = r; });
+  function label_(st, occ) { return st.t + ((st.fix || st.rep) && occ > 1 ? ' ครั้งที่ ' + occ : ''); }
+  function pack_(id, r, runs, isOpen, st) {
+    var it = byId[id], v = rv[id + '|' + r.k + '|' + r.occ], sla = st.sla || 0, d = r1_(r.d);
+    return {
+      id: id, name: it ? mailName_(it) : '(ไม่พบข้อมูลผู้ยื่น — รายการอาจถูกลบ)', pos: it ? it.position : '', trk: it ? it.track : '', title: it ? it.title : '',
+      k: r.k, occ: r.occ, t0: r.t0, t1: r.t1, d: d, sla: sla, over: sla > 0 ? r1_(r.d - sla) : null,
+      late: sla > 0 && (isOpen ? Math.floor(r.d) > sla : d > sla), open: isOpen, stage: label_(st, r.occ), owner: st.o || '',
+      rev: v ? { causes: v.causes, note: v.note, by: v.by, at: v.at } : null,
+      tl: runs.map(function (x) {
+        var s2 = stageObj_(x.k), dd = (s2.end || x.d === null) ? null : r1_(x.d), pre = !!(x.t1 && x.t1 < DLY_FROM);
+        return { t: label_(s2, x.occ), at: x.t0, d: dd, sla: s2.sla || 0, pre: pre, late: !pre && !!(s2.sla > 0 && dd !== null && dd > s2.sla), cur: x.t1 === null, here: x.k === r.k && x.occ === r.occ, end: !!s2.end };
+      })
+    };
+  }
+  /* 1) ขั้นตอนที่จบในเดือนนี้ — ตรงกับตารางเฉลี่ยในรายงาน */
+  if (stageKey) Object.keys(by).forEach(function (id) {
+    var runs = stageRuns_(by[id], nowMs), st = stageObj_(stageKey);
+    runs.forEach(function (r) {
+      if (r.k !== stageKey || r.t1 === null || !(r.t1 >= a && r.t1 < b) || st.end || r.d === null) return;
+      if (r.t1 < DLY_FROM) { if (st.sla > 0 && r1_(r.d) > st.sla) pre++; return; }
+      done.push(pack_(id, r, runs, false, st));
+    });
+  });
+  /* 2) ค้างอยู่ตอนนี้และเกินเกณฑ์ — ตรงกับตัวเลข "ค้างนานกว่าเกณฑ์" */
+  subs.forEach(function (it) {
+    var st = stageObj_(it.status); if (st.end || !(st.sla > 0)) return;
+    if (stageKey && st.k !== stageKey) return;
+    var L = by[it.id] || [], since = sinceOfCurrent_(L.map(function (h) { return { t: h.t, s: h.s }; }), normKey_(it.status), it.upd || it.ts), t = ms_(since);
+    if (t === null) return;
+    var days = (nowMs - t) / 864e5; if (!(Math.floor(days) > st.sla)) return;
+    var runs = stageRuns_(L, nowMs), r = runs.filter(function (x) { return x.k === st.k && x.t1 === null; }).pop();
+    if (!r) { r = { k: st.k, occ: runs.filter(function (x) { return x.k === st.k; }).length + 1, t0: since, t1: null, d: days }; runs.push(r); }
+    r.t0 = since; r.d = days;
+    open.push(pack_(it.id, r, runs, true, st));
+  });
+  done.sort(function (x, y) { return y.d - x.d; }); open.sort(function (x, y) { return y.d - x.d; });
+  var s0 = stageKey ? stageObj_(stageKey) : null;
+  return { ym: ym, stage: s0 ? { k: s0.k, t: s0.t, sla: s0.sla || 0, o: s0.o || '', rng: s0.rng || '' } : null, done: done, open: open, causes: DLY_CAUSES, pre: pre, from: DLY_FROM.slice(0, 7), nowMs: nowMs };
+}
+
+/* บันทึก/ล้างผลทบทวนของ "ช่วงเวลาหนึ่งของเคส" (รหัสเคส + ขั้นตอน + ครั้งที่เข้าขั้นตอน) */
+function apiDelaySave_(token, p) {
+  var u = auth_(token); p = p || {};
+  var id = str_(p.id), k = normKey_(str_(p.k)), occ = Math.floor(+p.occ);
+  if (!findSub_(id)) throw new Error('ไม่พบรายการ');
+  if (!stageOk_(k)) throw new Error('ขั้นตอนไม่ถูกต้อง');
+  if (!(occ >= 1)) throw new Error('ครั้งที่เข้าขั้นตอนไม่ถูกต้อง');
+  var okKeys = DLY_CAUSES.map(function (c) { return c.k; }), cs = [];
+  (Array.isArray(p.causes) ? p.causes : []).forEach(function (c) { c = str_(c); if (okKeys.indexOf(c) >= 0 && cs.indexOf(c) < 0) cs.push(c); });
+  var note = str_(p.note).replace(/\s+/g, ' ').trim().slice(0, DLY_NOTE_MAX);
+  if (cs.indexOf('other') >= 0 && !note) throw new Error('เลือก "อื่น ๆ" ต้องระบุรายละเอียดในหมายเหตุ');
+  var run = stageRuns_(hisMine_(id).map(function (h) { return { t: h.t, s: h.s }; }), Date.now()).filter(function (r) { return r.k === k && r.occ === occ; })[0];
+  if (!run) throw new Error('ไม่พบช่วงเวลาของขั้นตอนนี้ในประวัติ (ข้อมูลอาจถูกแก้ไข กรุณาโหลดรายงานใหม่)');
+  if (run.t1 && run.t1 < DLY_FROM) throw new Error('ทบทวนได้เฉพาะขั้นตอนที่จบตั้งแต่ ตุลาคม 2569 เป็นต้นไป (ข้อมูลก่อนหน้านั้นไม่สมบูรณ์)');
+  var st = stageObj_(k), at = now_(), by = u.n || u.u;
+  var text = cs.map(function (c) { return DLY_CAUSES.filter(function (x) { return x.k === c; })[0].t; }).join(' | ');
+  var lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    var cur = dlyRows_().filter(function (r) { return r.id === id && r.k === k && r.occ === occ; })[0], sh = dlySheet_();
+    if (!cs.length && !note) {
+      if (cur) sh.deleteRow(cur.row);
+      log_('delay_review', u.u, 'success', id + ' ' + k + ' #' + occ + ': ล้างผลทบทวน');
+      return { id: id, k: k, occ: occ, rev: null };
+    }
+    var vals = [id, k, occ, st.t, run.t0, run.t1 || '', run.d === null ? '' : r1_(run.d), st.sla || '', cs.join(','), text, note, by, at];
+    if (cur) { var rg = sh.getRange(cur.row, 1, 1, vals.length); fmt_(rg, '@'); rg.setValues([vals]); }
+    else appendText_(sh, vals);
+    SpreadsheetApp.flush();
+  } finally { lock.releaseLock(); }
+  log_('delay_review', u.u, 'success', id + ' ' + k + ' #' + occ + ': ' + cs.join(',') + (note ? ' — ' + note : ''));
+  return { id: id, k: k, occ: occ, rev: { causes: cs, note: note, by: by, at: at } };
 }
 
 /* ======================================================================
@@ -1748,25 +2300,9 @@ function removeRemindTrigger() {
  * ====================================================================== */
 /** 1) กดรันเพื่ออนุญาตสิทธิ์ + สร้างแท็บทั้งหมด */
 function setup() {
-  ['SUB', 'HIS', 'USR', 'NOT', 'LOG', 'LNU', 'LNL', 'LNP', 'QA', 'ATT', 'FAQ'].forEach(sheet_); faqSeed_();
+  ['SUB', 'HIS', 'USR', 'NOT', 'LOG', 'LNU', 'LNL', 'LNP', 'QA', 'ATT', 'FAQ', 'SV', 'MET'].forEach(sheet_); faqSeed_();
   DriveApp.getRootFolder(); MailApp.getRemainingDailyQuota(); UrlFetchApp.fetch('https://api.line.me/', { muteHttpExceptions: true });
   Logger.log('พร้อมใช้งาน — สร้างแท็บเรียบร้อย');
-}
-/** 2) กดรันเพื่อสร้างรหัสลับ และดู Webhook URL สำหรับวางใน LINE Developers (Messaging API > Webhook URL) */
-function setupLine() {
-  var url = ScriptApp.getService().getUrl() + '?k=' + webhookKey_();
-  Logger.log('Webhook URL: ' + url);
-  Logger.log('ถ้า URL ขึ้นต้น /a/macros/โดเมน/ แล้ว LINE Verify ไม่ผ่าน ให้ใช้รูปแบบ https://script.google.com/macros/s/<DEPLOYMENT_ID>/exec?k=... แทน');
-  return url;
-}
-/* รันจาก Apps Script editor เพื่อเช็กรหัส webhook (ดูผลที่ View → Logs / Execution log) */
-function testWebhook() {
-  var raw = prop_('LINE_WEBHOOK_KEY');
-  Logger.log('LINE_WEBHOOK_KEY ยาว ' + raw.length + ' ตัว (ปกติ 32), มีช่องว่าง/ขึ้นบรรทัดใหม่ซ่อน: ' + (raw !== raw.trim()));
-  var r = JSON.parse(lineWebhook_({ parameter: { k: raw.trim() } }, { events: [] }).getContent());
-  Logger.log('จำลองเรียก webhook ด้วยรหัสที่ถูกต้อง → ok=' + r.ok + ' (ต้องเป็น true)');
-  Logger.log('URL ที่ต้องใส่ใน LINE: ' + ScriptApp.getService().getUrl() + '?k=' + raw.trim());
-  Logger.log('LINE token ใช้ได้: ' + JSON.stringify(apiLineCheck_ ? { enabled: lineEnabled_() } : {}));
 }
 function authorizeDrive() {
   Logger.log(DriveApp.getRootFolder().getName());
@@ -1786,3 +2322,52 @@ function diagTime() {
   if (n > 1) { var v = sh.getRange(n, 2).getValue(); out.push('เวลายื่นของแถวล่าสุด: ' + (v instanceof Date ? 'ชีทแปลงเป็นวันที่ (Date)' : 'เก็บเป็นข้อความ') + ' → ระบบอ่านได้ ' + str_(v)); }
   Logger.log(out.join('\n')); return out;
 }
+
+/* ---------- ซ่อมข้อมูลประวัติสถานะ (รันจากเมนู Apps Script) ----------
+ * cleanHistoryDryRun  = ตรวจอย่างเดียว ไม่แก้ชีท (ดูผลที่ Execution log)
+ * cleanHistoryApply   = สำรองแท็บ "ประวัติสถานะ" ก่อน แล้ว (1) เติม 0 นำหน้าชั่วโมงที่เป็นหลักเดียว เช่น 9:06:14 → 09:06:14
+ *                       (2) ลบแถวที่ซ้ำกันทุกช่อง (รหัส/เวลา/สถานะ/หมายเหตุ/ผู้บันทึก) เหลือแถวแรก  และเติม 0 ที่เวลายื่นในแท็บ "ยื่นอวช" */
+function padTime_(t) {
+  var m = /^(\d{4}-\d\d-\d\d) (\d):(\d\d):(\d\d)$/.exec(String(t));
+  return m ? m[1] + ' 0' + m[2] + ':' + m[3] + ':' + m[4] : t;
+}
+function histClean_(v) {
+  var seen = {}, out = [], fixedT = 0, dup = 0;
+  v.forEach(function (r) {
+    var t = str_(r[1]), p = padTime_(t), row = r.slice();
+    if (p !== t) fixedT++;
+    row[1] = p;
+    var k = [str_(row[0]), p, str_(row[2]), str_(row[3]), str_(row[4])].join('|');
+    if (seen[k]) { dup++; return; }
+    seen[k] = 1; out.push(row);
+  });
+  return { out: out, fixedT: fixedT, dup: dup };
+}
+function cleanHistory_(apply) {
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    var s = sheet_('HIS'), n = s.getLastRow(), res = { his: 0, hisTime: 0, hisDup: 0, subTime: 0, applied: !!apply };
+    if (n >= 2) {
+      var v = V_(s.getRange(2, 1, n - 1, 5)), c = histClean_(v);
+      res.his = n - 1; res.hisTime = c.fixedT; res.hisDup = c.dup;
+      if (apply && (c.fixedT || c.dup)) {
+        s.copyTo(ss_()).setName('ประวัติสถานะ_สำรอง_' + Utilities.formatDate(new Date(), TZ, 'yyyyMMdd_HHmmss'));
+        s.getRange(2, 1, n - 1, 5).clearContent();
+        fmt_(s.getRange(2, 1, c.out.length, 5), '@');
+        s.getRange(2, 1, c.out.length, 5).setValues(c.out);
+      }
+    }
+    var ss = sheet_('SUB'), sn = ss.getLastRow();
+    if (sn >= 2) {
+      var ts = V_(ss.getRange(2, 2, sn - 1, 1));
+      ts.forEach(function (r, i) {
+        var t = str_(r[0]), p = padTime_(t);
+        if (p !== t) { res.subTime++; if (apply) { fmt_(ss.getRange(i + 2, 2), '@'); ss.getRange(i + 2, 2).setValue(p); } }
+      });
+    }
+    Logger.log(JSON.stringify(res));
+    return res;
+  } finally { lock.releaseLock(); }
+}
+function cleanHistoryDryRun() { return cleanHistory_(false); }
+function cleanHistoryApply() { return cleanHistory_(true); }
