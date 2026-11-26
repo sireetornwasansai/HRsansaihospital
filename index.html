@@ -1185,7 +1185,7 @@ async function loadReport(ym){const el=$('#a-report');if(!RPM)RPM=bkk0().slice(0
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px"><div><label for="rp-c">จำนวนสายเดือน ${thYM(RPM)}</label><input id="rp-c" type="number" min="0" max="99999" inputmode="numeric" value="${R.calls===null?'':R.calls}"></div><div><label for="rp-b">ฐานก่อนใช้ระบบ (สาย/เดือน)</label><input id="rp-b" type="number" min="0" max="99999" inputmode="numeric" value="${R.baseline===null?'':R.baseline}"></div></div>
   <label for="rp-n" style="margin-top:8px">หมายเหตุ</label><input id="rp-n" maxlength="200" value="${esc(R.callsNote||'')}"><div id="rp-msg" style="margin-top:8px"></div><button class="btn" type="submit" style="margin-top:10px"><i class="ph-bold ph-floppy-disk"></i> บันทึก</button></form>`;
  $('#rp-m').onchange=e=>loadReport(e.target.value);$$('.dly-go',el).forEach(b=>b.onclick=()=>dlyOpen(b.dataset.k));$$('.mt-b',el).forEach(b=>b.onclick=()=>dlyOpen(''));$$('[data-bf]',el).forEach(b=>b.onclick=()=>backfillOpen(b.dataset.bf));$$('[data-sr]',el).forEach(b=>b.onclick=srOpen);
- const sb=$('#rp-send');if(sb)sb.onclick=()=>confirmBox({title:'ส่งรายงาน '+thYM(RPM)+' เข้าอีเมลตอนนี้?',text:'ส่งถึง '+R.to+' ทันที (นอกเหนือจากการส่งอัตโนมัติวันสุดท้ายของเดือน)',ok:'ส่งรายงาน',icon:'ph-envelope-simple'},async()=>{const x=await api('reportSend',[TOKEN,RPM],{timeout:120000,write:true});if(!x.ok)throw new Error(x.message)}).then(ok=>{if(ok)toast('ส่งรายงานเข้าอีเมลแล้ว')});
+ const sb=$('#rp-send');if(sb)sb.onclick=()=>confirmBox({title:'ส่งรายงาน '+thYM(RPM)+' เข้าอีเมลตอนนี้?',text:'ส่งถึง '+R.to+' และสรุปเข้า LINE ของผู้ดูแลระบบทันที (นอกเหนือจากการส่งอัตโนมัติวันสุดท้ายของเดือน)',ok:'ส่งรายงาน',icon:'ph-envelope-simple'},async()=>{const x=await api('reportSend',[TOKEN,RPM],{timeout:120000,write:true});if(!x.ok)throw new Error(x.message);RPX=x}).then(ok=>{if(ok){const L=RPX&&RPX.line;toast('ส่งรายงานเข้าอีเมลแล้ว'+(L?(L.sent>0?' และเข้า LINE ผู้ดูแลระบบ '+L.sent+' คน':L.skipped==='no_admin'?' (ยังไม่ได้ตั้งผู้ดูแลระบบทาง LINE)':L.failed?' (ส่ง LINE ไม่สำเร็จ ดูแท็บประวัติ LINE)':''):''),L&&L.failed&&!L.sent?'warn':undefined)}});
  $('#rp-f').onsubmit=async e=>{e.preventDefault();const b=$('button[type=submit]',e.target),m=$('#rp-msg'),c=$('#rp-c').value.trim(),bs=$('#rp-b').value.trim();busy(b,1,'กำลังบันทึก...');
   let x=await api('metSave',[TOKEN,{ym:RPM,calls:c,note:$('#rp-n').value}],{write:true});if(x.ok&&bs!==(R.baseline===null?'':String(R.baseline)))x=await api('metSave',[TOKEN,{ym:'baseline',calls:bs,note:'ฐานก่อนใช้ระบบ'}],{write:true});
   busy(b,0);if(!x.ok)return msg(m,x.message);toast('บันทึกแล้ว');loadReport()}}
@@ -1343,7 +1343,7 @@ const hdSync=()=>{const t=document.querySelector('header .top');if(t)document.do
 hdSync();addEventListener('resize',hdSync);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(hdSync);
 
 /* จำสถานะกางของ "บัญชี LINE ที่ผูกแล้ว" ระหว่างรีเฟรชหน้า · ชื่อผลงานกดดูเต็ม/ย่อ */
-let LNBO=false;
+let LNBO=false,RPX=null;
 document.addEventListener('toggle',e=>{if(e.target&&e.target.id==='ln-bd')LNBO=e.target.open},true);
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('.wk-t');if(t){t.classList.toggle('open');t.setAttribute('aria-expanded',String(t.classList.contains('open')))}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('wk-t')){e.preventDefault();e.target.click()}});
@@ -2423,7 +2423,7 @@ DEMO.run=function(fn,a){const db=this.load(),self=this,now=Date.now(),ok=o=>Obje
   return ok({ym:a[1],stage:a[2]?{k,t:S.t,sla,o:S.o||'',rng:S.rng||''}:null,done:a[2]?[mk(0,sla+8),mk(1,sla+2)]:[],open:[mk(2,sla+20,true)],causes:[{k:'applicant',g:'ฝั่งผู้ยื่น',t:'ผู้ยื่นแก้ไข / ส่งเอกสารล่าช้า'},{k:'withdraw',g:'ฝั่งผู้ยื่น',t:'ยกเลิกการส่งประเมิน (ผู้ยื่นไม่ดำเนินการต่อ)'},{k:'docs',g:'ฝั่งผู้ยื่น',t:'เอกสารไม่ครบ หรือต้องแก้ไขหลายรอบ'},{k:'hr',g:'ภายในกลุ่มงานทรัพยากรบุคคล',t:'ตรวจสอบ / เสนอลงนามภายในล่าช้า'},{k:'sysdelay',g:'ภายในกลุ่มงานทรัพยากรบุคคล',t:'บันทึกสถานะในระบบช้ากว่าที่ดำเนินการจริง'},{k:'sign',g:'หน่วยงานภายนอก',t:'รอลงนาม (ผอ. / นพ.สสจ. / ผวจ.)'},{k:'round',g:'หน่วยงานภายนอก',t:'รอรอบประชุม / คณะกรรมการอ่านผลงาน'},{k:'external',g:'หน่วยงานภายนอก',t:'สสจ. / เขตสุขภาพที่ 1 ตอบกลับช้า'},{k:'other',g:'อื่น ๆ',t:'อื่น ๆ (ระบุในหมายเหตุ)'}],nowMs:Date.now()})}
  case 'delaySave':{const p=a[1]||{},key=p.id+'|'+p.k+'|'+p.occ;db.dly=db.dly||{};const cs=p.causes||[],nt=String(p.note||'').trim();if(!cs.length&&!nt){delete db.dly[key];this.save();return ok({rev:null})}db.dly[key]={causes:cs,note:nt,by:DM_BY,at:bkkS(now)};this.save();return ok({rev:db.dly[key]})}
  case 'metSave':return ok({ym:a[1]&&a[1].ym});
- case 'reportSend':return ok({to:'hrm@sansaihospital.go.th'});
+ case 'reportSend':return ok({to:'hrm@sansaihospital.go.th',line:{sent:2,failed:0}});
  default:this.err('โหมดจำลอง: ยังไม่เปิดให้ทดลองฟังก์ชันนี้ (ปิดโหมดจำลองเพื่อใช้งานจริง)')}};
 const stageOk=k=>CFG.stages.some(s=>s.k===k),T_OK=t=>(CFG.tracks||[]).some(x=>x.t===t);
 /* แถบแจ้งโหมดจำลอง + ทางลัดเลขบัตรตัวอย่าง */
